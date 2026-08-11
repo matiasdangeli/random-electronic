@@ -1,5 +1,7 @@
 
 :root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, "Cascadia Mono", "Roboto Mono", monospace;
   --ink: #070707;
   --paper: #f2ede6;
   --muted: #a6a09b;
@@ -21,7 +23,9 @@ body {
   margin: 0;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
@@ -67,7 +71,7 @@ svg {
 .site-header nav {
   display: flex;
   gap: clamp(18px, 3vw, 46px);
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
 }
@@ -136,7 +140,7 @@ svg {
 .hero-kicker,
 .eyebrow {
   margin: 0;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--muted);
@@ -170,7 +174,7 @@ svg {
   justify-content: center;
   gap: 24px;
   margin-top: 34px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
   color: #928d87;
@@ -184,7 +188,7 @@ svg {
   gap: 18px;
   padding: 0 20px;
   border: 1px solid currentColor;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -217,7 +221,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.2em;
   color: #716d68;
@@ -334,7 +338,7 @@ svg {
 
 .event-meta {
   margin: 14px 0 40px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.14em;
   opacity: 0.65;
@@ -354,7 +358,7 @@ svg {
 }
 
 .schedule-row span {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.08em;
   opacity: 0.6;
@@ -378,7 +382,7 @@ svg {
 }
 
 .free-entry {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   opacity: 0.7;
@@ -392,7 +396,7 @@ svg {
 .full-flyer summary {
   padding: 18px 0 0;
   cursor: pointer;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.14em;
   list-style: none;
@@ -484,7 +488,7 @@ svg {
 
 .manifesto-stats span {
   margin-top: 7px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.16em;
   color: #68625d;
@@ -518,7 +522,7 @@ svg {
   justify-content: space-between;
   padding: 20px 0;
   border-bottom: 1px solid currentColor;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
 }
@@ -530,7 +534,7 @@ footer {
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   border-top: 1px solid var(--line);
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   color: #77726d;

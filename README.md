@@ -11,17 +11,16 @@ Entrada libre y gratuita. Edifici Enland, km 0, Andorra la Vella.
 
 ## Publicación
 
-La versión estática lista para GitHub Pages vive en `docs/`. El workflow de `.github/workflows/pages.yml` la publica automáticamente desde la rama `main`.
-
-La versión fuente del sitio está en `app/` y utiliza Vinext.
+El sitio es estático (HTML + CSS, sin build) y vive en `docs/`. El workflow de `.github/workflows/pages.yml` lo publica automáticamente desde la rama `main`.
 
 ## Desarrollo
 
-Requiere Node.js 22 o posterior.
+No hace falta ninguna dependencia: se abre `docs/index.html` en el navegador. Para servirlo en local con rutas reales:
 
 ```bash
-npm ci
-npm run dev
+python3 -m http.server -d docs 8000
 ```
+
+La tipografía es SF Pro vía la font stack del sistema (`-apple-system`), así que se ve exacta en Mac y iPhone y cae a Segoe UI / Roboto en Windows y Android.
 
 Instagram: [@random.electronic](https://www.instagram.com/random.electronic/)
