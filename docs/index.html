@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#070707" />
     <meta name="description" content="Sitio oficial de RANDOM. Próximas fechas, line-up y set times en Andorra." />
     <meta property="og:title" content="RANDOM — Electronic Experience" />
-    <meta property="og:description" content="Próximas fechas: 21 y 28 de agosto en Level Andorra." />
+    <meta property="og:description" content="Próximas fechas, line-up y set times de RANDOM en Andorra." />
     <meta property="og:image" content="assets/random-67.webp" />
     <link rel="icon" href="assets/random-symbol.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,10 +36,10 @@
           <p class="hero-kicker">ELECTRONIC EXPERIENCE · ANDORRA</p>
           <img class="hero-wordmark" src="assets/random-wordmark.png" alt="RANDOM" />
           <h1>MÁS QUE<br />UNA FIESTA.</h1>
-          <p class="hero-copy">Dos viernes. Dos universos. Una pista.</p>
           <div class="hero-actions">
             <a class="button button--light" href="#fechas">PRÓXIMAS FECHAS <span>→</span></a>
-            <span>21 + 28 AGO · LEVEL</span>
+            <!-- Lo escribe agenda.js con las fechas que vienen. -->
+            <span data-next-dates hidden></span>
           </div>
         </div>
         <a class="scroll-cue" href="#fechas" aria-label="Bajar a próximas fechas"><span>SCROLL</span><i></i></a>
@@ -47,15 +47,33 @@
 
       <section class="events" id="fechas">
         <div class="section-heading">
-          <p class="eyebrow">AGENDA / AGOSTO 2026</p>
+          <p class="eyebrow" data-agenda-label>AGENDA</p>
           <h2>PRÓXIMAS<br />EXPERIENCIAS</h2>
-          <p>Edifici Enland, km 0 · Andorra la Vella</p>
+          <!-- La dirección sale de las fechas cargadas: cada edición trae la suya. -->
+          <p data-agenda-places hidden></p>
         </div>
 
-        <!-- Sin JS o con "reducir movimiento" esto se ve como una lista normal de
-             fechas. El script convierte los flyers en un carrusel 3D. -->
+        <!-- Cada <article data-event> es una fecha. Para cargar una edición se
+             copia el bloque y se cambian sus datos:
+
+               data-edition  número de edición
+               data-date     día del flyer, AAAA-MM-DD
+               data-venue    sala, corta, para la chapa del hero
+               data-until    opcional, hasta cuándo se muestra (AAAA-MM-DDTHH:MM).
+                             Por defecto, hasta las 06:00 del día siguiente.
+
+             El título y el "PRÓXIMA FECHA" los escribe agenda.js a partir de esos
+             datos, ordena por cercanía y borra las fechas que ya pasaron. Sin JS
+             o con "reducir movimiento" esto se ve como una lista normal de
+             fechas; el script convierte los flyers en un carrusel 3D. -->
         <div class="carousel" data-carousel>
-          <article class="event event--bone" data-event>
+          <article
+            class="event event--bone"
+            data-event
+            data-edition="67"
+            data-date="2026-08-21"
+            data-venue="LEVEL"
+          >
             <div class="flyer3d" data-card>
               <div class="flyer3d-face flyer3d-face--front">
                 <img src="assets/random-67.webp" alt="Flyer oficial de RANDOM #67" />
@@ -66,9 +84,10 @@
               </div>
             </div>
             <div class="event-panel event-panel--bone" data-panel>
-              <p class="eyebrow">PRÓXIMA FECHA · RANDOM #67</p>
-              <h3>VIERNES 21 AGOSTO</h3>
+              <p class="eyebrow" data-event-label>RANDOM #67</p>
+              <h3 data-event-title>VIERNES 21 AGOSTO</h3>
               <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
+              <p class="event-place">Edifici Enland, km 0 · Andorra la Vella</p>
               <div class="schedule" aria-label="Set times de RANDOM 67">
                 <div class="schedule-row"><span>00:00 — 01:00</span><strong>GASTOFF</strong></div>
                 <div class="schedule-row"><span>01:00 — 02:00</span><strong>MARCOS ALE</strong></div>
@@ -83,7 +102,13 @@
             </div>
           </article>
 
-          <article class="event event--plasma" data-event>
+          <article
+            class="event event--plasma"
+            data-event
+            data-edition="68"
+            data-date="2026-08-28"
+            data-venue="LEVEL"
+          >
             <div class="flyer3d" data-card>
               <div class="flyer3d-face flyer3d-face--front">
                 <img src="assets/random-68.webp" alt="Flyer oficial de RANDOM #68" loading="lazy" />
@@ -94,9 +119,10 @@
               </div>
             </div>
             <div class="event-panel event-panel--plasma" data-panel>
-              <p class="eyebrow">PRÓXIMA FECHA · RANDOM #68</p>
-              <h3>VIERNES 28 AGOSTO</h3>
+              <p class="eyebrow" data-event-label>RANDOM #68</p>
+              <h3 data-event-title>VIERNES 28 AGOSTO</h3>
               <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
+              <p class="event-place">Edifici Enland, km 0 · Andorra la Vella</p>
               <div class="schedule" aria-label="Set times de RANDOM 68">
                 <div class="schedule-row"><span>00:00 — 01:00</span><strong>MRNO</strong></div>
                 <div class="schedule-row"><span>01:00 — 02:00</span><strong>AYRTON GALERE</strong></div>
@@ -112,18 +138,24 @@
             </div>
           </article>
         </div>
+
+        <!-- Cuando no hay ninguna fecha por delante, esto reemplaza al carrusel. -->
+        <p class="agenda-empty" data-agenda-empty hidden>
+          Estamos armando la próxima fecha. Seguinos en
+          <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">@random.electronic</a>
+          y enterate primero.
+        </p>
       </section>
 
       <section class="manifesto" id="concepto">
         <div class="manifesto-mark" aria-hidden="true" style="transform:none"><img src="assets/random-symbol.png" alt="" style="width:125%;max-width:none;margin-left:-12%;filter:brightness(0)" /></div>
         <div class="manifesto-copy">
-          <p class="eyebrow">DESDE 2018 · EDICIÓN #68</p>
-          <h2>CADA FECHA<br />CAMBIA TODO.</h2>
-          <p>RANDOM es sonido, identidad visual y comunidad. Una experiencia electrónica que muta en cada edición sin perder lo esencial: la pista, la energía y la libertad de no saber exactamente qué viene.</p>
+          <h2>SOMOS<br />RANDOM.</h2>
+          <p>Desde 2018, creando buenos momentos.</p>
         </div>
         <div class="manifesto-stats">
-          <div><strong>68</strong><span>EDICIONES</span></div>
-          <div><strong>08</strong><span>AÑOS RANDOM</span></div>
+          <div><strong data-stat-editions>68</strong><span>EDICIONES</span></div>
+          <div><strong data-stat-years>08</strong><span>AÑOS RANDOM</span></div>
           <div><strong>∞</strong><span>FORMAS DE VIVIRLO</span></div>
         </div>
       </section>
@@ -135,10 +167,12 @@
 
       <footer>
         <img src="assets/random-symbol.png" alt="Símbolo RANDOM" />
-        <p>RANDOM ELECTRONIC EXPERIENCE · ANDORRA · 2026</p>
+        <p>RANDOM ELECTRONIC EXPERIENCE · ANDORRA · <span data-year>2026</span></p>
         <a href="#inicio">VOLVER ARRIBA ↑</a>
       </footer>
     </main>
+    <!-- agenda.js va primero: deja en el DOM solo las fechas que vienen. -->
+    <script src="agenda.js" defer></script>
     <script src="carousel.js" defer></script>
   </body>
 </html>

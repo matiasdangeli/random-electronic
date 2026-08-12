@@ -2,26 +2,58 @@
 
 Sitio oficial de **RANDOM**, con próximas fechas, line-ups, set times, ubicación y acceso a Instagram.
 
-## Próximas fechas
+Instagram: [@random.electronic](https://www.instagram.com/random.electronic/)
 
-- RANDOM #67 — viernes 21 de agosto de 2026 · Level Andorra
-- RANDOM #68 — viernes 28 de agosto de 2026 · Level Andorra
+## Cargar una fecha
 
-Entrada libre y gratuita. Edifici Enland, km 0, Andorra la Vella.
+Las fechas no están escritas en ningún lado más que en su propia ficha: el sitio
+arma solo el resto (la chapa del hero, el mes de la agenda, la dirección de
+arriba, el orden y los contadores). Sirve igual con una fecha, con dos o con
+ninguna.
+
+En `docs/index.html`, dentro de `<div class="carousel">`, se copia un
+`<article class="event" data-event>` y se cambian sus datos:
+
+| Dato           | Qué es                                                 |
+| -------------- | ------------------------------------------------------ |
+| `data-edition` | Número de edición (`68`)                               |
+| `data-date`    | Día del flyer, `AAAA-MM-DD`                            |
+| `data-venue`   | Sala en corto, para la chapa del hero (`LEVEL`)         |
+| `data-until`   | Opcional: hasta cuándo se muestra (`AAAA-MM-DDTHH:MM`) |
+
+Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección
+(`.event-place`), los set times, el link de "cómo llegar" y los dos flyers
+(`assets/random-NN.webp` y `assets/random-NN-set-times.webp`).
+
+El título de la fecha (`VIERNES 28 AGOSTO`) y el `PRÓXIMA FECHA · RANDOM #NN`
+los escribe `docs/agenda.js` a partir de `data-date` y `data-edition`, así que
+no hay que tocarlos.
+
+## Cuándo se cae una fecha
+
+Cada fecha se muestra hasta las 06:00 del día siguiente al del flyer, porque las
+fiestas son de madrugada. Después desaparece sola: no hace falta borrar la
+ficha, aunque conviene limpiarlas de vez en cuando. Si no queda ninguna fecha
+por delante, la agenda muestra un aviso con el link a Instagram.
+
+Para una edición con otro horario se puede correr ese corte con `data-until`.
 
 ## Publicación
 
-La versión estática lista para GitHub Pages vive en `docs/`. El workflow de `.github/workflows/pages.yml` la publica automáticamente desde la rama `main`.
+El sitio es estático y vive en `docs/`: `index.html`, `styles.css`, `agenda.js`
+(arma la agenda) y `carousel.js` (el carrusel 3D de flyers). No tiene build ni
+dependencias.
 
-La versión fuente del sitio está en `app/` y utiliza Vinext.
+El workflow de `.github/workflows/pages.yml` publica `docs/` en GitHub Pages
+automáticamente en cada push a `main`.
 
 ## Desarrollo
 
-Requiere Node.js 22 o posterior.
+Alcanza con abrir `docs/index.html` en el navegador. Para que las rutas relativas
+se comporten igual que en producción:
 
 ```bash
-npm ci
-npm run dev
+python3 -m http.server -d docs 8000
 ```
 
-Instagram: [@random.electronic](https://www.instagram.com/random.electronic/)
+Y entrar a <http://localhost:8000>.
