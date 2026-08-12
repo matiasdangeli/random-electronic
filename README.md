@@ -7,9 +7,8 @@ Instagram: [@random.electronic](https://www.instagram.com/random.electronic/)
 ## Cargar una fecha
 
 Las fechas no están escritas en ningún lado más que en su propia ficha: el sitio
-arma solo el resto (la chapa del hero, el mes de la agenda, la dirección de
-arriba, el orden y los contadores). Sirve igual con una fecha, con dos o con
-ninguna.
+arma solo el resto (la chapa del hero, el mes de la agenda, el orden y los
+contadores). Sirve igual con una fecha, con dos o con ninguna.
 
 En `docs/index.html`, dentro de `<div class="carousel">`, se copia un
 `<article class="event" data-event>` y se cambian sus datos:

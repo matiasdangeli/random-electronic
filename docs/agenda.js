@@ -4,8 +4,8 @@
  * Cada fecha vive en el HTML como una ficha con sus datos (edición, día, sala,
  * dirección). Este script las lee y arma solo lo que cambia de una edición a
  * otra: saca las que ya pasaron, ordena las que vienen de la más cercana a la
- * más lejana, y escribe la chapa del hero, el título de la agenda, la
- * dirección de arriba, los contadores y el año del pie.
+ * más lejana, y escribe la chapa del hero, el título de la agenda, los
+ * contadores y el año del pie.
  *
  * La idea es que el sitio sirva igual con una fecha, con dos o con ninguna:
  * se agrega o se borra una ficha y el resto se acomoda solo. Nada de "dos
@@ -76,7 +76,6 @@
   function read(el) {
     var date = parseDate(el.getAttribute("data-date"));
     var until = parseDate(el.getAttribute("data-until"));
-    var place = el.querySelector(".event-place");
 
     // Son fiestas de madrugada: la fecha del flyer es la noche que arranca, así
     // que sigue siendo "próxima" hasta que amanece el día siguiente.
@@ -90,7 +89,6 @@
       until: until,
       edition: parseInt(el.getAttribute("data-edition"), 10) || 0,
       venue: (el.getAttribute("data-venue") || "").trim(),
-      place: place ? place.textContent.trim() : "",
     };
   }
 
@@ -166,7 +164,6 @@
     });
 
     fill("[data-next-dates]", heroDates(upcoming));
-    fill("[data-agenda-places]", unique(upcoming.map(function (ev) { return ev.place; })).join(" / "));
     text("[data-agenda-label]", upcoming.length ? "AGENDA / " + monthRange(upcoming) : "AGENDA");
     toggle("[data-carousel]", upcoming.length > 0);
     toggle("[data-agenda-empty]", upcoming.length === 0);

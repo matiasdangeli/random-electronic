@@ -260,13 +260,6 @@ svg {
   letter-spacing: -0.075em;
 }
 
-.section-heading > p:last-child {
-  margin: 0;
-  color: #77736f;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
 /* Cuando no hay ninguna fecha por delante. */
 .agenda-empty {
   max-width: 1400px;
