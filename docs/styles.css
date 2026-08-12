@@ -712,12 +712,13 @@ svg {
   color: #0b0b0b;
 }
 
+/* El símbolo viene blanco sobre transparente: brightness(0) lo pasa a negro
+   respetando el recorte, para que se lea sobre el fondo claro. */
 .manifesto-mark {
-  font-size: clamp(330px, 46vw, 760px);
-  font-weight: 800;
-  line-height: 0.7;
-  letter-spacing: -0.12em;
-  transform: rotate(-7deg) translateX(-10%);
+  width: clamp(300px, 44vw, 720px);
+  max-width: none;
+  filter: brightness(0);
+  transform: rotate(-7deg) translateX(-8%);
 }
 
 .manifesto-copy {
