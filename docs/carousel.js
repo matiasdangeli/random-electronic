@@ -1,9 +1,11 @@
 /*
  * Carrusel 3D de flyers de RANDOM.
  *
- * Tambor vertical: el flyer centrado rota hacia atrás y entra el siguiente,
- * con una pausa magnética al pasar por el centro. Los flyers tienen grosor
- * real (capas apiladas en Z) y se inclinan siguiendo el mouse con inercia.
+ * Tambor horizontal: los flyers están en fila y se deslizan de derecha a
+ * izquierda, rotando hacia atrás al salir, con una pausa magnética al pasar
+ * por el centro. Tienen grosor real (capas apiladas en Z) y se inclinan
+ * siguiendo el mouse con inercia. La info de la fecha no se mueve: queda
+ * siempre en el mismo lugar y cambia de contenido según el flyer centrado.
  *
  * Es una mejora progresiva: el HTML ya trae las fechas como lista normal y
  * este script las reacomoda. Si no corre, o si el usuario pidió menos
@@ -98,6 +100,7 @@
     var cardW = 300;
     var cardH = 533;
     var stageH = 620;
+    var stageW = 1200;
     var activeIndex = -1;
     var hovering = false;
     var visible = true;
@@ -113,12 +116,18 @@
       // hay que medir el tamaño ya aumentado para que entre en el escenario.
       var zoom = DEPTH / (DEPTH - 400);
 
-      stageH = clamp(vh * 0.78, 460, 780);
+      // Cuánto del ancho puede ocupar el flyer del medio. En pantallas anchas
+      // se deja lugar a los costados para que se vean los que entran y salen;
+      // en el celular no hay margen para eso y conviene que se vea grande.
+      var share = vw < 700 ? 0.74 : 0.42;
+
+      stageH = clamp(vh * 0.7, 420, 700);
       var maxH = (stageH - 56) / zoom;
-      var maxW = (vw * 0.86) / zoom / 0.5625;
+      var maxW = (vw * share) / zoom / 0.5625;
 
       cardH = clamp(Math.min(maxH, maxW), 200, 520);
       cardW = cardH * 0.5625; // los flyers son 9:16
+      stageW = stage.getBoundingClientRect().width || vw;
 
       root.style.setProperty("--card-w", Math.round(cardW) + "px");
       root.style.setProperty("--card-h", Math.round(cardH) + "px");
@@ -177,42 +186,45 @@
         }
         card.style.visibility = "visible";
 
-        var y;
+        // Distancia horizontal: el que viene espera a la derecha y sale por la
+        // izquierda. En cada tramo se interpola con smoothstep, igual que en
+        // el eje vertical, pero midiendo contra el ancho del escenario.
+        var x;
         var z;
         var rot;
 
         if (abs <= 1) {
           var t1 = smoothstep(abs);
-          y = -sign * t1 * (cardH + GAP);
+          x = sign * t1 * (cardW + GAP);
           z = 400 + t1 * (220 - 400);
           rot = t1 * 132;
         } else if (abs <= 2) {
           var t2 = smoothstep(abs - 1);
           var scale2 = DEPTH / (DEPTH + 60);
-          var yEdge = (stageH / 2 - PEEK) / scale2 - cardH / 2;
-          y = -sign * ((cardH + GAP) + t2 * (yEdge - (cardH + GAP)));
+          var xEdge = (stageW / 2 - PEEK) / scale2 - cardW / 2;
+          x = sign * ((cardW + GAP) + t2 * (xEdge - (cardW + GAP)));
           z = 220 + t2 * (-60 - 220);
           rot = 132 + t2 * (175 - 132);
         } else {
           var t3 = smoothstep(Math.min(abs - 2, 1));
           var scaleA = DEPTH / (DEPTH + 60);
-          var yA = (stageH / 2 - PEEK) / scaleA - cardH / 2;
+          var xA = (stageW / 2 - PEEK) / scaleA - cardW / 2;
           var scaleB = DEPTH / (DEPTH + 250);
-          var yB = (stageH / 2 + 100) / scaleB + cardH / 2;
-          y = -sign * (yA + t3 * (yB - yA));
+          var xB = (stageW / 2 + 100) / scaleB + cardW / 2;
+          x = sign * (xA + t3 * (xB - xA));
           z = -60 + t3 * (-250 + 60);
           rot = 175 + t3 * (195 - 175);
         }
 
         // El parallax solo afecta al flyer que está al frente.
         var center = Math.max(0, 1 - abs);
-        var rotX = -sign * rot + -mouse.y * TILT_X * center;
-        var rotY = mouse.x * TILT_Y * center;
+        var rotX = -mouse.y * TILT_X * center;
+        var rotY = sign * rot + mouse.x * TILT_Y * center;
 
         card.style.zIndex = String(Math.round(z));
         card.style.transform =
-          "translateY(" + y.toFixed(2) + "px) translateZ(" + z.toFixed(2) + "px) " +
-          "rotateX(" + rotX.toFixed(2) + "deg) rotateY(" + rotY.toFixed(2) + "deg) " +
+          "translateX(" + x.toFixed(2) + "px) translateZ(" + z.toFixed(2) + "px) " +
+          "rotateY(" + rotY.toFixed(2) + "deg) rotateX(" + rotX.toFixed(2) + "deg) " +
           "rotateZ(-3deg)";
       }
 
@@ -262,7 +274,7 @@
     });
 
     stage.addEventListener("pointerdown", function (e) {
-      drag = { y: e.clientY, from: progress };
+      drag = { x: e.clientX, from: progress };
       seeking = null;
       stage.classList.add("is-dragging");
       stage.setPointerCapture(e.pointerId);
@@ -270,8 +282,8 @@
 
     stage.addEventListener("pointermove", function (e) {
       if (!drag) return;
-      // Arrastrar hacia arriba adelanta, como girar el tambor con el dedo.
-      progress = drag.from + (drag.y - e.clientY) / (cardH + GAP);
+      // Arrastrar hacia la izquierda adelanta, como empujar la fila con el dedo.
+      progress = drag.from + (drag.x - e.clientX) / (cardW + GAP);
     });
 
     function endDrag(e) {

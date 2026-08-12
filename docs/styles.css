@@ -440,10 +440,11 @@ svg {
 }
 
 /* --- Carrusel 3D de flyers -------------------------------------------------
-   Tambor vertical con inercia: el flyer centrado rota hacia atrás y entra el
-   siguiente. Parallax con el mouse y grosor real hecho apilando capas.
-   carousel.js agrega .is-3d solo si puede correr; si no, queda la lista de
-   arriba. */
+   Tambor horizontal con inercia: los flyers van en fila y se deslizan de
+   derecha a izquierda rotando al salir. Parallax con el mouse y grosor real
+   hecho apilando capas. El detalle de la fecha no se mueve de lugar, solo
+   cambia de contenido. carousel.js agrega .is-3d solo si puede correr; si no,
+   queda la lista de arriba. */
 
 .carousel.is-3d {
   display: grid;
@@ -470,26 +471,26 @@ svg {
   user-select: none;
 }
 
-/* Difuminado arriba y abajo para que el corte no se note. */
+/* Difuminado a los costados para que el corte no se note. */
 .carousel-stage::before,
 .carousel-stage::after {
   position: absolute;
   z-index: 5;
-  left: 0;
-  width: 100%;
-  height: 70px;
+  top: 0;
+  width: clamp(40px, 8vw, 120px);
+  height: 100%;
   content: "";
   pointer-events: none;
 }
 
 .carousel-stage::before {
-  top: 0;
-  background: linear-gradient(to bottom, #070707 12%, transparent);
+  left: 0;
+  background: linear-gradient(to right, #070707 10%, transparent);
 }
 
 .carousel-stage::after {
-  bottom: 0;
-  background: linear-gradient(to top, #070707 12%, transparent);
+  right: 0;
+  background: linear-gradient(to left, #070707 10%, transparent);
 }
 
 .carousel-stage.is-dragging {
@@ -528,9 +529,10 @@ svg {
   transform: translateZ(1.5px);
 }
 
+/* El tambor gira sobre el eje Y, así que el reverso se espeja en Y. */
 .carousel.is-3d .flyer3d-face--back {
   display: block;
-  transform: translateZ(-1.5px) rotateX(180deg);
+  transform: translateZ(-1.5px) rotateY(180deg);
 }
 
 .carousel.is-3d .flyer3d-face--back img {
