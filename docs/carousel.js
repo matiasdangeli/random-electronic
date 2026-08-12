@@ -116,18 +116,19 @@
       // hay que medir el tamaño ya aumentado para que entre en el escenario.
       var zoom = DEPTH / (DEPTH - 400);
 
-      // Cuánto del ancho puede ocupar el flyer del medio. En pantallas anchas
-      // se deja lugar a los costados para que se vean los que entran y salen;
-      // en el celular no hay margen para eso y conviene que se vea grande.
-      var share = vw < 700 ? 0.74 : 0.42;
-
-      stageH = clamp(vh * 0.7, 420, 700);
-      var maxH = (stageH - 56) / zoom;
-      var maxW = (vw * share) / zoom / 0.5625;
-
-      cardH = clamp(Math.min(maxH, maxW), 200, 520);
-      cardW = cardH * 0.5625; // los flyers son 9:16
       stageW = stage.getBoundingClientRect().width || vw;
+
+      // Cuánto del ancho del escenario puede ocupar el flyer del medio. Con
+      // lugar de sobra se deja aire para ver los que entran y salen; en el
+      // celular no hay margen para eso y conviene que se vea grande.
+      var share = stageW < 700 ? 0.86 : 0.56;
+
+      stageH = clamp(vh * 0.82, 480, 860);
+      var maxH = (stageH - 48) / zoom;
+      var maxW = (stageW * share) / zoom / 0.5625;
+
+      cardH = clamp(Math.min(maxH, maxW), 200, 620);
+      cardW = cardH * 0.5625; // los flyers son 9:16
 
       root.style.setProperty("--card-w", Math.round(cardW) + "px");
       root.style.setProperty("--card-h", Math.round(cardH) + "px");
