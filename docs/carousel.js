@@ -23,6 +23,9 @@
   var TILT_Y = 15;
   var DAMP = 0.08; // inercia del mouse: cuánto persigue al cursor por frame
   var EDGES = [-0.73, 0, 0.73]; // capas intermedias que dan el grosor
+  var FLOAT_Y = 11; // cuánto sube y baja flotando (px)
+  var FLOAT_TILT = 1.6; // cuánto se bambolea mientras flota (grados)
+  var FLIP_DAMP = 0.11; // velocidad con la que se da vuelta
 
   function smoothstep(t) {
     return t * t * (3 - 2 * t);
@@ -58,6 +61,21 @@
     var nav = document.createElement("div");
     nav.className = "carousel-nav";
 
+    // Dar vuelta el flyer: además de tocarlo, un botón que se ve y va con
+    // teclado. El texto se actualiza en updateFlipButton().
+    var flipButton = document.createElement("button");
+    flipButton.type = "button";
+    flipButton.className = "carousel-flip";
+    flipButton.appendChild(document.createTextNode("VER SET TIMES "));
+    var flipIcon = document.createElement("span");
+    flipIcon.setAttribute("aria-hidden", "true");
+    flipIcon.textContent = "↻";
+    flipButton.appendChild(flipIcon);
+    flipButton.addEventListener("click", function () {
+      if (activeIndex >= 0) toggleFlip(activeIndex);
+    });
+    nav.appendChild(flipButton);
+
     cards.forEach(function (card) {
       EDGES.forEach(function (z) {
         var edge = document.createElement("div");
@@ -84,13 +102,13 @@
       dot.addEventListener("click", function () {
         seekTo(i);
       });
-      nav.appendChild(dot);
+      if (count > 1) nav.appendChild(dot);
       return dot;
     });
 
     root.appendChild(stage);
     root.appendChild(panelBox);
-    if (count > 1) root.appendChild(nav);
+    root.appendChild(nav);
     root.classList.add("is-3d");
 
     // -- estado ------------------------------------------------------------
@@ -107,6 +125,12 @@
     var drag = null;
     var lastTime = 0;
     var frame = 0;
+    var clock = 0; // segundos desde que arrancó, para la flotación
+
+    // Giro de cada flyer para ver el reverso: destino en grados y valor actual.
+    var flips = cards.map(function () {
+      return { target: 0, current: 0 };
+    });
 
     function resize() {
       var vw = window.innerWidth;
@@ -144,8 +168,25 @@
       seeking = target;
     }
 
+    function toggleFlip(index) {
+      var flip = flips[index];
+      flip.target = flip.target === 0 ? 180 : 0;
+      // Cualquier otro que haya quedado dado vuelta se endereza.
+      flips.forEach(function (other, i) {
+        if (i !== index) other.target = 0;
+      });
+      updateFlipButton();
+    }
+
+    function updateFlipButton() {
+      var vuelto = activeIndex >= 0 && flips[activeIndex].target !== 0;
+      flipButton.firstChild.nodeValue = vuelto ? "VER FLYER " : "VER SET TIMES ";
+      flipButton.setAttribute("aria-pressed", vuelto ? "true" : "false");
+    }
+
     function setActive(index) {
       if (index === activeIndex) return;
+      if (activeIndex >= 0) flips[activeIndex].target = 0;
       activeIndex = index;
       panels.forEach(function (panel, i) {
         if (i === index) {
@@ -159,6 +200,7 @@
       dots.forEach(function (dot, i) {
         dot.setAttribute("aria-current", i === index ? "true" : "false");
       });
+      updateFlipButton();
     }
 
     function layout() {
@@ -220,13 +262,24 @@
         // El parallax solo afecta al flyer que está al frente.
         var center = Math.max(0, 1 - abs);
         var rotX = -mouse.y * TILT_X * center;
-        var rotY = sign * rot + mouse.x * TILT_Y * center;
+        var rotY = sign * rot + flips[i].current + mouse.x * TILT_Y * center;
+
+        // Flotación: sube y baja y se bambolea, desfasado por flyer para que no
+        // se muevan todos igual.
+        var floatY = Math.sin(clock * 0.62 + i * 1.9) * FLOAT_Y;
+        var floatZ = Math.sin(clock * 0.44 + i * 2.7) * FLOAT_TILT;
+        var floatX = Math.cos(clock * 0.51 + i * 1.3) * FLOAT_TILT * 0.7;
 
         card.style.zIndex = String(Math.round(z));
         card.style.transform =
-          "translateX(" + x.toFixed(2) + "px) translateZ(" + z.toFixed(2) + "px) " +
-          "rotateY(" + rotY.toFixed(2) + "deg) rotateX(" + rotX.toFixed(2) + "deg) " +
-          "rotateZ(-3deg)";
+          "translateX(" + x.toFixed(2) + "px) translateY(" + floatY.toFixed(2) + "px) " +
+          "translateZ(" + z.toFixed(2) + "px) " +
+          "rotateY(" + rotY.toFixed(2) + "deg) " +
+          "rotateX(" + (rotX + floatX).toFixed(2) + "deg) " +
+          "rotateZ(" + (-3 + floatZ).toFixed(2) + "deg)";
+
+        // Solo el que está al frente y sin girar se puede tocar.
+        card.classList.toggle("is-front", abs < 0.5);
       }
 
       setActive(((rounded % count) + count) % count);
@@ -238,6 +291,15 @@
       // Normalizado a 60fps para que no corra al doble en pantallas de 120Hz.
       var delta = lastTime ? clamp((now - lastTime) / 16.667, 0, 3) : 1;
       lastTime = now;
+      clock += (delta * 16.667) / 1000;
+
+      var flipping = false;
+      for (var i = 0; i < flips.length; i++) {
+        var flip = flips[i];
+        flip.current += (flip.target - flip.current) * FLIP_DAMP * delta;
+        if (Math.abs(flip.target - flip.current) < 0.05) flip.current = flip.target;
+        if (flip.target !== 0 || flip.current !== 0) flipping = true;
+      }
 
       if (seeking !== null) {
         progress += (seeking - progress) * 0.09 * delta;
@@ -245,7 +307,9 @@
           progress = seeking;
           seeking = null;
         }
-      } else if (!hovering && !drag && visible && !document.hidden) {
+      } else if (!hovering && !drag && !flipping && visible && !document.hidden) {
+        // Con un flyer dado vuelta la fila se queda quieta: si no, se iría
+        // rotando y quedaría mostrando la cara equivocada.
         progress += SPEED * delta;
       }
 
@@ -275,7 +339,14 @@
     });
 
     stage.addEventListener("pointerdown", function (e) {
-      drag = { x: e.clientX, from: progress };
+      drag = {
+        x: e.clientX,
+        from: progress,
+        moved: false,
+        // Si apretaron sobre el flyer del frente, un toque sin arrastre lo da
+        // vuelta en vez de mover la fila.
+        onCard: !!(e.target.closest && e.target.closest(".flyer3d.is-front")),
+      };
       seeking = null;
       stage.classList.add("is-dragging");
       stage.setPointerCapture(e.pointerId);
@@ -283,16 +354,22 @@
 
     stage.addEventListener("pointermove", function (e) {
       if (!drag) return;
+      if (Math.abs(e.clientX - drag.x) > 6) drag.moved = true;
       // Arrastrar hacia la izquierda adelanta, como empujar la fila con el dedo.
       progress = drag.from + (drag.x - e.clientX) / (cardW + GAP);
     });
 
     function endDrag(e) {
       if (!drag) return;
+      var wasTapOnCard = !drag.moved && drag.onCard;
       drag = null;
       stage.classList.remove("is-dragging");
       if (e && e.pointerId !== undefined && stage.hasPointerCapture(e.pointerId)) {
         stage.releasePointerCapture(e.pointerId);
+      }
+      if (wasTapOnCard && activeIndex >= 0) {
+        toggleFlip(activeIndex);
+        return;
       }
       seekTo(((Math.round(progress) % count) + count) % count);
     }

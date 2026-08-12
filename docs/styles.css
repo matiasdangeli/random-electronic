@@ -535,10 +535,26 @@ svg {
   transform: translateZ(-1.5px) rotateY(180deg);
 }
 
+/* El reverso es el segundo flyer de la fecha, el de set times. */
 .carousel.is-3d .flyer3d-face--back img {
-  transform: scale(1.2);
-  filter: blur(15px) saturate(1.15);
-  opacity: 0.75;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dar vuelta el flyer reemplaza al desplegable de set times. */
+.carousel.is-3d .full-flyer {
+  display: none;
+}
+
+.carousel.is-3d .carousel-space {
+  pointer-events: none;
+}
+
+/* Solo el flyer del frente se puede tocar para darlo vuelta. */
+.carousel.is-3d .flyer3d.is-front {
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 /* Cantos: capas intermedias que le dan volumen real al flyer. */
@@ -585,8 +601,38 @@ svg {
 
 .carousel-nav {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 12px;
+}
+
+.carousel-flip {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 12px;
+  margin-right: 18px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.carousel-flip:hover,
+.carousel-flip:focus-visible {
+  border-color: var(--paper);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.carousel-flip span {
+  font-size: 13px;
+  line-height: 1;
 }
 
 /* Con lugar de sobra, el detalle va al costado del flyer en vez de abajo: se
