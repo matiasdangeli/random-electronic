@@ -9,6 +9,12 @@
     <meta property="og:description" content="Próximas fechas: 21 y 28 de agosto en Level Andorra." />
     <meta property="og:image" content="assets/random-67.webp" />
     <link rel="icon" href="assets/random-symbol.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
     <link rel="stylesheet" href="styles.css" />
     <title>RANDOM — Electronic Experience</title>
   </head>
@@ -29,7 +35,7 @@
         <div class="hero-content">
           <p class="hero-kicker">ELECTRONIC EXPERIENCE · ANDORRA</p>
           <img class="hero-wordmark" src="assets/random-wordmark.png" alt="RANDOM" />
-          <h1>NO ES UNA FIESTA.<br />ES RANDOM.</h1>
+          <h1>MÁS QUE<br />UNA FIESTA.</h1>
           <p class="hero-copy">Dos viernes. Dos universos. Una pista.</p>
           <div class="hero-actions">
             <a class="button button--light" href="#fechas">PRÓXIMAS FECHAS <span>→</span></a>
@@ -46,52 +52,68 @@
           <p>Edifici Enland, km 0 · Andorra la Vella</p>
         </div>
 
-        <article class="event-card event-card--bone">
-          <div class="event-poster-wrap">
-            <img class="event-poster" src="assets/random-67.webp" alt="Flyer oficial de RANDOM #67" />
-            <span class="event-number">#67</span>
-          </div>
-          <div class="event-info">
-            <p class="eyebrow">PRÓXIMA FECHA · RANDOM #67</p>
-            <h3>VIERNES 21 AGOSTO</h3>
-            <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
-            <div class="schedule" aria-label="Set times de RANDOM 67">
-              <div class="schedule-row"><span>00:00 — 01:00</span><strong>GASTOFF</strong></div>
-              <div class="schedule-row"><span>01:00 — 02:00</span><strong>MARCOS ALE</strong></div>
-              <div class="schedule-row"><span>02:00 — 03:00</span><strong>DYLOM</strong></div>
-              <div class="schedule-row"><span>03:00 — 05:00</span><strong>IVU SARACHU B2B FABRITZIO</strong></div>
+        <!-- Sin JS o con "reducir movimiento" esto se ve como una lista normal de
+             fechas. El script convierte los flyers en un carrusel 3D. -->
+        <div class="carousel" data-carousel>
+          <article class="event event--bone" data-event>
+            <div class="flyer3d" data-card>
+              <div class="flyer3d-face flyer3d-face--front">
+                <img src="assets/random-67.webp" alt="Flyer oficial de RANDOM #67" />
+                <span class="flyer3d-edition">#67</span>
+              </div>
+              <div class="flyer3d-face flyer3d-face--back" aria-hidden="true">
+                <img src="assets/random-67.webp" alt="" />
+                <span class="flyer3d-edition">#67</span>
+              </div>
             </div>
-            <div class="event-actions">
-              <a class="button button--solid" href="https://www.google.com/maps/place/DISCOTECA+LEVEL+ANDORRA/@42.5066451,1.5314267,587m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12a58b00008c03b7:0x97377cd5b09f1c00!8m2!3d42.5066451!4d1.5340016!16s%2Fg%2F11wmtngmrk?entry=ttu&amp;g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer">CÓMO LLEGAR <span>→</span></a>
-              <span class="free-entry">ENTRADA LIBRE Y GRATUITA</span>
+            <div class="event-panel event-panel--bone" data-panel>
+              <p class="eyebrow">PRÓXIMA FECHA · RANDOM #67</p>
+              <h3>VIERNES 21 AGOSTO</h3>
+              <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
+              <div class="schedule" aria-label="Set times de RANDOM 67">
+                <div class="schedule-row"><span>00:00 — 01:00</span><strong>GASTOFF</strong></div>
+                <div class="schedule-row"><span>01:00 — 02:00</span><strong>MARCOS ALE</strong></div>
+                <div class="schedule-row"><span>02:00 — 03:00</span><strong>DYLOM</strong></div>
+                <div class="schedule-row"><span>03:00 — 05:00</span><strong>IVU SARACHU B2B FABRITZIO</strong></div>
+              </div>
+              <div class="event-actions">
+                <a class="button button--solid" href="https://www.google.com/maps/place/DISCOTECA+LEVEL+ANDORRA/@42.5066451,1.5314267,587m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12a58b00008c03b7:0x97377cd5b09f1c00!8m2!3d42.5066451!4d1.5340016!16s%2Fg%2F11wmtngmrk?entry=ttu&amp;g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer">CÓMO LLEGAR <span>→</span></a>
+                <span class="free-entry">ENTRADA LIBRE Y GRATUITA</span>
+              </div>
+              <details class="full-flyer"><summary>VER FLYER DE SET TIMES</summary><img src="assets/random-67-set-times.webp" alt="Flyer con set times de RANDOM #67" loading="lazy" /></details>
             </div>
-            <details class="full-flyer"><summary>VER FLYER DE SET TIMES</summary><img src="assets/random-67-set-times.webp" alt="Flyer con set times de RANDOM #67" loading="lazy" /></details>
-          </div>
-        </article>
+          </article>
 
-        <article class="event-card event-card--plasma">
-          <div class="event-poster-wrap">
-            <img class="event-poster" src="assets/random-68.webp" alt="Flyer oficial de RANDOM #68" loading="lazy" />
-            <span class="event-number">#68</span>
-          </div>
-          <div class="event-info">
-            <p class="eyebrow">PRÓXIMA FECHA · RANDOM #68</p>
-            <h3>VIERNES 28 AGOSTO</h3>
-            <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
-            <div class="schedule" aria-label="Set times de RANDOM 68">
-              <div class="schedule-row"><span>00:00 — 01:00</span><strong>MRNO</strong></div>
-              <div class="schedule-row"><span>01:00 — 02:00</span><strong>AYRTON GALERE</strong></div>
-              <div class="schedule-row"><span>02:00 — 03:00</span><strong>GASTOFF</strong></div>
-              <div class="schedule-row"><span>03:00 — 04:00</span><strong>SOFIA ROSSI</strong></div>
-              <div class="schedule-row"><span>04:00 — 05:00</span><strong>FRANK MORAIS</strong></div>
+          <article class="event event--plasma" data-event>
+            <div class="flyer3d" data-card>
+              <div class="flyer3d-face flyer3d-face--front">
+                <img src="assets/random-68.webp" alt="Flyer oficial de RANDOM #68" loading="lazy" />
+                <span class="flyer3d-edition">#68</span>
+              </div>
+              <div class="flyer3d-face flyer3d-face--back" aria-hidden="true">
+                <img src="assets/random-68.webp" alt="" loading="lazy" />
+                <span class="flyer3d-edition">#68</span>
+              </div>
             </div>
-            <div class="event-actions">
-              <a class="button button--solid" href="https://www.google.com/maps/place/DISCOTECA+LEVEL+ANDORRA/@42.5066451,1.5314267,587m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12a58b00008c03b7:0x97377cd5b09f1c00!8m2!3d42.5066451!4d1.5340016!16s%2Fg%2F11wmtngmrk?entry=ttu&amp;g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer">CÓMO LLEGAR <span>→</span></a>
-              <span class="free-entry">ENTRADA LIBRE Y GRATUITA</span>
+            <div class="event-panel event-panel--plasma" data-panel>
+              <p class="eyebrow">PRÓXIMA FECHA · RANDOM #68</p>
+              <h3>VIERNES 28 AGOSTO</h3>
+              <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
+              <div class="schedule" aria-label="Set times de RANDOM 68">
+                <div class="schedule-row"><span>00:00 — 01:00</span><strong>MRNO</strong></div>
+                <div class="schedule-row"><span>01:00 — 02:00</span><strong>AYRTON GALERE</strong></div>
+                <div class="schedule-row"><span>02:00 — 03:00</span><strong>GASTOFF</strong></div>
+                <div class="schedule-row"><span>03:00 — 04:00</span><strong>SOFIA ROSSI</strong></div>
+                <div class="schedule-row"><span>04:00 — 05:00</span><strong>FRANK MORAIS</strong></div>
+              </div>
+              <div class="event-actions">
+                <a class="button button--solid" href="https://www.google.com/maps/place/DISCOTECA+LEVEL+ANDORRA/@42.5066451,1.5314267,587m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12a58b00008c03b7:0x97377cd5b09f1c00!8m2!3d42.5066451!4d1.5340016!16s%2Fg%2F11wmtngmrk?entry=ttu&amp;g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer">CÓMO LLEGAR <span>→</span></a>
+                <span class="free-entry">ENTRADA LIBRE Y GRATUITA</span>
+              </div>
+              <details class="full-flyer"><summary>VER FLYER DE SET TIMES</summary><img src="assets/random-68-set-times.webp" alt="Flyer con set times de RANDOM #68" loading="lazy" /></details>
             </div>
-            <details class="full-flyer"><summary>VER FLYER DE SET TIMES</summary><img src="assets/random-68-set-times.webp" alt="Flyer con set times de RANDOM #68" loading="lazy" /></details>
-          </div>
-        </article>
+          </article>
+        </div>
       </section>
 
       <section class="manifesto" id="concepto">
@@ -119,5 +141,6 @@
         <a href="#inicio">VOLVER ARRIBA ↑</a>
       </footer>
     </main>
+    <script src="carousel.js" defer></script>
   </body>
 </html>

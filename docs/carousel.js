@@ -1,0 +1,322 @@
+/*
+ * Carrusel 3D de flyers de RANDOM.
+ *
+ * Tambor vertical: el flyer centrado rota hacia atrás y entra el siguiente,
+ * con una pausa magnética al pasar por el centro. Los flyers tienen grosor
+ * real (capas apiladas en Z) y se inclinan siguiendo el mouse con inercia.
+ *
+ * Es una mejora progresiva: el HTML ya trae las fechas como lista normal y
+ * este script las reacomoda. Si no corre, o si el usuario pidió menos
+ * movimiento, la lista queda tal cual.
+ */
+
+(function () {
+  "use strict";
+
+  var SPEED = 0.0016; // avance por frame a 60fps: una fecha cada ~10s
+  var GAP = 36; // separación entre flyer centrado y el de al lado
+  var PEEK = -55; // cuánto se esconde el flyer al llegar al borde
+  var DEPTH = 1350; // debe coincidir con el perspective del CSS
+  var TILT_X = 12; // inclinación máxima con el mouse (grados)
+  var TILT_Y = 15;
+  var DAMP = 0.08; // inercia del mouse: cuánto persigue al cursor por frame
+  var EDGES = [-0.73, 0, 0.73]; // capas intermedias que dan el grosor
+
+  function smoothstep(t) {
+    return t * t * (3 - 2 * t);
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function init(root) {
+    var events = Array.prototype.slice.call(root.querySelectorAll("[data-event]"));
+    var cards = events.map(function (ev) {
+      return ev.querySelector("[data-card]");
+    });
+    var panels = events.map(function (ev) {
+      return ev.querySelector("[data-panel]");
+    });
+    if (!cards.length || cards.indexOf(null) !== -1) return;
+
+    var count = cards.length;
+
+    // Armado del escenario: los flyers pasan a una capa 3D y los detalles a un
+    // bloque apilado debajo.
+    var stage = document.createElement("div");
+    stage.className = "carousel-stage";
+    var space = document.createElement("div");
+    space.className = "carousel-space";
+    stage.appendChild(space);
+
+    var panelBox = document.createElement("div");
+    panelBox.className = "carousel-panels";
+
+    var nav = document.createElement("div");
+    nav.className = "carousel-nav";
+
+    cards.forEach(function (card) {
+      EDGES.forEach(function (z) {
+        var edge = document.createElement("div");
+        edge.className = "flyer3d-edge";
+        edge.setAttribute("aria-hidden", "true");
+        edge.style.transform = "translateZ(" + z + "px)";
+        // Los cantos van detrás de la cara frontal pero delante de la trasera.
+        card.insertBefore(edge, card.lastElementChild);
+      });
+      space.appendChild(card);
+    });
+
+    var dots = panels.map(function (panel, i) {
+      panelBox.appendChild(panel);
+
+      var dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "carousel-dot";
+      var title = panel.querySelector("h3");
+      dot.setAttribute(
+        "aria-label",
+        "Ver " + (title ? title.textContent.trim() : "fecha " + (i + 1))
+      );
+      dot.addEventListener("click", function () {
+        seekTo(i);
+      });
+      nav.appendChild(dot);
+      return dot;
+    });
+
+    root.appendChild(stage);
+    root.appendChild(panelBox);
+    if (count > 1) root.appendChild(nav);
+    root.classList.add("is-3d");
+
+    // -- estado ------------------------------------------------------------
+    var progress = 0;
+    var seeking = null; // destino cuando tocan un punto de la navegación
+    var mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    var cardW = 300;
+    var cardH = 533;
+    var stageH = 620;
+    var activeIndex = -1;
+    var hovering = false;
+    var visible = true;
+    var drag = null;
+    var lastTime = 0;
+    var frame = 0;
+
+    function resize() {
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+
+      // El flyer centrado está en z=400, así que la perspectiva lo agranda:
+      // hay que medir el tamaño ya aumentado para que entre en el escenario.
+      var zoom = DEPTH / (DEPTH - 400);
+
+      stageH = clamp(vh * 0.78, 460, 780);
+      var maxH = (stageH - 56) / zoom;
+      var maxW = (vw * 0.86) / zoom / 0.5625;
+
+      cardH = clamp(Math.min(maxH, maxW), 200, 520);
+      cardW = cardH * 0.5625; // los flyers son 9:16
+
+      root.style.setProperty("--card-w", Math.round(cardW) + "px");
+      root.style.setProperty("--card-h", Math.round(cardH) + "px");
+      root.style.setProperty("--stage-h", Math.round(stageH) + "px");
+    }
+
+    function seekTo(index) {
+      // Ir por el camino más corto hacia esa fecha.
+      var current = progress;
+      var target = index;
+      while (target - current > count / 2) target -= count;
+      while (current - target > count / 2) target += count;
+      seeking = target;
+    }
+
+    function setActive(index) {
+      if (index === activeIndex) return;
+      activeIndex = index;
+      panels.forEach(function (panel, i) {
+        if (i === index) {
+          panel.setAttribute("data-active", "");
+          panel.removeAttribute("aria-hidden");
+        } else {
+          panel.removeAttribute("data-active");
+          panel.setAttribute("aria-hidden", "true");
+        }
+      });
+      dots.forEach(function (dot, i) {
+        dot.setAttribute("aria-current", i === index ? "true" : "false");
+      });
+    }
+
+    function layout() {
+      // Paso magnético: se demora en el centro y después acelera.
+      var rounded = Math.round(progress);
+      var diff = progress - rounded;
+      var eased = Math.sign(diff) * Math.pow(Math.abs(diff) * 2, 4.2) / 2;
+      var virtual = rounded + eased;
+      var half = count / 2;
+
+      for (var i = 0; i < count; i++) {
+        var card = cards[i];
+
+        // Representación circular única en [-half, half) — con dos flyers, un
+        // intervalo cerrado haría saltar la carta entre arriba y abajo.
+        var offset = i - virtual;
+        while (offset >= half) offset -= count;
+        while (offset < -half) offset += count;
+
+        var abs = Math.abs(offset);
+        var sign = Math.sign(offset);
+
+        if (abs > 3) {
+          card.style.visibility = "hidden";
+          continue;
+        }
+        card.style.visibility = "visible";
+
+        var y;
+        var z;
+        var rot;
+
+        if (abs <= 1) {
+          var t1 = smoothstep(abs);
+          y = -sign * t1 * (cardH + GAP);
+          z = 400 + t1 * (220 - 400);
+          rot = t1 * 132;
+        } else if (abs <= 2) {
+          var t2 = smoothstep(abs - 1);
+          var scale2 = DEPTH / (DEPTH + 60);
+          var yEdge = (stageH / 2 - PEEK) / scale2 - cardH / 2;
+          y = -sign * ((cardH + GAP) + t2 * (yEdge - (cardH + GAP)));
+          z = 220 + t2 * (-60 - 220);
+          rot = 132 + t2 * (175 - 132);
+        } else {
+          var t3 = smoothstep(Math.min(abs - 2, 1));
+          var scaleA = DEPTH / (DEPTH + 60);
+          var yA = (stageH / 2 - PEEK) / scaleA - cardH / 2;
+          var scaleB = DEPTH / (DEPTH + 250);
+          var yB = (stageH / 2 + 100) / scaleB + cardH / 2;
+          y = -sign * (yA + t3 * (yB - yA));
+          z = -60 + t3 * (-250 + 60);
+          rot = 175 + t3 * (195 - 175);
+        }
+
+        // El parallax solo afecta al flyer que está al frente.
+        var center = Math.max(0, 1 - abs);
+        var rotX = -sign * rot + -mouse.y * TILT_X * center;
+        var rotY = mouse.x * TILT_Y * center;
+
+        card.style.zIndex = String(Math.round(z));
+        card.style.transform =
+          "translateY(" + y.toFixed(2) + "px) translateZ(" + z.toFixed(2) + "px) " +
+          "rotateX(" + rotX.toFixed(2) + "deg) rotateY(" + rotY.toFixed(2) + "deg) " +
+          "rotateZ(-3deg)";
+      }
+
+      setActive(((rounded % count) + count) % count);
+    }
+
+    function tick(now) {
+      frame = requestAnimationFrame(tick);
+
+      // Normalizado a 60fps para que no corra al doble en pantallas de 120Hz.
+      var delta = lastTime ? clamp((now - lastTime) / 16.667, 0, 3) : 1;
+      lastTime = now;
+
+      if (seeking !== null) {
+        progress += (seeking - progress) * 0.09 * delta;
+        if (Math.abs(seeking - progress) < 0.002) {
+          progress = seeking;
+          seeking = null;
+        }
+      } else if (!hovering && !drag && visible && !document.hidden) {
+        progress += SPEED * delta;
+      }
+
+      mouse.x += (mouse.tx - mouse.x) * DAMP * delta;
+      mouse.y += (mouse.ty - mouse.y) * DAMP * delta;
+
+      layout();
+    }
+
+    // -- interacción -------------------------------------------------------
+    window.addEventListener("mousemove", function (e) {
+      mouse.tx = clamp((e.clientX - window.innerWidth / 2) / (window.innerWidth / 2), -1, 1);
+      mouse.ty = clamp((e.clientY - window.innerHeight / 2) / (window.innerHeight / 2), -1, 1);
+    });
+
+    document.addEventListener("mouseleave", function () {
+      mouse.tx = 0;
+      mouse.ty = 0;
+    });
+
+    stage.addEventListener("mouseenter", function () {
+      hovering = true;
+    });
+
+    stage.addEventListener("mouseleave", function () {
+      hovering = false;
+    });
+
+    stage.addEventListener("pointerdown", function (e) {
+      drag = { y: e.clientY, from: progress };
+      seeking = null;
+      stage.classList.add("is-dragging");
+      stage.setPointerCapture(e.pointerId);
+    });
+
+    stage.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      // Arrastrar hacia arriba adelanta, como girar el tambor con el dedo.
+      progress = drag.from + (drag.y - e.clientY) / (cardH + GAP);
+    });
+
+    function endDrag(e) {
+      if (!drag) return;
+      drag = null;
+      stage.classList.remove("is-dragging");
+      if (e && e.pointerId !== undefined && stage.hasPointerCapture(e.pointerId)) {
+        stage.releasePointerCapture(e.pointerId);
+      }
+      seekTo(((Math.round(progress) % count) + count) % count);
+    }
+
+    stage.addEventListener("pointerup", endDrag);
+    stage.addEventListener("pointercancel", endDrag);
+
+    window.addEventListener("resize", resize);
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        function (entries) {
+          visible = entries[0].isIntersecting;
+        },
+        { threshold: 0.05 }
+      ).observe(stage);
+    }
+
+    resize();
+    setActive(0);
+    frame = requestAnimationFrame(tick);
+  }
+
+  function start() {
+    // Respetar "reducir movimiento": la lista de fechas ya es legible sin esto.
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    if (!("requestAnimationFrame" in window) || !CSS.supports("transform-style", "preserve-3d")) {
+      return;
+    }
+    Array.prototype.forEach.call(document.querySelectorAll("[data-carousel]"), init);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();

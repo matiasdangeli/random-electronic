@@ -1,5 +1,8 @@
-
+/* Tipografía. Sora es la gratuita más parecida a MADE Outer Sans: geométrica,
+   ancha y con las curvas medio cuadradas. */
 :root {
+  --font-sans: Sora, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --ink: #070707;
   --paper: #f2ede6;
   --muted: #a6a09b;
@@ -21,7 +24,7 @@ body {
   margin: 0;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: var(--font-sans);
   overflow-x: hidden;
 }
 
@@ -67,7 +70,7 @@ svg {
 .site-header nav {
   display: flex;
   gap: clamp(18px, 3vw, 46px);
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
 }
@@ -136,7 +139,7 @@ svg {
 .hero-kicker,
 .eyebrow {
   margin: 0;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--muted);
@@ -170,7 +173,7 @@ svg {
   justify-content: center;
   gap: 24px;
   margin-top: 34px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
   color: #928d87;
@@ -184,7 +187,7 @@ svg {
   gap: 18px;
   padding: 0 20px;
   border: 1px solid currentColor;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -217,7 +220,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.2em;
   color: #716d68;
@@ -257,7 +260,11 @@ svg {
   line-height: 1.6;
 }
 
-.event-card {
+/* --- Fechas: presentación base (sin JS o con "reducir movimiento") ---------
+   Una ficha por fecha, flyer al lado del detalle. El carrusel 3D se monta
+   encima de esto; si el script no corre, esto es lo que se ve. */
+
+.event {
   display: grid;
   max-width: 1400px;
   min-height: 700px;
@@ -267,36 +274,40 @@ svg {
   overflow: hidden;
 }
 
-.event-card--bone {
+.event--bone {
   --accent: #efe8df;
   background: #11100f;
 }
 
-.event-card--plasma {
+.event--plasma {
   --accent: #ffac16;
   background:
     radial-gradient(circle at 92% 12%, rgba(255, 0, 105, 0.22), transparent 33%),
     #14065d;
 }
 
-.event-poster-wrap {
+.flyer3d {
   position: relative;
   overflow: hidden;
   background: #0d0d0d;
 }
 
-.event-poster {
+.flyer3d-face {
+  position: absolute;
+  inset: 0;
+}
+
+.flyer3d-face img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 700ms cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
-.event-card:hover .event-poster {
-  transform: scale(1.018);
+.flyer3d-face--back {
+  display: none;
 }
 
-.event-number {
+.flyer3d-edition {
   position: absolute;
   right: 20px;
   bottom: 14px;
@@ -308,14 +319,24 @@ svg {
   mix-blend-mode: difference;
 }
 
-.event-info {
+.event-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: clamp(34px, 6vw, 94px);
 }
 
-.event-card .eyebrow,
+/* El panel lleva su propio acento: el carrusel lo saca de la ficha y tiene que
+   seguir pintando igual. */
+.event-panel--bone {
+  --accent: #efe8df;
+}
+
+.event-panel--plasma {
+  --accent: #ffac16;
+}
+
+.event-panel .eyebrow,
 .event-meta,
 .free-entry,
 .schedule-row span,
@@ -323,7 +344,7 @@ svg {
   color: var(--accent);
 }
 
-.event-info h3 {
+.event-panel h3 {
   max-width: 700px;
   margin: 18px 0 4px;
   color: var(--accent);
@@ -334,7 +355,7 @@ svg {
 
 .event-meta {
   margin: 14px 0 40px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.14em;
   opacity: 0.65;
@@ -354,7 +375,7 @@ svg {
 }
 
 .schedule-row span {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.08em;
   opacity: 0.6;
@@ -373,12 +394,12 @@ svg {
   margin-top: 38px;
 }
 
-.event-card .button--solid {
+.event-panel .button--solid {
   background: var(--accent);
 }
 
 .free-entry {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   opacity: 0.7;
@@ -392,7 +413,7 @@ svg {
 .full-flyer summary {
   padding: 18px 0 0;
   cursor: pointer;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.14em;
   list-style: none;
@@ -416,6 +437,177 @@ svg {
   width: min(420px, 100%);
   margin-top: 20px;
   border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* --- Carrusel 3D de flyers -------------------------------------------------
+   Tambor vertical con inercia: el flyer centrado rota hacia atrás y entra el
+   siguiente. Parallax con el mouse y grosor real hecho apilando capas.
+   carousel.js agrega .is-3d solo si puede correr; si no, queda la lista de
+   arriba. */
+
+.carousel.is-3d {
+  display: grid;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: clamp(26px, 4vw, 54px);
+}
+
+.carousel.is-3d .event {
+  display: none;
+}
+
+.carousel-stage {
+  position: relative;
+  display: grid;
+  height: var(--stage-h, 620px);
+  place-items: center;
+  /* El flyer que se va rotando tiene que morir en el borde del escenario, no
+     encima del texto de la fecha. */
+  overflow: hidden;
+  perspective: 1350px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+/* Difuminado arriba y abajo para que el corte no se note. */
+.carousel-stage::before,
+.carousel-stage::after {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  content: "";
+  pointer-events: none;
+}
+
+.carousel-stage::before {
+  top: 0;
+  background: linear-gradient(to bottom, #070707 12%, transparent);
+}
+
+.carousel-stage::after {
+  bottom: 0;
+  background: linear-gradient(to top, #070707 12%, transparent);
+}
+
+.carousel-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.carousel-space {
+  position: absolute;
+  width: var(--card-w);
+  height: var(--card-h);
+  transform-style: preserve-3d;
+}
+
+.carousel.is-3d .flyer3d {
+  position: absolute;
+  inset: 0;
+  width: var(--card-w);
+  height: var(--card-h);
+  background: none;
+  overflow: visible;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+.carousel.is-3d .flyer3d-face {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  background: #0f0f0f;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.carousel.is-3d .flyer3d-face--front {
+  transform: translateZ(1.5px);
+}
+
+.carousel.is-3d .flyer3d-face--back {
+  display: block;
+  transform: translateZ(-1.5px) rotateX(180deg);
+}
+
+.carousel.is-3d .flyer3d-face--back img {
+  transform: scale(1.2);
+  filter: blur(15px) saturate(1.15);
+  opacity: 0.75;
+}
+
+/* Cantos: capas intermedias que le dan volumen real al flyer. */
+.flyer3d-edge {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #74706b;
+  border-radius: 16px;
+  background: #74706b;
+}
+
+/* En 3D se ve el flyer completo y el número ya está impreso arriba: el badge
+   solo ensucia el logo de la sala. */
+.carousel.is-3d .flyer3d-edition {
+  display: none;
+}
+
+/* Los detalles de la fecha centrada. Van apilados: solo se ve el activo. */
+.carousel-panels {
+  display: grid;
+}
+
+.carousel-panels > .event-panel {
+  padding: 0;
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  visibility: hidden;
+}
+
+.carousel-panels > .event-panel[data-active] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.carousel-panels .event-panel h3 {
+  margin-top: 12px;
+  font-size: clamp(34px, 5vw, 64px);
+}
+
+.carousel-panels .event-meta {
+  margin-bottom: 26px;
+}
+
+.carousel-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.carousel-dot {
+  width: 46px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.carousel-dot::before {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  content: "";
+  transition: background 260ms ease;
+}
+
+.carousel-dot[aria-current="true"]::before {
+  background: var(--paper);
 }
 
 .manifesto {
@@ -484,7 +676,7 @@ svg {
 
 .manifesto-stats span {
   margin-top: 7px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.16em;
   color: #68625d;
@@ -518,7 +710,7 @@ svg {
   justify-content: space-between;
   padding: 20px 0;
   border-bottom: 1px solid currentColor;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
 }
@@ -530,7 +722,7 @@ footer {
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   border-top: 1px solid var(--line);
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   color: #77726d;
