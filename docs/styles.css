@@ -336,7 +336,7 @@ svg {
   opacity: 0.72;
   /* El brillo compensa a los flyers que ya son oscuros: con solo opacidad y
      gris, uno negro sobre fondo negro desaparecía. */
-  filter: grayscale(1) brightness(1.35) contrast(0.92);
+  filter: saturate(0.15) brightness(1.35) contrast(0.92);
   transition: opacity 260ms ease, filter 260ms ease;
 }
 
