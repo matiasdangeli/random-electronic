@@ -220,6 +220,34 @@ svg {
   color: var(--ink);
 }
 
+/* Solo se muestra en el atajo de la pantalla de inicio, donde no hay recargar.
+   Abajo a la derecha: el "SCROLL" del hero va a la izquierda. */
+.refresh {
+  position: fixed;
+  z-index: 30;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.7);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.refresh:active {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(0.94);
+}
+
 .scroll-cue {
   position: absolute;
   bottom: 24px;
@@ -323,6 +351,39 @@ svg {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.14em;
+}
+
+/* En pantalla chica la grilla se parte en varias filas apenas hay tres o cuatro
+   fechas. Pasa a ser una sola fila que se desliza con el dedo, y se sale del
+   padding de la sección para que el flyer siguiente asome contra el borde: así
+   se ve que hay más sin necesidad de flechas ni puntos. */
+@media (max-width: 700px) {
+  .archive-grid {
+    display: flex;
+    margin-right: calc(-1 * clamp(20px, 5vw, 80px));
+    margin-left: calc(-1 * clamp(20px, 5vw, 80px));
+    padding-right: clamp(20px, 5vw, 80px);
+    padding-left: clamp(20px, 5vw, 80px);
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    /* Sin esto el snap ignora el padding y pega el primer flyer contra el borde,
+       desalineado del título. */
+    scroll-padding-left: clamp(20px, 5vw, 80px);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .archive-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .archive-item {
+    flex: 0 0 auto;
+    width: 128px;
+    scroll-snap-align: start;
+  }
 }
 
 /* --- Fechas: presentación base (sin JS o con "reducir movimiento") ---------

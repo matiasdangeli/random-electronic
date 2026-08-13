@@ -329,6 +329,28 @@
         <a href="#inicio">VOLVER ARRIBA ↑</a>
       </footer>
     </main>
+
+    <!-- El atajo de la pantalla de inicio del iPhone abre la página sin barra de
+         direcciones, así que no hay forma de recargar y queda servida la copia
+         vieja. Este botón aparece solo ahí: en un navegador normal sobra. -->
+    <button class="refresh" type="button" data-refresh hidden aria-label="Actualizar la página">↻</button>
+    <script>
+      (function () {
+        var btn = document.querySelector("[data-refresh]");
+        var comoApp =
+          window.navigator.standalone === true ||
+          (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+        if (!btn || !comoApp) return;
+
+        btn.removeAttribute("hidden");
+        btn.addEventListener("click", function () {
+          // location.reload() puede devolver la misma copia cacheada. Cambiar la
+          // URL obliga a pedirla de nuevo; replace() no ensucia el historial.
+          location.replace(location.pathname + "?r=" + Date.now());
+        });
+      })();
+    </script>
+
     <!-- agenda.js va primero: separa próximas fechas y archivo antes del carrusel. -->
     <script src="agenda.js" defer></script>
     <script src="carousel.js" defer></script>
