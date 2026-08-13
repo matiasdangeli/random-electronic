@@ -1,84 +1,97 @@
 # RANDOM — Electronic Experience
 
-Sitio oficial de **RANDOM**, con próximas fechas, line-ups, set times, ubicación y acceso a Instagram.
+Sitio oficial de **RANDOM**, con próximas fechas, line-ups, set times, ubicación, countdown, estado LIVE y acceso a Instagram.
 
 Instagram: [@random.electronic](https://www.instagram.com/random.electronic/)
 
 ## Cargar una fecha
 
-Las fechas no están escritas en ningún lado más que en su propia ficha: el sitio
-arma solo el resto (la chapa del hero, el mes de la agenda, el orden y los
-contadores). Sirve igual con una fecha, con dos o con ninguna.
+Las fechas viven en su propia ficha dentro de `docs/index.html`. `docs/agenda.js` arma solo el resto: orden, archivo, títulos, contadores, countdown, LIVE y botones de calendario.
 
-En `docs/index.html`, dentro de `<div class="carousel">`, se copia un
-`<article class="event" data-event>` y se cambian sus datos:
+Dentro de `<div class="carousel">`, se copia un `<article class="event" data-event>` y se cambian sus datos:
 
-| Dato           | Qué es                                                 |
-| -------------- | ------------------------------------------------------ |
-| `data-edition` | Número de edición (`68`)                               |
-| `data-date`    | Día del flyer, `AAAA-MM-DD`                            |
-| `data-venue`   | Sala en corto, para la chapa del hero (`LEVEL`)         |\n| `data-name`    | Nombre visual de la edición (`ACERO`)                 |
-| `data-until`   | Opcional: hasta cuándo se muestra (`AAAA-MM-DDTHH:MM`) |
+| Dato | Qué es |
+| --- | --- |
+| `data-edition` | Número de edición (`68`) |
+| `data-date` | Día del flyer, `AAAA-MM-DD` |
+| `data-venue` | Sala en corto (`LEVEL`) |
+| `data-name` | Nombre visual de la edición (`TÉRMICA`) |
+| `data-timezone` | Zona IANA de la sede (`Europe/Andorra`, `America/Argentina/Buenos_Aires`) |
+| `data-start` | Opcional. Inicio explícito `AAAA-MM-DDTHH:MM` cuando no se puede deducir del flyer |
+| `data-until` | Opcional. Fin/corte explícito `AAAA-MM-DDTHH:MM` |
 
-En el archivo de fiestas pasadas, el formato se muestra siempre como `#NN · NOMBRE · FECHA` (por ejemplo, `#61 · ACERO · 22 MAY 2026`). El nombre sale de `data-name`, que la sincronización toma del nombre del flyer principal.\n\nAdentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección
-(`.event-place`), los set times, el link de "cómo llegar" y los dos flyers
-(`assets/random-NN.webp` y `assets/random-NN-set-times.webp`).
+Para compatibilidad con las fichas antiguas, si falta `data-timezone` el sitio usa `Europe/Andorra`; si la dirección contiene `Argentina`, usa `America/Argentina/Buenos_Aires`. En fechas nuevas conviene escribir siempre `data-timezone`.
 
-El título de la fecha (`VIERNES 28 AGOSTO`) y el `PRÓXIMA FECHA · RANDOM #NN`
-los escribe `docs/agenda.js` a partir de `data-date` y `data-edition`, así que
-no hay que tocarlos.
+Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`).
 
-## Cuándo se cae una fecha
+El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
 
-Cada fecha está en la agenda hasta las 06:00 del día siguiente al del flyer,
-porque las fiestas son de madrugada. Después baja sola al archivo ("YA PASARON"),
-donde queda chica y apagada: da contexto sin competirle a la que viene.
+## Countdown y LIVE
 
-Por eso **las fichas viejas no se borran**: son las que arman el archivo. Se
-ordena solo, de la más reciente a la más vieja. Si querés recortarlo, borrá la
-ficha más vieja y sus dos flyers de `assets/`.
+La próxima edición controla un estado dinámico en el hero:
 
-Si no queda ninguna fecha por delante, la agenda muestra un aviso con el link a
-Instagram y el archivo sigue abajo.
+- **Antes de empezar:** muestra un countdown `07D · 11H · 32M · 08S`.
+- **Durante la fecha:** cambia a `● LIVE NOW`.
+- **Con set times explícitos:** muestra automáticamente el artista que está tocando y marca su fila en el line-up.
+- **Entre sets:** cambia de artista sin recargar la página.
+- **Al terminar:** la página se actualiza una vez para sacar esa edición del carrusel y bajarla al archivo.
 
-Para una edición con otro horario se puede correr ese corte con `data-until`.
+Todos los cálculos se hacen con la zona horaria de la sede. La hora local del visitante no cambia el estado real del evento.
 
-## Cuando la fecha no sigue el molde
+### De dónde salen inicio y fin
 
-No todas las ediciones son un viernes de madrugada en Level. Lo que ya apareció
-y cómo se resuelve:
+El orden de preferencia es:
 
-- **De día** (la #66 fue sábado 16:00–22:00): poné `data-until` con la hora real
-  de cierre, si no el corte por defecto la deja un día de más en la agenda.
-- **En otra sala u otro país** (la #64 fue en Colón, Buenos Aires): cambiá
-  `data-venue`, la línea `.event-place` y el link de "cómo llegar". Nada de eso
-  está fijo en el sitio.
-- **Sin horarios por DJ**, solo line-up: usá `class="schedule schedule--lineup"`
-  y filas con el nombre solo, sin el `<span>` de la hora.
-- **Un solo flyer**, sin uno de set times: sacá la cara `flyer3d-face--back` y el
-  desplegable `full-flyer`. El archivo usa solo el flyer de adelante.
-- **Entrada paga o condiciones distintas**: `.free-entry` es texto libre, poné lo
-  que diga el flyer y nada más.
-- **Color**: `.event` ya trae un acento por defecto, así que una ficha sin
-  modificador se ve bien. Los modificadores (`event--plasma`, `event--sunset`…)
-  son opcionales, para acompañar el flyer mientras la fecha está por delante.
+1. Los horarios de `.schedule-row` cuando hay set times.
+2. El rango explícito de `.event-meta`, por ejemplo `00:00 — 05:00`.
+3. `data-start` / `data-until` cuando están definidos.
+4. Como último fallback para el archivo, el sitio conserva el corte histórico de las 06:00 del día siguiente.
+
+Si hay `data-until`, ese valor manda para decidir cuándo deja de mostrarse la edición.
+
+## Añadir al calendario
+
+Cuando una fecha tiene un horario explícito, `agenda.js` agrega automáticamente el botón `+ AÑADIR AL CALENDARIO`.
+
+El botón genera un archivo `.ics` con el nombre de la edición, inicio y fin reales, dirección, artistas de los set times cuando existen y enlace a `randomelectronic.com`.
+
+Las horas se exportan como instantes UTC calculados desde la zona horaria de la sede, de modo que iPhone, Mac, Google Calendar, Outlook y otros calendarios las muestran correctamente en la zona del usuario.
+
+Si no hay un horario suficientemente explícito, el botón no aparece: no se inventan horas.
+
+## Archivo automático
+
+Cuando una fecha termina baja sola al archivo y queda chica y apagada. Las fichas viejas no se borran: son las que construyen el historial.
+
+El formato del archivo es `#NN · NOMBRE`. El nombre sale de `data-name`.
+
+El contador de ediciones representa la última edición ya terminada; las futuras no cuentan aunque estén cargadas en el HTML.
+
+## Casos especiales
+
+- **Evento de día:** usá el horario real en `.event-meta` y, si hace falta otro corte, `data-until`.
+- **Otra ciudad o país:** cambiá `data-timezone`, `data-venue`, `.event-place` y el link de cómo llegar.
+- **Sin horarios por DJ:** usá `class="schedule schedule--lineup"`; habrá countdown si existe un rango horario, pero no se mostrará un artista LIVE inventado.
+- **Un solo flyer:** sacá la cara `flyer3d-face--back` y el desplegable `full-flyer`.
+- **Entrada paga o condición distinta:** `.free-entry` es texto libre.
+- **Color:** los modificadores de `.event` son opcionales.
 
 ## Publicación
 
-El sitio es estático y vive en `docs/`: `index.html`, `styles.css`, `agenda.js`
-(arma la agenda) y `carousel.js` (el carrusel 3D de flyers). No tiene build ni
-dependencias.
+El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 
-El workflow de `.github/workflows/pages.yml` publica `docs/` en GitHub Pages
-automáticamente en cada push a `main`.
+- `index.html`: contenido de las ediciones.
+- `styles.css`: estilos generales.
+- `agenda.js`: agenda, countdown, LIVE, zonas horarias y calendario.
+- `live.css`: estilos del countdown, LIVE y botón de calendario.
+- `carousel.js`: carrusel 3D.
+
+El workflow de GitHub Pages publica automáticamente en cada push a `main`.
 
 ## Desarrollo
-
-Alcanza con abrir `docs/index.html` en el navegador. Para que las rutas relativas
-se comporten igual que en producción:
 
 ```bash
 python3 -m http.server -d docs 8000
 ```
 
-Y entrar a <http://localhost:8000>.
+Después abrir `http://localhost:8000`.

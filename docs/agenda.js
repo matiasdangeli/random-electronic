@@ -1,44 +1,128 @@
-/*
- * Agenda automática de RANDOM.
- *
- * Cada fecha vive en el HTML como una ficha con sus datos (edición, día, sala,
- * dirección). Este script las lee y arma solo lo que cambia de una edición a
- * otra: ordena las que vienen de la más cercana a la más lejana, baja las que
- * ya pasaron al archivo, y escribe la chapa del hero, el título de la agenda,
- * los contadores y el año del pie.
- *
- * La idea es que el sitio sirva igual con una fecha, con dos o con ninguna:
- * se agrega o se borra una ficha y el resto se acomoda solo. Nada de "dos
- * viernes" ni de meses escritos a mano.
- *
- * Corre antes que carousel.js, así el carrusel solo ve las fechas que vienen.
- */
-
+/* Agenda automática de RANDOM: orden, archivo, countdown, LIVE y calendario. */
 (function () {
   "use strict";
 
-  var FIRST_YEAR = 2018; // año de inicio de RANDOM
-  var ANNIVERSARY_MONTH = 3; // abril, en formato de Date() (enero = 0)
+  var FIRST_YEAR = 2018;
+  var ANNIVERSARY_MONTH = 3;
   var ANNIVERSARY_DAY = 14;
-  var ENDS_HOUR = 6; // a las 06:00 del día siguiente la fecha ya pasó
-  var MAX_HERO_DATES = 3; // más que esto en la chapa del hero no entra
-
+  var ENDS_HOUR = 6;
+  var DEFAULT_TIMEZONE = "Europe/Andorra";
+  var SITE_URL = "https://randomelectronic.com/";
   var DAYS = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-  var MONTHS = [
-    "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
-    "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE",
-  ];
-  var MONTHS_SHORT = [
-    "ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
-    "JUL", "AGO", "SEP", "OCT", "NOV", "DIC",
-  ];
+  var MONTHS = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+  var formatterCache = {};
 
-  // "2026-08-21" o "2026-08-21T23:30", siempre en hora local: new Date() con
-  // la fecha sola la toma como UTC y en Andorra adelantaría un día.
-  function parseDate(value) {
+  function loadLiveStyles() {
+    if (document.querySelector('link[data-random-live-styles]')) return;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "live.css";
+    link.setAttribute("data-random-live-styles", "");
+    document.head.appendChild(link);
+  }
+
+  function parseWall(value) {
     var parts = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(String(value || "").trim());
     if (!parts) return null;
-    return new Date(+parts[1], +parts[2] - 1, +parts[3], +(parts[4] || 0), +(parts[5] || 0));
+    return { year:+parts[1], month:+parts[2], day:+parts[3], hour:+(parts[4] || 0), minute:+(parts[5] || 0), second:0 };
+  }
+
+  function formatterFor(timeZone) {
+    if (!formatterCache[timeZone]) {
+      formatterCache[timeZone] = new Intl.DateTimeFormat("en-CA", {
+        timeZone: timeZone, year:"numeric", month:"2-digit", day:"2-digit",
+        hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23"
+      });
+    }
+    return formatterCache[timeZone];
+  }
+
+  function validTimeZone(timeZone) {
+    try { formatterFor(timeZone).format(new Date()); return true; }
+    catch (error) { return false; }
+  }
+
+  function zonedParts(date, timeZone) {
+    var out = {};
+    formatterFor(timeZone).formatToParts(date).forEach(function (part) {
+      if (part.type !== "literal") out[part.type] = +part.value;
+    });
+    return { year:out.year, month:out.month, day:out.day, hour:out.hour, minute:out.minute, second:out.second };
+  }
+
+  function wallToInstant(parts, timeZone) {
+    if (!parts) return null;
+    var wanted = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
+    var instant = new Date(wanted);
+    for (var i = 0; i < 4; i += 1) {
+      var seen = zonedParts(instant, timeZone);
+      var observed = Date.UTC(seen.year, seen.month - 1, seen.day, seen.hour, seen.minute, seen.second);
+      var correction = wanted - observed;
+      if (!correction) break;
+      instant = new Date(instant.getTime() + correction);
+    }
+    return instant;
+  }
+
+  function addMinutes(dateParts, minutes) {
+    var date = new Date(Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day, 0, minutes, 0));
+    return { year:date.getUTCFullYear(), month:date.getUTCMonth()+1, day:date.getUTCDate(), hour:date.getUTCHours(), minute:date.getUTCMinutes(), second:0 };
+  }
+
+  function parseTimeRange(value) {
+    var match = /(\d{1,2}):(\d{2})\s*[—–-]\s*(\d{1,2}):(\d{2})/.exec(String(value || ""));
+    if (!match) return null;
+    var start = (+match[1] * 60) + +match[2];
+    var end = (+match[3] * 60) + +match[4];
+    if (start < 0 || start >= 1440 || end < 0 || end >= 1440) return null;
+    return { start:start, end:end };
+  }
+
+  function guessTimeZone(el) {
+    var explicit = (el.getAttribute("data-timezone") || "").trim();
+    if (explicit && validTimeZone(explicit)) return explicit;
+    var place = el.querySelector(".event-place");
+    if (place && /argentina/i.test(place.textContent || "")) return "America/Argentina/Buenos_Aires";
+    return DEFAULT_TIMEZONE;
+  }
+
+  function rangeInstants(dateParts, range, timeZone) {
+    if (!dateParts || !range) return null;
+    var end = range.end <= range.start ? range.end + 1440 : range.end;
+    return { start:wallToInstant(addMinutes(dateParts, range.start), timeZone), end:wallToInstant(addMinutes(dateParts, end), timeZone) };
+  }
+
+  function readSetTimes(el, dateParts, timeZone) {
+    if (!dateParts) return [];
+    var rows = Array.prototype.slice.call(el.querySelectorAll(".schedule:not(.schedule--lineup) .schedule-row"));
+    var sets = [], dayOffset = 0, previousStart = -1;
+    rows.forEach(function (row) {
+      var time = row.querySelector("span");
+      var artist = row.querySelector("strong");
+      var range = time && parseTimeRange(time.textContent);
+      if (!range || !artist) return;
+
+      var startMinutes = range.start + dayOffset * 1440;
+      while (previousStart >= 0 && startMinutes < previousStart) {
+        dayOffset += 1;
+        startMinutes = range.start + dayOffset * 1440;
+      }
+      var endOffset = dayOffset;
+      var endMinutes = range.end + endOffset * 1440;
+      while (endMinutes <= startMinutes) {
+        endOffset += 1;
+        endMinutes = range.end + endOffset * 1440;
+      }
+
+      sets.push({
+        row: row,
+        artist: (artist.textContent || "").trim(),
+        start: wallToInstant(addMinutes(dateParts, startMinutes), timeZone),
+        end: wallToInstant(addMinutes(dateParts, endMinutes), timeZone)
+      });
+      previousStart = startMinutes;
+    });
+    return sets;
   }
 
   function yearsSinceAnniversary(now) {
@@ -48,199 +132,224 @@
     return Math.max(0, years);
   }
 
-  function unique(list) {
-    var seen = [];
-    list.forEach(function (item) {
-      if (item && seen.indexOf(item) === -1) seen.push(item);
-    });
-    return seen;
-  }
-
   function text(selector, value) {
     var node = document.querySelector(selector);
     if (node) node.textContent = value;
   }
 
-  // Escribe el texto y, si queda vacío, esconde el elemento: sirve para las
-  // líneas que solo tienen sentido cuando hay fechas cargadas.
-  function fill(selector, value) {
-    var node = document.querySelector(selector);
-    if (!node) return;
-    node.textContent = value;
-    if (value) node.removeAttribute("hidden");
-    else node.setAttribute("hidden", "");
-  }
-
   function toggle(selector, shown) {
     var node = document.querySelector(selector);
     if (!node) return;
-    if (shown) node.removeAttribute("hidden");
-    else node.setAttribute("hidden", "");
+    if (shown) node.removeAttribute("hidden"); else node.setAttribute("hidden", "");
   }
 
   function read(el) {
-    var date = parseDate(el.getAttribute("data-date"));
-    var until = parseDate(el.getAttribute("data-until"));
+    var dateParts = parseWall(el.getAttribute("data-date"));
+    var timeZone = guessTimeZone(el);
+    var panel = el.querySelector("[data-panel]");
+    var sets = readSetTimes(el, dateParts, timeZone);
+    var meta = panel && panel.querySelector(".event-meta");
+    var metaWindow = rangeInstants(dateParts, meta && parseTimeRange(meta.textContent), timeZone);
+    var dataStart = parseWall(el.getAttribute("data-start"));
+    var dataUntil = parseWall(el.getAttribute("data-until"));
 
-    // Son fiestas de madrugada: la fecha del flyer es la noche que arranca, así
-    // que sigue siendo "próxima" hasta que amanece el día siguiente.
-    if (!until && date) {
-      until = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, ENDS_HOUR);
-    }
+    var startAt = sets.length ? sets[0].start :
+      (dataStart ? wallToInstant(dataStart, timeZone) :
+        (metaWindow ? metaWindow.start : (dateParts ? wallToInstant(dateParts, timeZone) : null)));
+
+    var until = dataUntil ? wallToInstant(dataUntil, timeZone) : null;
+    if (!until && sets.length) until = sets[sets.length - 1].end;
+    if (!until && metaWindow) until = metaWindow.end;
+    if (!until && dateParts) until = wallToInstant(addMinutes(dateParts, 1440 + ENDS_HOUR * 60), timeZone);
+
+    var calendarStart = null, calendarEnd = null;
+    if (sets.length) { calendarStart = sets[0].start; calendarEnd = sets[sets.length - 1].end; }
+    else if (metaWindow) { calendarStart = metaWindow.start; calendarEnd = metaWindow.end; }
+    else if (dataStart && dataUntil) { calendarStart = wallToInstant(dataStart, timeZone); calendarEnd = wallToInstant(dataUntil, timeZone); }
 
     return {
-      el: el,
-      date: date,
-      until: until,
-      edition: parseInt(el.getAttribute("data-edition"), 10) || 0,
-      venue: (el.getAttribute("data-venue") || "").trim(),
-      name: (el.getAttribute("data-name") || "").trim(),
+      el:el, panel:panel, dateParts:dateParts, startAt:startAt, until:until,
+      calendarStart:calendarStart, calendarEnd:calendarEnd, sets:sets, timeZone:timeZone,
+      edition:parseInt(el.getAttribute("data-edition"), 10) || 0,
+      venue:(el.getAttribute("data-venue") || "").trim(), name:(el.getAttribute("data-name") || "").trim()
     };
   }
 
-  function eventTitle(date) {
-    return DAYS[date.getDay()] + " " + date.getDate() + " " + MONTHS[date.getMonth()];
+  function eventTitle(parts) {
+    var date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, 12));
+    return DAYS[date.getUTCDay()] + " " + parts.day + " " + MONTHS[parts.month - 1];
   }
 
-  function shortDate(date) {
-    return date.getDate() + " " + MONTHS_SHORT[date.getMonth()] + " " + date.getFullYear();
-  }
-
-  // Ficha chica para el archivo: el flyer, el número de edición y la fecha.
-  // Nada más: si tuviera line-up y botones volvería a competir con la agenda.
   function archiveCard(ev) {
     var item = document.createElement("li");
     item.className = "archive-item";
-
     var flyer = ev.el.querySelector(".flyer3d-face--front img");
     if (flyer) {
       var img = document.createElement("img");
-      img.setAttribute("src", flyer.getAttribute("src"));
-      img.setAttribute("alt", flyer.getAttribute("alt") || "");
-      img.setAttribute("loading", "lazy");
+      img.src = flyer.getAttribute("src"); img.alt = flyer.getAttribute("alt") || ""; img.loading = "lazy";
       item.appendChild(img);
     }
-
     var label = document.createElement("p");
     label.className = "archive-label";
-    label.textContent = (ev.edition ? "#" + ev.edition : "") +
-      (ev.name ? " · " + ev.name : "");
+    label.textContent = (ev.edition ? "#" + ev.edition : "") + (ev.name ? " · " + ev.name : "");
     item.appendChild(label);
-
     item.addEventListener("click", function () {
       var selected = item.classList.contains("is-selected");
-      Array.prototype.forEach.call(item.parentNode.children, function (other) {
-        other.classList.remove("is-selected");
-      });
+      Array.prototype.forEach.call(item.parentNode.children, function (other) { other.classList.remove("is-selected"); });
       if (!selected) item.classList.add("is-selected");
     });
-
     return item;
   }
 
-  // "AGOSTO 2026", "AGOSTO – SEPTIEMBRE 2026" o "DICIEMBRE 2026 – ENERO 2027".
   function monthRange(list) {
-    var first = list[0].date;
-    var last = list[list.length - 1].date;
-
-    if (first.getFullYear() !== last.getFullYear()) {
-      return MONTHS[first.getMonth()] + " " + first.getFullYear() +
-        " – " + MONTHS[last.getMonth()] + " " + last.getFullYear();
-    }
-    if (first.getMonth() !== last.getMonth()) {
-      return MONTHS[first.getMonth()] + " – " + MONTHS[last.getMonth()] + " " + first.getFullYear();
-    }
-    return MONTHS[first.getMonth()] + " " + first.getFullYear();
+    var first = list[0].dateParts, last = list[list.length - 1].dateParts;
+    if (first.year !== last.year) return MONTHS[first.month-1] + " " + first.year + " – " + MONTHS[last.month-1] + " " + last.year;
+    if (first.month !== last.month) return MONTHS[first.month-1] + " – " + MONTHS[last.month-1] + " " + first.year;
+    return MONTHS[first.month-1] + " " + first.year;
   }
 
-  // Chapa del hero: "21 AGO · LEVEL", "21 + 28 AGO · LEVEL", "28 AGO + 4 SEP".
-  function heroDates(list) {
-    if (!list.length) return "";
+  function pad(number) { return String(number).padStart(2, "0"); }
 
-    var shown = list.slice(0, MAX_HERO_DATES);
-    var sameMonth = shown.every(function (ev) {
-      return ev.date.getMonth() === shown[0].date.getMonth() &&
-        ev.date.getFullYear() === shown[0].date.getFullYear();
+  function countdownText(milliseconds) {
+    var seconds = Math.max(0, Math.floor(milliseconds / 1000));
+    var days = Math.floor(seconds / 86400); seconds -= days * 86400;
+    var hours = Math.floor(seconds / 3600); seconds -= hours * 3600;
+    var minutes = Math.floor(seconds / 60); seconds -= minutes * 60;
+    return pad(days) + "D · " + pad(hours) + "H · " + pad(minutes) + "M · " + pad(seconds) + "S";
+  }
+
+  function setupHeroStatus() {
+    var hero = document.querySelector(".hero-content");
+    var actions = document.querySelector(".hero-actions");
+    if (!hero || !actions) return null;
+    var status = document.createElement("div");
+    status.className = "event-status";
+    status.hidden = true;
+    status.innerHTML = '<p class="event-status-label" data-event-status-label></p><p class="event-countdown" data-event-countdown></p><div class="event-live" data-event-live hidden><span class="event-live-badge">● LIVE NOW</span><strong data-event-live-artist></strong></div>';
+    hero.insertBefore(status, actions);
+    return status;
+  }
+
+  function setHidden(node, hidden) { if (node) node.hidden = hidden; }
+
+  function updateEventLabels(events, active, next) {
+    events.forEach(function (ev) {
+      var label = ev.panel && ev.panel.querySelector("[data-event-label]");
+      if (!label || !ev.edition) return;
+      if (active === ev) label.textContent = "● LIVE NOW · RANDOM #" + ev.edition;
+      else if (!active && next === ev) label.textContent = "PRÓXIMA FECHA · RANDOM #" + ev.edition;
+      else label.textContent = "RANDOM #" + ev.edition;
     });
+  }
 
-    var label = shown.map(function (ev) {
-      return ev.date.getDate() + (sameMonth ? "" : " " + MONTHS_SHORT[ev.date.getMonth()]);
-    }).join(" + ");
+  function updateDynamicState(events, status, state) {
+    var now = new Date();
+    if (state.reloadAt && now >= state.reloadAt && !state.reloading) {
+      state.reloading = true; window.location.reload(); return;
+    }
 
-    if (sameMonth) label += " " + MONTHS_SHORT[shown[0].date.getMonth()];
-    if (list.length > shown.length) label += " +" + (list.length - shown.length);
+    events.forEach(function (ev) { ev.sets.forEach(function (set) { set.row.classList.remove("is-live"); }); });
+    var active = events.filter(function (ev) { return ev.startAt && ev.until && now >= ev.startAt && now < ev.until; }).sort(function (a,b){ return a.startAt-b.startAt; })[0] || null;
+    var next = events.filter(function (ev) { return ev.startAt && ev.startAt > now; }).sort(function (a,b){ return a.startAt-b.startAt; })[0] || null;
+    updateEventLabels(events, active, next);
+    if (!status) return;
 
-    // La sala solo se nombra si todas las fechas que vienen son en la misma.
-    var venues = unique(list.map(function (ev) { return ev.venue; }));
-    if (venues.length === 1) label += " · " + venues[0];
+    var label = status.querySelector("[data-event-status-label]");
+    var countdown = status.querySelector("[data-event-countdown]");
+    var live = status.querySelector("[data-event-live]");
+    var liveArtist = status.querySelector("[data-event-live-artist]");
 
-    return label;
+    if (active) {
+      var currentSet = active.sets.filter(function (set) { return now >= set.start && now < set.end; })[0] || null;
+      if (currentSet) currentSet.row.classList.add("is-live");
+      if (label) label.textContent = "RANDOM #" + active.edition + (active.name ? " · " + active.name : "");
+      if (liveArtist) liveArtist.textContent = currentSet ? currentSet.artist : (active.name || "RANDOM #" + active.edition);
+      setHidden(countdown, true); setHidden(live, false); setHidden(status, false); return;
+    }
+    if (next) {
+      if (label) label.textContent = "PRÓXIMA RANDOM · #" + next.edition + (next.name ? " · " + next.name : "");
+      if (countdown) countdown.textContent = countdownText(next.startAt - now);
+      setHidden(countdown, false); setHidden(live, true); setHidden(status, false); return;
+    }
+    setHidden(status, true);
+  }
+
+  function icsEscape(value) {
+    return String(value || "").replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
+  }
+
+  function icsUTC(date) {
+    return date.getUTCFullYear() + pad(date.getUTCMonth()+1) + pad(date.getUTCDate()) + "T" + pad(date.getUTCHours()) + pad(date.getUTCMinutes()) + pad(date.getUTCSeconds()) + "Z";
+  }
+
+  function calendarFilename(ev) {
+    var name = (ev.name || "event").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return "random-" + ev.edition + (name ? "-" + name : "") + ".ics";
+  }
+
+  function downloadCalendar(ev) {
+    var place = ev.panel && ev.panel.querySelector(".event-place");
+    var description = ev.sets.length ? "Set times: " + ev.sets.map(function (set) { return set.artist; }).join(" · ") : "RANDOM Electronic Experience";
+    var summary = "RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : "");
+    var lines = [
+      "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//RANDOM//Electronic Experience//ES","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+      "UID:random-" + ev.edition + "-" + ev.dateParts.year + pad(ev.dateParts.month) + pad(ev.dateParts.day) + "@randomelectronic.com",
+      "DTSTAMP:" + icsUTC(new Date()),"DTSTART:" + icsUTC(ev.calendarStart),"DTEND:" + icsUTC(ev.calendarEnd),
+      "SUMMARY:" + icsEscape(summary),"LOCATION:" + icsEscape(place ? place.textContent.trim() : ""),"DESCRIPTION:" + icsEscape(description),"URL:" + SITE_URL,
+      "END:VEVENT","END:VCALENDAR",""
+    ];
+    var blob = new Blob([lines.join("\r\n")], { type:"text/calendar;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a"); link.href = url; link.download = calendarFilename(ev);
+    document.body.appendChild(link); link.click(); link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function installCalendarButton(ev) {
+    if (!ev.panel || !ev.calendarStart || !ev.calendarEnd) return;
+    var actions = ev.panel.querySelector(".event-actions");
+    if (!actions || actions.querySelector("[data-calendar-button]")) return;
+    var button = document.createElement("button");
+    button.type = "button"; button.className = "button button--calendar"; button.setAttribute("data-calendar-button", "");
+    button.textContent = "+ AÑADIR AL CALENDARIO";
+    button.addEventListener("click", function () { downloadCalendar(ev); });
+    actions.insertBefore(button, actions.querySelector(".free-entry") || null);
   }
 
   function run() {
+    loadLiveStyles();
     var all = Array.prototype.map.call(document.querySelectorAll("[data-event]"), read);
     var now = new Date();
-
-    var upcoming = all.filter(function (ev) {
-      return ev.date && ev.until > now;
-    }).sort(function (a, b) {
-      return a.date - b.date;
-    });
-
-    // Las que ya pasaron bajan al archivo, chicas, y salen del carrusel; las
-    // que vienen se reordenan por cercanía. Todo antes de que el carrusel las
-    // levante, así solo se queda con las fechas por delante.
-    var past = all.filter(function (ev) {
-      return upcoming.indexOf(ev) === -1;
-    }).sort(function (a, b) {
-      return (b.date || 0) - (a.date || 0); // la más reciente primero
-    });
+    var upcoming = all.filter(function (ev) { return ev.dateParts && ev.until && ev.until > now; }).sort(function (a,b){ return (a.startAt||a.until)-(b.startAt||b.until); });
+    var past = all.filter(function (ev) { return upcoming.indexOf(ev) === -1; }).sort(function (a,b){ return (b.startAt||0)-(a.startAt||0); });
 
     var grid = document.querySelector("[data-archive-grid]");
-    past.forEach(function (ev) {
-      if (grid) grid.appendChild(archiveCard(ev));
-      if (ev.el.parentNode) ev.el.parentNode.removeChild(ev.el);
-    });
-    toggle("[data-archive]", past.length > 0);
-
-    upcoming.forEach(function (ev) {
-      if (ev.el.parentNode) ev.el.parentNode.appendChild(ev.el);
-    });
-
-    upcoming.forEach(function (ev, index) {
-      var label = ev.el.querySelector("[data-event-label]");
-      var title = ev.el.querySelector("[data-event-title]");
-      if (label && ev.edition) {
-        label.textContent = (index === 0 ? "PRÓXIMA FECHA · " : "") + "RANDOM #" + ev.edition;
-      }
-      if (title) title.textContent = eventTitle(ev.date);
+    past.forEach(function (ev) { if (ev.dateParts && grid) grid.appendChild(archiveCard(ev)); if (ev.el.parentNode) ev.el.parentNode.removeChild(ev.el); });
+    toggle("[data-archive]", past.some(function (ev) { return !!ev.dateParts; }));
+    upcoming.forEach(function (ev) { if (ev.el.parentNode) ev.el.parentNode.appendChild(ev.el); });
+    upcoming.forEach(function (ev,index) {
+      var label = ev.panel && ev.panel.querySelector("[data-event-label]");
+      var title = ev.panel && ev.panel.querySelector("[data-event-title]");
+      if (label && ev.edition) label.textContent = (index === 0 ? "PRÓXIMA FECHA · " : "") + "RANDOM #" + ev.edition;
+      if (title && ev.dateParts) title.textContent = eventTitle(ev.dateParts);
+      installCalendarButton(ev);
     });
 
-    fill("[data-next-dates]", heroDates(upcoming));
     text("[data-agenda-label]", upcoming.length ? "AGENDA / " + monthRange(upcoming) : "AGENDA");
     toggle("[data-carousel]", upcoming.length > 0);
     toggle("[data-agenda-empty]", upcoming.length === 0);
 
-    // El contador representa la última edición que ya terminó. Las fechas
-    // futuras no cuentan aunque ya estén cargadas en el HTML.
     var editions = document.querySelector("[data-stat-editions]");
-    var completed = all.filter(function (ev) {
-      return ev.date && ev.until && ev.until <= now;
-    }).sort(function (a, b) {
-      return (b.until - a.until) || (b.edition - a.edition);
-    });
-    if (editions) {
-      editions.textContent = completed.length ? String(completed[0].edition) : "0";
-    }
-
-    // RANDOM cumple años cada 14 de abril, no el 1 de enero.
+    var completed = all.filter(function (ev) { return ev.dateParts && ev.until && ev.until <= now; }).sort(function (a,b){ return (b.until-a.until)||(b.edition-a.edition); });
+    if (editions) editions.textContent = completed.length ? String(completed[0].edition) : "0";
     text("[data-stat-years]", String(yearsSinceAnniversary(now)));
     text("[data-year]", String(now.getFullYear()));
+
+    var status = setupHeroStatus();
+    var state = { reloadAt:upcoming.length ? upcoming[0].until : null, reloading:false };
+    updateDynamicState(upcoming, status, state);
+    window.setInterval(function () { updateDynamicState(upcoming, status, state); }, 1000);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
-  } else {
-    run();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run); else run();
 })();
