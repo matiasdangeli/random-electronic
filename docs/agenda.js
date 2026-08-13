@@ -126,7 +126,6 @@
     label.textContent = [
       ev.edition ? "#" + ev.edition : "",
       ev.name,
-      ev.date ? shortDate(ev.date) : "",
     ].filter(Boolean).join(" · ");
     item.appendChild(label);
 
