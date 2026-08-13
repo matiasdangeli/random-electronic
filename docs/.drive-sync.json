@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "folderId": "1sPi5Hi6mFN6ep2rXaA35afnMtnYoY64B",
+  "folderUrl": "https://drive.google.com/drive/folders/1sPi5Hi6mFN6ep2rXaA35afnMtnYoY64B",
+  "repository": "matiasdangeli/random-electronic",
+  "branch": "main",
+  "naming": {
+    "flyer": "NN or #NN",
+    "setTimes": "NN-horarios or NN-set-times",
+    "ignored": "Files whose names do not identify an edition"
+  },
+  "files": {
+    "63": {
+      "driveFileId": "13HyH_-BjIXuGsyrLga2-s0viO2A180vj",
+      "modifiedTime": "2026-08-13T04:16:38.074Z",
+      "sourceMimeType": "image/jpeg",
+      "repositoryPath": "docs/assets/random-63.jpg"
+    },
+    "64": {
+      "driveFileId": "1C_WsFZY33iQ1o0RRdVV877P3gBjdWdg1",
+      "modifiedTime": "2026-08-13T04:17:58.467Z",
+      "sourceMimeType": "image/png",
+      "repositoryPath": "docs/assets/random-64.png"
+    },
+    "65": {
+      "driveFileId": "1W5XYQ0gI4tUQdS7BmnyUU4BtZzKp7InR",
+      "modifiedTime": "2026-08-13T02:42:01.354Z",
+      "sourceMimeType": "image/png",
+      "repositoryPath": "docs/assets/random-65.webp"
+    },
+    "66": {
+      "driveFileId": "1xRVD1HSNHA1bTQR_lywLPbxPxKYMQFgK",
+      "modifiedTime": "2026-08-13T03:39:29.340Z",
+      "sourceMimeType": "image/png",
+      "repositoryPath": "docs/assets/random-66.webp"
+    },
+    "65-set-times": {
+      "driveFileId": "1nW8Z6_fZCTrU2HDAe_5SxwJjMu--urSL",
+      "modifiedTime": "2026-08-13T02:42:03.745Z",
+      "sourceMimeType": "image/png",
+      "repositoryPath": "docs/assets/random-65-set-times.webp"
+    }
+  },
+  "lastSyncedAt": "2026-08-13T04:30:21.355Z"
+}
