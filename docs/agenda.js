@@ -203,6 +203,11 @@
     return DAYS[date.getUTCDay()] + " " + parts.day + " " + MONTHS[parts.month - 1];
   }
 
+  function archiveDateValue(ev) {
+    if (!ev.dateParts) return 0;
+    return Date.UTC(ev.dateParts.year, ev.dateParts.month - 1, ev.dateParts.day);
+  }
+
   function archiveCard(ev) {
     var item = document.createElement("li");
     item.className = "archive-item";
@@ -382,7 +387,9 @@
     var all = Array.prototype.map.call(document.querySelectorAll("[data-event]"), read);
     var now = new Date();
     var upcoming = all.filter(function (ev) { return ev.dateParts && ev.until && ev.until > now; }).sort(function (a,b){ return (a.startAt||a.until)-(b.startAt||b.until); });
-    var past = all.filter(function (ev) { return upcoming.indexOf(ev) === -1; }).sort(function (a,b){ return (b.startAt||0)-(a.startAt||0); });
+    var past = all.filter(function (ev) { return upcoming.indexOf(ev) === -1; }).sort(function (a,b){
+      return (archiveDateValue(b) - archiveDateValue(a)) || (b.edition - a.edition);
+    });
 
     var grid = document.querySelector("[data-archive-grid]");
     past.forEach(function (ev) { if (ev.dateParts && grid) grid.appendChild(archiveCard(ev)); if (ev.el.parentNode) ev.el.parentNode.removeChild(ev.el); });
