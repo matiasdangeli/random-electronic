@@ -6,7 +6,7 @@
   var ANNIVERSARY_MONTH = 3;
   var ANNIVERSARY_DAY = 14;
   var ENDS_HOUR = 6;
-  var NIGHT_CUTOFF_MINUTES = 12 * 60;
+  var NIGHT_CUTOFF_MINUTES = 8 * 60;
   var DEFAULT_TIMEZONE = "Europe/Andorra";
   var SITE_URL = "https://randomelectronic.com/";
   var DAYS = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
@@ -83,8 +83,8 @@
    * En RANDOM la fecha del flyer nombra la noche social, no siempre el día civil.
    * Ejemplo: “SÁBADO 4 · 00:00” significa la noche del sábado, o sea domingo 5
    * a las 00:00 técnicamente. Si el primer horario explícito está entre 00:00 y
-   * 11:59, desplazamos el reloj al día siguiente. Horarios de tarde/noche como
-   * 16:00 o 23:00 siguen perteneciendo al día escrito en el flyer.
+   * 07:59, desplazamos el reloj al día siguiente. Horarios de día/tarde/noche
+   * como 10:00, 16:00 o 23:00 siguen perteneciendo al día escrito en el flyer.
    */
   function nightOffsetForRange(range) {
     return range && range.start < NIGHT_CUTOFF_MINUTES ? 1440 : 0;
