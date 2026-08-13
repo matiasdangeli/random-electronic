@@ -17,10 +17,10 @@ En `docs/index.html`, dentro de `<div class="carousel">`, se copia un
 | -------------- | ------------------------------------------------------ |
 | `data-edition` | Número de edición (`68`)                               |
 | `data-date`    | Día del flyer, `AAAA-MM-DD`                            |
-| `data-venue`   | Sala en corto, para la chapa del hero (`LEVEL`)         |
+| `data-venue`   | Sala en corto, para la chapa del hero (`LEVEL`)         |\n| `data-name`    | Nombre visual de la edición (`ACERO`)                 |
 | `data-until`   | Opcional: hasta cuándo se muestra (`AAAA-MM-DDTHH:MM`) |
 
-Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección
+En el archivo de fiestas pasadas, el formato se muestra siempre como `#NN · NOMBRE · FECHA` (por ejemplo, `#61 · ACERO · 22 MAY 2026`). El nombre sale de `data-name`, que la sincronización toma del nombre del flyer principal.\n\nAdentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección
 (`.event-place`), los set times, el link de "cómo llegar" y los dos flyers
 (`assets/random-NN.webp` y `assets/random-NN-set-times.webp`).
 
