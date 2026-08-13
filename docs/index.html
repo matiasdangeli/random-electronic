@@ -23,151 +23,11 @@
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://open.spotify.com" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
-    <style>
-      .music-section {
-        position: relative;
-        overflow: hidden;
-        padding: clamp(72px, 9vw, 128px) clamp(20px, 6vw, 88px);
-        background: #050505;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .music-section::before {
-        content: "";
-        position: absolute;
-        width: min(72vw, 900px);
-        aspect-ratio: 1;
-        left: 50%;
-        top: 48%;
-        transform: translate(-50%, -50%);
-        border-radius: 50%;
-        background: var(--edition-glow, rgba(255, 255, 255, 0.2));
-        filter: blur(150px);
-        opacity: 0.14;
-        pointer-events: none;
-      }
-
-      .music-inner {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        grid-template-columns: minmax(0, 0.85fr) minmax(320px, 1.15fr);
-        gap: clamp(36px, 7vw, 110px);
-        align-items: center;
-        max-width: 1320px;
-        margin: 0 auto;
-      }
-
-      .music-copy .eyebrow {
-        margin-bottom: 18px;
-      }
-
-      .music-copy h2 {
-        margin: 0;
-        max-width: 700px;
-        font-family: "Sora", sans-serif;
-        font-size: clamp(3rem, 7vw, 7.4rem);
-        line-height: 0.86;
-        letter-spacing: -0.065em;
-      }
-
-      .music-copy > p:not(.eyebrow) {
-        max-width: 520px;
-        margin: 28px 0 0;
-        color: rgba(255, 255, 255, 0.64);
-        font-size: clamp(0.95rem, 1.4vw, 1.08rem);
-        line-height: 1.7;
-      }
-
-      .spotify-shell {
-        position: relative;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 34px 100px rgba(0, 0, 0, 0.42);
-      }
-
-      .spotify-shell::before {
-        content: "RANDOM · OFFICIAL PLAYLIST";
-        display: block;
-        padding: 10px 8px 15px;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.68rem;
-        letter-spacing: 0.16em;
-        color: rgba(255, 255, 255, 0.46);
-      }
-
-      .spotify-shell iframe {
-        display: block;
-        width: 100%;
-        border: 0;
-        border-radius: 0;
-        background: #121212;
-      }
-
-      .music-actions {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        margin-top: 26px;
-        flex-wrap: wrap;
-      }
-
-      .music-spotify-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 46px;
-        padding: 0 18px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #fff;
-        text-decoration: none;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.74rem;
-        letter-spacing: 0.1em;
-        transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
-      }
-
-      .music-spotify-link:hover,
-      .music-spotify-link:focus-visible {
-        background: #fff;
-        color: #050505;
-        border-color: #fff;
-      }
-
-      @media (max-width: 860px) {
-        .music-inner {
-          grid-template-columns: 1fr;
-          gap: 40px;
-        }
-
-        .music-copy h2 {
-          font-size: clamp(3.4rem, 16vw, 6rem);
-        }
-      }
-
-      @media (max-width: 520px) {
-        .music-section {
-          padding-inline: 16px;
-        }
-
-        .spotify-shell {
-          padding: 7px;
-        }
-
-        .spotify-shell::before {
-          padding-inline: 5px;
-          font-size: 0.6rem;
-        }
-      }
-    </style>
     <title>RANDOM — Electronic Experience</title>
   </head>
   <body>
@@ -176,7 +36,6 @@
         <a class="brand" href="#inicio" aria-label="RANDOM, inicio"><img src="assets/random-wordmark.png" alt="RANDOM" /></a>
         <nav aria-label="Navegación principal">
           <a href="#fechas">FECHAS</a>
-          <a href="#musica">MÚSICA</a>
           <a href="#concepto">CONCEPTO</a>
           <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">INSTAGRAM ↗</a>
         </nav>
@@ -597,37 +456,6 @@
         <div class="archive" data-archive hidden>
           <p class="eyebrow">¿EN CUÁL ESTUVISTE?</p>
           <ul class="archive-grid" data-archive-grid></ul>
-        </div>
-      </section>
-
-      <section class="music-section" id="musica" aria-labelledby="music-title">
-        <div class="music-inner">
-          <div class="music-copy">
-            <p class="eyebrow">MÚSICA</p>
-            <h2 id="music-title">THE SOUND<br />OF RANDOM.</h2>
-            <p>Una selección de lo que suena en nuestra pista. Entrá, escuchá y quedate en RANDOM: Spotify se abre dentro de la página y, si querés, podés seguir la playlist desde tu cuenta.</p>
-            <div class="music-actions">
-              <a
-                class="music-spotify-link"
-                href="https://open.spotify.com/playlist/3bbCEjsb0gcMTVtqKqr31f"
-                target="_blank"
-                rel="noreferrer"
-              >ESCUCHAR EN SPOTIFY ↗</a>
-            </div>
-          </div>
-
-          <div class="spotify-shell">
-            <iframe
-              title="Playlist oficial RANDOM en Spotify"
-              src="https://open.spotify.com/embed/playlist/3bbCEjsb0gcMTVtqKqr31f?utm_source=generator&theme=0"
-              width="100%"
-              height="352"
-              frameborder="0"
-              allowfullscreen
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            ></iframe>
-          </div>
         </div>
       </section>
 
