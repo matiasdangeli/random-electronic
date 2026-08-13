@@ -328,25 +328,46 @@ svg {
   list-style: none;
 }
 
+/* Los flyers van a color completo desde el principio y apagados solo con
+   opacidad. Al pasar el mouse o tocar uno, sube a color y luz plenos y crece
+   apenas: lo justo para que destaque sin empujar a los de al lado.
+   Crece la imagen y no la ficha entera, porque escalar el texto lo empasta. */
 .archive-item img {
   width: 100%;
   aspect-ratio: 9 / 16;
   border: 1px solid var(--line);
   object-fit: cover;
-  opacity: 0.72;
-  /* El brillo compensa a los flyers que ya son oscuros: con solo opacidad y
-     gris, uno negro sobre fondo negro desaparecía. */
-  filter: saturate(0.35) brightness(1.35) contrast(0.92);
-  transition: opacity 260ms ease, filter 260ms ease;
+  opacity: 0.5;
+  transform: scale(1);
+  transform-origin: center;
+  transition: opacity 340ms ease, transform 420ms cubic-bezier(0.22, 0.68, 0.28, 1);
 }
 
-.archive-item:hover img {
+.archive-item.is-selected img {
   opacity: 1;
-  filter: none;
+  transform: scale(1.045);
+}
+
+/* El hover solo donde hay mouse de verdad: en pantalla táctil se queda pegado
+   después de tocar y el destacado nunca se apagaría. Ahí manda is-selected. */
+@media (hover: hover) {
+  .archive-item:hover img {
+    opacity: 1;
+    transform: scale(1.045);
+  }
+
+  .archive-item:hover .archive-label {
+    color: var(--paper);
+  }
+}
+
+.archive-item.is-selected .archive-label {
+  color: var(--paper);
 }
 
 .archive-label {
   margin: 9px 0 0;
+  transition: color 340ms ease;
   color: #6d6965;
   font-family: var(--font-mono);
   font-size: 9px;
@@ -362,8 +383,10 @@ svg {
     display: flex;
     margin-right: calc(-1 * clamp(20px, 5vw, 80px));
     margin-left: calc(-1 * clamp(20px, 5vw, 80px));
-    padding-right: clamp(20px, 5vw, 80px);
-    padding-left: clamp(20px, 5vw, 80px);
+    /* Arriba y abajo va aire para que el flyer que crece al tocarlo no quede
+       recortado: el scroll horizontal también corta en vertical. */
+    padding: 8px clamp(20px, 5vw, 80px);
+    margin-top: -8px;
     gap: 12px;
     overflow-x: auto;
     scroll-snap-type: x proximity;
@@ -1220,8 +1243,4 @@ footer a {
 }
 
 
-/* El archivo conserva color y, al seleccionar una edición, las demás se apagan. */
-.archive-grid:has(.archive-item.is-selected) .archive-item:not(.is-selected) img {
-  filter: saturate(0.35) brightness(0.675) contrast(0.92);
-}
 .archive-item { cursor: pointer; }
