@@ -17,7 +17,9 @@
 (function () {
   "use strict";
 
-  var FIRST_YEAR = 2018; // primera edición de RANDOM, para los años que lleva
+  var FIRST_YEAR = 2018; // año de inicio de RANDOM
+  var ANNIVERSARY_MONTH = 3; // abril, en formato de Date() (enero = 0)
+  var ANNIVERSARY_DAY = 14;
   var ENDS_HOUR = 6; // a las 06:00 del día siguiente la fecha ya pasó
   var MAX_HERO_DATES = 3; // más que esto en la chapa del hero no entra
 
@@ -39,8 +41,11 @@
     return new Date(+parts[1], +parts[2] - 1, +parts[3], +(parts[4] || 0), +(parts[5] || 0));
   }
 
-  function pad2(value) {
-    return value < 10 ? "0" + value : String(value);
+  function yearsSinceAnniversary(now) {
+    var years = now.getFullYear() - FIRST_YEAR;
+    var anniversary = new Date(now.getFullYear(), ANNIVERSARY_MONTH, ANNIVERSARY_DAY);
+    if (now < anniversary) years -= 1;
+    return Math.max(0, years);
   }
 
   function unique(list) {
@@ -209,17 +214,20 @@
     toggle("[data-carousel]", upcoming.length > 0);
     toggle("[data-agenda-empty]", upcoming.length === 0);
 
-    // El contador de ediciones nunca baja: el HTML trae el piso y el script lo
-    // sube si hay una edición más alta cargada.
+    // El contador representa la última edición que ya terminó. Las fechas
+    // futuras no cuentan aunque ya estén cargadas en el HTML.
     var editions = document.querySelector("[data-stat-editions]");
-    var highest = all.reduce(function (top, ev) {
-      return Math.max(top, ev.edition);
-    }, 0);
-    if (editions && highest > (parseInt(editions.textContent, 10) || 0)) {
-      editions.textContent = pad2(highest);
+    var completed = all.filter(function (ev) {
+      return ev.date && ev.until && ev.until <= now;
+    }).sort(function (a, b) {
+      return (b.until - a.until) || (b.edition - a.edition);
+    });
+    if (editions) {
+      editions.textContent = completed.length ? String(completed[0].edition) : "0";
     }
 
-    text("[data-stat-years]", pad2(now.getFullYear() - FIRST_YEAR));
+    // RANDOM cumple años cada 14 de abril, no el 1 de enero.
+    text("[data-stat-years]", String(yearsSinceAnniversary(now)));
     text("[data-year]", String(now.getFullYear()));
   }
 
