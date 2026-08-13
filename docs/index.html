@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#070707" />
     <meta name="description" content="Sitio oficial de RANDOM. Próximas fechas, line-up y set times en Andorra." />
+    <!-- Al compartir el link, la imagen y la URL tienen que ser absolutas: los
+         crawlers de WhatsApp e Instagram no resuelven rutas relativas ni
+         ejecutan JS. El canonical evita que se indexe dos veces, por el dominio
+         y por la URL de github.io. -->
+    <link rel="canonical" href="https://randomelectronic.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://randomelectronic.com/" />
+    <meta property="og:site_name" content="RANDOM" />
     <meta property="og:title" content="RANDOM — Electronic Experience" />
     <meta property="og:description" content="Próximas fechas, line-up y set times de RANDOM en Andorra." />
-    <meta property="og:image" content="assets/random-67.webp" />
+    <meta property="og:image" content="https://randomelectronic.com/assets/hero.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- El símbolo es blanco sobre transparente: como favicon suelto no se ve en
          una pestaña clara, así que va sobre el negro de la marca. -->
     <link rel="icon" href="assets/favicon.ico" sizes="16x16 32x32 48x48" />
@@ -55,7 +64,9 @@
 
       .past-events-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        /* auto-fill y no auto-fit: con una o dos fechas, auto-fit estira la
+           tarjeta a todo el ancho y deja de verse como archivo. */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 14px;
       }
 
@@ -178,6 +189,40 @@
              archivo. carousel.js solo recibe las fechas que todavía vienen. -->
         <div class="carousel" data-carousel>
           <article
+            class="event event--xray"
+            data-event
+            data-edition="65"
+            data-date="2026-07-03"
+            data-venue="LEVEL"
+          >
+            <div class="flyer3d" data-card>
+              <div class="flyer3d-face flyer3d-face--front">
+                <img src="assets/random-65.webp" alt="Flyer oficial de RANDOM #65" loading="lazy" />
+                <span class="flyer3d-edition">#65</span>
+              </div>
+              <div class="flyer3d-face flyer3d-face--back">
+                <img src="assets/random-65-set-times.webp" alt="Flyer con los set times de RANDOM #65" loading="lazy" />
+              </div>
+            </div>
+            <div class="event-panel event-panel--xray" data-panel>
+              <p class="eyebrow" data-event-label>RANDOM #65</p>
+              <h3 data-event-title>VIERNES 3 JULIO</h3>
+              <p class="event-meta">00:00 — 05:00 · LEVEL ANDORRA</p>
+              <p class="event-place">Edifici Enland, km 0 · Andorra la Vella</p>
+              <div class="schedule" aria-label="Set times de RANDOM 65">
+                <div class="schedule-row"><span>00:00 — 02:00</span><strong>BRAYAN MENDEZ</strong></div>
+                <div class="schedule-row"><span>02:00 — 03:00</span><strong>MUPE</strong></div>
+                <div class="schedule-row"><span>03:00 — 05:00</span><strong>KNART B2B GASTOFF</strong></div>
+              </div>
+              <div class="event-actions">
+                <a class="button button--solid" href="https://www.google.com/maps/place/DISCOTECA+LEVEL+ANDORRA/@42.5066451,1.5314267,587m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12a58b00008c03b7:0x97377cd5b09f1c00!8m2!3d42.5066451!4d1.5340016!16s%2Fg%2F11wmtngmrk?entry=ttu&amp;g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer">CÓMO LLEGAR <span>→</span></a>
+                <span class="free-entry">ENTRADA LIBRE Y GRATUITA</span>
+              </div>
+              <details class="full-flyer"><summary>VER FLYER DE SET TIMES</summary><img src="assets/random-65-set-times.webp" alt="Flyer con set times de RANDOM #65" loading="lazy" /></details>
+            </div>
+          </article>
+
+          <article
             class="event event--bone"
             data-event
             data-edition="67"
@@ -281,7 +326,9 @@
       </section>
 
       <section class="social-cta">
-        <p>LO QUE PASA EN LA PISTA,<br />SIGUE EN INSTAGRAM.</p>
+        <!-- Sin <br> fijo: el corte lo reparte el navegador (text-wrap: balance),
+             así no queda una línea huérfana según el ancho de pantalla. -->
+        <p>¿Y DÓNDE LA SEGUIMOS? EN INSTAGRAM.</p>
         <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">@RANDOM.ELECTRONIC <span>→</span></a>
       </section>
 

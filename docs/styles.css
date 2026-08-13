@@ -103,13 +103,13 @@ svg {
     linear-gradient(180deg, #191817 0%, #080808 62%, #050505 100%);
 }
 
-/* El fondo es el flyer de la próxima fecha: agenda.js define --hero-flyer y
-   acá queda el último cargado como respaldo. */
+/* Foto de la pista, no un flyer: sirve para cualquier edición y no queda vieja
+   cuando pasa la fecha. */
 .hero::after {
   position: absolute;
   z-index: -1;
   inset: 0;
-  background-image: var(--hero-flyer, url("assets/random-67.webp"));
+  background-image: url("assets/hero.webp");
   background-position: center 24%;
   background-size: cover;
   content: "";
@@ -302,6 +302,13 @@ svg {
     #14065d;
 }
 
+.event--xray {
+  --accent: #cfe6f5;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(120, 190, 235, 0.16), transparent 42%),
+    #06090c;
+}
+
 .flyer3d {
   position: relative;
   overflow: hidden;
@@ -317,6 +324,9 @@ svg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Que arrastrar el flyer mueva la fila y no se lleve la imagen. */
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .flyer3d-face--back {
@@ -350,6 +360,10 @@ svg {
 
 .event-panel--plasma {
   --accent: #ffac16;
+}
+
+.event-panel--xray {
+  --accent: #cfe6f5;
 }
 
 .event-panel .eyebrow,
@@ -810,16 +824,23 @@ svg {
 }
 
 .social-cta p {
+  /* Que se quede con el ancho sobrante: apretado, el titular se parte en tres
+     líneas y una queda corta. */
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
-  font-size: clamp(42px, 6vw, 94px);
+  font-size: clamp(38px, 5.4vw, 84px);
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.07em;
+  /* Reparte las líneas parejas en vez de dejar una sola palabra colgando. */
+  text-wrap: balance;
 }
 
 .social-cta a {
   display: flex;
-  min-width: 290px;
+  flex: 0 0 auto;
+  min-width: 250px;
   align-items: center;
   justify-content: space-between;
   padding: 20px 0;

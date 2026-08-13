@@ -224,12 +224,6 @@
     toggle("[data-agenda-empty]", upcoming.length === 0);
     toggle("[data-past-events]", past.length > 0);
 
-    // El fondo del hero es el flyer de la próxima fecha.
-    var flyer = upcoming.length && upcoming[0].el.querySelector(".flyer3d-face--front img");
-    if (flyer) {
-      document.documentElement.style.setProperty("--hero-flyer", 'url("' + flyer.getAttribute("src") + '")');
-    }
-
     // El contador de ediciones nunca baja: el HTML trae el piso y el script lo
     // sube si hay una edición más alta cargada.
     var editions = document.querySelector("[data-stat-editions]");

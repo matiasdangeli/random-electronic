@@ -30,10 +30,16 @@ no hay que tocarlos.
 
 ## Cuándo se cae una fecha
 
-Cada fecha se muestra hasta las 06:00 del día siguiente al del flyer, porque las
-fiestas son de madrugada. Después desaparece sola: no hace falta borrar la
-ficha, aunque conviene limpiarlas de vez en cuando. Si no queda ninguna fecha
-por delante, la agenda muestra un aviso con el link a Instagram.
+Cada fecha está en la agenda hasta las 06:00 del día siguiente al del flyer,
+porque las fiestas son de madrugada. Después baja sola al archivo ("YA PASARON"),
+donde queda chica y apagada: da contexto sin competirle a la que viene.
+
+Por eso **las fichas viejas no se borran**: son las que arman el archivo. Se
+ordena solo, de la más reciente a la más vieja. Si querés recortarlo, borrá la
+ficha más vieja y sus dos flyers de `assets/`.
+
+Si no queda ninguna fecha por delante, la agenda muestra un aviso con el link a
+Instagram y el archivo sigue abajo.
 
 Para una edición con otro horario se puede correr ese corte con `data-until`.
 

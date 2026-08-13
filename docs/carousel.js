@@ -16,6 +16,11 @@
   "use strict";
 
   var SPEED = 0.0016; // avance por frame a 60fps: una fecha cada ~10s
+  // Cuánto se "pega" el flyer al centro. Cuanto más alto, más tiempo queda
+  // quieto y más de golpe salta al siguiente. Bajo, el cambio se reparte y se
+  // lee como un movimiento y no como un corte.
+  var MAGNET = 2.6;
+  var SEEK_DAMP = 0.055; // qué tan rápido acomoda al soltar o al tocar un punto
   var GAP = 36; // separación entre flyer centrado y el de al lado
   var PEEK = -55; // cuánto se esconde el flyer al llegar al borde
   var DEPTH = 1350; // debe coincidir con el perspective del CSS
@@ -207,7 +212,7 @@
       // Paso magnético: se demora en el centro y después acelera.
       var rounded = Math.round(progress);
       var diff = progress - rounded;
-      var eased = Math.sign(diff) * Math.pow(Math.abs(diff) * 2, 4.2) / 2;
+      var eased = Math.sign(diff) * Math.pow(Math.abs(diff) * 2, MAGNET) / 2;
       var virtual = rounded + eased;
       var half = count / 2;
 
@@ -302,7 +307,7 @@
       }
 
       if (seeking !== null) {
-        progress += (seeking - progress) * 0.09 * delta;
+        progress += (seeking - progress) * SEEK_DAMP * delta;
         if (Math.abs(seeking - progress) < 0.002) {
           progress = seeking;
           seeking = null;
@@ -337,6 +342,13 @@
 
     stage.addEventListener("mouseleave", function () {
       hovering = false;
+    });
+
+    // Sin esto, arrastrar con el mouse dispara el drag nativo del navegador y
+    // te llevás la imagen del flyer en vez de mover la fila. Con el dedo no
+    // pasa, por eso solo se notaba en desktop.
+    stage.addEventListener("dragstart", function (e) {
+      e.preventDefault();
     });
 
     stage.addEventListener("pointerdown", function (e) {
