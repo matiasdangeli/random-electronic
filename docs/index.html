@@ -19,6 +19,116 @@
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Archivo secundario: conserva las ediciones que ya pasaron sin competir
+         visualmente con las próximas fechas. agenda.js lo llena automáticamente. */
+      .past-events {
+        max-width: 1400px;
+        margin: 82px auto 0;
+        padding-top: 38px;
+        border-top: 1px solid var(--line);
+      }
+
+      .past-events-heading {
+        display: grid;
+        margin-bottom: 26px;
+        grid-template-columns: 0.7fr 1fr 1fr;
+        align-items: end;
+        gap: 24px;
+      }
+
+      .past-events-heading h3 {
+        margin: 0;
+        color: #77716b;
+        font-size: clamp(34px, 4vw, 60px);
+        line-height: 0.88;
+        letter-spacing: -0.06em;
+      }
+
+      .past-events-heading > p:last-child {
+        max-width: 360px;
+        margin: 0;
+        color: #625e59;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .past-events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+
+      .past-event {
+        display: grid;
+        min-height: 132px;
+        grid-template-columns: 74px 1fr;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0b0b0b;
+        opacity: 0.62;
+        overflow: hidden;
+        transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease;
+      }
+
+      .past-event:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        opacity: 0.92;
+        transform: translateY(-2px);
+      }
+
+      .past-event img {
+        width: 74px;
+        height: 132px;
+        object-fit: cover;
+        filter: grayscale(1) contrast(0.9);
+      }
+
+      .past-event-copy {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        padding: 14px 16px;
+      }
+
+      .past-event-edition,
+      .past-event-venue {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        color: #77716b;
+      }
+
+      .past-event-date {
+        margin: 7px 0 10px;
+        color: #b7b0aa;
+        font-size: 16px;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+      }
+
+      @media (max-width: 900px) {
+        .past-events-heading {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .past-events {
+          margin-top: 58px;
+          padding-top: 28px;
+        }
+
+        .past-events-heading h3 {
+          font-size: 40px;
+        }
+
+        .past-events-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
     <title>RANDOM — Electronic Experience</title>
   </head>
   <body>
@@ -60,13 +170,12 @@
                data-edition  número de edición
                data-date     día del flyer, AAAA-MM-DD
                data-venue    sala, corta, para la chapa del hero
-               data-until    opcional, hasta cuándo se muestra (AAAA-MM-DDTHH:MM).
+               data-until    opcional, hasta cuándo se muestra como próxima (AAAA-MM-DDTHH:MM).
                              Por defecto, hasta las 06:00 del día siguiente.
 
-             El título y el "PRÓXIMA FECHA" los escribe agenda.js a partir de esos
-             datos, ordena por cercanía y borra las fechas que ya pasaron. Sin JS
-             o con "reducir movimiento" esto se ve como una lista normal de
-             fechas; el script convierte los flyers en un carrusel 3D. -->
+             agenda.js ordena las próximas por cercanía y, cuando una fecha ya
+             pasó, la convierte automáticamente en una tarjeta compacta del
+             archivo. carousel.js solo recibe las fechas que todavía vienen. -->
         <div class="carousel" data-carousel>
           <article
             class="event event--bone"
@@ -146,6 +255,16 @@
           <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">@random.electronic</a>
           y enterate primero.
         </p>
+
+        <!-- Las fechas ya realizadas aparecen acá, mucho más chicas y en segundo plano. -->
+        <div class="past-events" data-past-events hidden>
+          <div class="past-events-heading">
+            <p class="eyebrow">ARCHIVO / RANDOM</p>
+            <h3>FECHAS<br />PASADAS</h3>
+            <p>Ediciones recientes que ya sucedieron, guardadas sin quitarle protagonismo a lo que viene.</p>
+          </div>
+          <div class="past-events-grid" data-past-events-grid></div>
+        </div>
       </section>
 
       <section class="manifesto" id="concepto">
@@ -172,7 +291,7 @@
         <a href="#inicio">VOLVER ARRIBA ↑</a>
       </footer>
     </main>
-    <!-- agenda.js va primero: deja en el DOM solo las fechas que vienen. -->
+    <!-- agenda.js va primero: separa próximas fechas y archivo antes del carrusel. -->
     <script src="agenda.js" defer></script>
     <script src="carousel.js" defer></script>
   </body>
