@@ -3,13 +3,13 @@
  *
  * Cada fecha vive en el HTML como una ficha con sus datos (edición, día, sala,
  * dirección). Este script las lee y arma solo lo que cambia de una edición a
- * otra: separa las que ya pasaron en un archivo compacto, ordena las que vienen
- * de la más cercana a la más lejana, y escribe la chapa del hero, el título de
- * la agenda, los contadores y el año del pie.
+ * otra: ordena las que vienen de la más cercana a la más lejana, baja las que
+ * ya pasaron al archivo, y escribe la chapa del hero, el título de la agenda,
+ * los contadores y el año del pie.
  *
  * La idea es que el sitio sirva igual con una fecha, con dos o con ninguna:
- * se agrega una ficha y el resto se acomoda solo. Nada de "dos viernes" ni de
- * meses escritos a mano.
+ * se agrega o se borra una ficha y el resto se acomoda solo. Nada de "dos
+ * viernes" ni de meses escritos a mano.
  *
  * Corre antes que carousel.js, así el carrusel solo ve las fechas que vienen.
  */
@@ -96,6 +96,36 @@
     return DAYS[date.getDay()] + " " + date.getDate() + " " + MONTHS[date.getMonth()];
   }
 
+  function shortDate(date) {
+    return date.getDate() + " " + MONTHS_SHORT[date.getMonth()] + " " + date.getFullYear();
+  }
+
+  // Ficha chica para el archivo: el flyer, el número de edición y la fecha.
+  // Nada más: si tuviera line-up y botones volvería a competir con la agenda.
+  function archiveCard(ev) {
+    var item = document.createElement("li");
+    item.className = "archive-item";
+
+    var flyer = ev.el.querySelector(".flyer3d-face--front img");
+    if (flyer) {
+      var img = document.createElement("img");
+      img.setAttribute("src", flyer.getAttribute("src"));
+      img.setAttribute("alt", flyer.getAttribute("alt") || "");
+      img.setAttribute("loading", "lazy");
+      item.appendChild(img);
+    }
+
+    var label = document.createElement("p");
+    label.className = "archive-label";
+    label.textContent = [
+      ev.edition ? "#" + ev.edition : "",
+      ev.date ? shortDate(ev.date) : "",
+    ].filter(Boolean).join(" · ");
+    item.appendChild(label);
+
+    return item;
+  }
+
   // "AGOSTO 2026", "AGOSTO – SEPTIEMBRE 2026" o "DICIEMBRE 2026 – ENERO 2027".
   function monthRange(list) {
     var first = list[0].date;
@@ -135,47 +165,9 @@
     return label;
   }
 
-  function archiveCard(ev) {
-    var card = document.createElement("article");
-    card.className = "past-event";
-
-    var flyer = ev.el.querySelector(".flyer3d-face--front img");
-    if (flyer) {
-      var image = document.createElement("img");
-      image.src = flyer.getAttribute("src");
-      image.alt = flyer.getAttribute("alt") || ("Flyer RANDOM #" + ev.edition);
-      image.loading = "lazy";
-      card.appendChild(image);
-    }
-
-    var copy = document.createElement("div");
-    copy.className = "past-event-copy";
-
-    var edition = document.createElement("p");
-    edition.className = "past-event-edition";
-    edition.textContent = ev.edition ? "RANDOM #" + ev.edition : "RANDOM";
-
-    var date = document.createElement("strong");
-    date.className = "past-event-date";
-    date.textContent = eventTitle(ev.date);
-
-    var venue = document.createElement("p");
-    venue.className = "past-event-venue";
-    venue.textContent = (ev.venue ? ev.venue + " · " : "") + ev.date.getFullYear();
-
-    copy.appendChild(edition);
-    copy.appendChild(date);
-    copy.appendChild(venue);
-    card.appendChild(copy);
-
-    return card;
-  }
-
   function run() {
     var all = Array.prototype.map.call(document.querySelectorAll("[data-event]"), read);
     var now = new Date();
-    var carousel = document.querySelector("[data-carousel]");
-    var archive = document.querySelector("[data-past-events-grid]");
 
     var upcoming = all.filter(function (ev) {
       return ev.date && ev.until > now;
@@ -183,30 +175,24 @@
       return a.date - b.date;
     });
 
+    // Las que ya pasaron bajan al archivo, chicas, y salen del carrusel; las
+    // que vienen se reordenan por cercanía. Todo antes de que el carrusel las
+    // levante, así solo se queda con las fechas por delante.
     var past = all.filter(function (ev) {
-      return ev.date && ev.until <= now;
+      return upcoming.indexOf(ev) === -1;
     }).sort(function (a, b) {
-      return b.date - a.date;
+      return (b.date || 0) - (a.date || 0); // la más reciente primero
     });
 
-    // Primero armamos una versión reducida de las fechas que ya pasaron. La
-    // ficha completa sale del carrusel para que no compita con lo que viene.
-    if (archive) {
-      archive.textContent = "";
-      past.forEach(function (ev) {
-        archive.appendChild(archiveCard(ev));
-      });
-    }
-
-    all.forEach(function (ev) {
-      if (upcoming.indexOf(ev) === -1 && ev.el.parentNode) {
-        ev.el.parentNode.removeChild(ev.el);
-      }
+    var grid = document.querySelector("[data-archive-grid]");
+    past.forEach(function (ev) {
+      if (grid) grid.appendChild(archiveCard(ev));
+      if (ev.el.parentNode) ev.el.parentNode.removeChild(ev.el);
     });
+    toggle("[data-archive]", past.length > 0);
 
-    // Las próximas siempre quedan en el carrusel, ordenadas por cercanía.
     upcoming.forEach(function (ev) {
-      if (carousel) carousel.appendChild(ev.el);
+      if (ev.el.parentNode) ev.el.parentNode.appendChild(ev.el);
     });
 
     upcoming.forEach(function (ev, index) {
@@ -222,7 +208,6 @@
     text("[data-agenda-label]", upcoming.length ? "AGENDA / " + monthRange(upcoming) : "AGENDA");
     toggle("[data-carousel]", upcoming.length > 0);
     toggle("[data-agenda-empty]", upcoming.length === 0);
-    toggle("[data-past-events]", past.length > 0);
 
     // El contador de ediciones nunca baja: el HTML trae el piso y el script lo
     // sube si hay una edición más alta cargada.

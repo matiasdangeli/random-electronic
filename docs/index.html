@@ -28,118 +28,6 @@
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
-    <style>
-      /* Archivo secundario: conserva las ediciones que ya pasaron sin competir
-         visualmente con las próximas fechas. agenda.js lo llena automáticamente. */
-      .past-events {
-        max-width: 1400px;
-        margin: 82px auto 0;
-        padding-top: 38px;
-        border-top: 1px solid var(--line);
-      }
-
-      .past-events-heading {
-        display: grid;
-        margin-bottom: 26px;
-        grid-template-columns: 0.7fr 1fr 1fr;
-        align-items: end;
-        gap: 24px;
-      }
-
-      .past-events-heading h3 {
-        margin: 0;
-        color: #77716b;
-        font-size: clamp(34px, 4vw, 60px);
-        line-height: 0.88;
-        letter-spacing: -0.06em;
-      }
-
-      .past-events-heading > p:last-child {
-        max-width: 360px;
-        margin: 0;
-        color: #625e59;
-        font-size: 12px;
-        line-height: 1.55;
-      }
-
-      .past-events-grid {
-        display: grid;
-        /* auto-fill y no auto-fit: con una o dos fechas, auto-fit estira la
-           tarjeta a todo el ancho y deja de verse como archivo. */
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 14px;
-      }
-
-      .past-event {
-        display: grid;
-        min-height: 132px;
-        grid-template-columns: 74px 1fr;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        background: #0b0b0b;
-        opacity: 0.62;
-        overflow: hidden;
-        transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease;
-      }
-
-      .past-event:hover {
-        border-color: rgba(255, 255, 255, 0.18);
-        opacity: 0.92;
-        transform: translateY(-2px);
-      }
-
-      .past-event img {
-        width: 74px;
-        height: 132px;
-        object-fit: cover;
-        filter: grayscale(1) contrast(0.9);
-      }
-
-      .past-event-copy {
-        display: flex;
-        min-width: 0;
-        flex-direction: column;
-        justify-content: center;
-        padding: 14px 16px;
-      }
-
-      .past-event-edition,
-      .past-event-venue {
-        margin: 0;
-        font-family: var(--font-mono);
-        font-size: 8px;
-        letter-spacing: 0.14em;
-        color: #77716b;
-      }
-
-      .past-event-date {
-        margin: 7px 0 10px;
-        color: #b7b0aa;
-        font-size: 16px;
-        line-height: 1.05;
-        letter-spacing: -0.035em;
-      }
-
-      @media (max-width: 900px) {
-        .past-events-heading {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 600px) {
-        .past-events {
-          margin-top: 58px;
-          padding-top: 28px;
-        }
-
-        .past-events-heading h3 {
-          font-size: 40px;
-        }
-
-        .past-events-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
     <title>RANDOM — Electronic Experience</title>
   </head>
   <body>
@@ -301,14 +189,11 @@
           y enterate primero.
         </p>
 
-        <!-- Las fechas ya realizadas aparecen acá, mucho más chicas y en segundo plano. -->
-        <div class="past-events" data-past-events hidden>
-          <div class="past-events-heading">
-            <p class="eyebrow">ARCHIVO / RANDOM</p>
-            <h3>FECHAS<br />PASADAS</h3>
-            <p>Ediciones recientes que ya sucedieron, guardadas sin quitarle protagonismo a lo que viene.</p>
-          </div>
-          <div class="past-events-grid" data-past-events-grid></div>
+        <!-- Las fechas que ya pasaron las baja acá agenda.js, en chico y
+             apagadas: están para dar contexto, no para competirle a la que viene. -->
+        <div class="archive" data-archive hidden>
+          <p class="eyebrow">YA PASARON</p>
+          <ul class="archive-grid" data-archive-grid></ul>
         </div>
       </section>
 
@@ -325,11 +210,17 @@
         </div>
       </section>
 
-      <section class="social-cta">
+      <section class="social-cta" id="contacto">
         <!-- Sin <br> fijo: el corte lo reparte el navegador (text-wrap: balance),
              así no queda una línea huérfana según el ancho de pantalla. -->
         <p>¿Y DÓNDE LA SEGUIMOS? EN INSTAGRAM.</p>
-        <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">@RANDOM.ELECTRONIC <span>→</span></a>
+        <!-- El texto va en minúscula y lo pasa a mayúscula el CSS: así el mail
+             del href queda tal cual, sin depender de cómo se muestre. -->
+        <div class="contact-links">
+          <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">@random.electronic <span>→</span></a>
+          <a href="https://wa.me/376670036" target="_blank" rel="noreferrer">WhatsApp · +376 670036 <span>→</span></a>
+          <a href="mailto:randomelectromusic@gmail.com">randomelectromusic@gmail.com <span>→</span></a>
+        </div>
       </section>
 
       <footer>

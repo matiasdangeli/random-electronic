@@ -276,6 +276,55 @@ svg {
   color: var(--paper);
 }
 
+/* --- Archivo: las fechas que ya pasaron -----------------------------------
+   Chicas y apagadas. Están para dar contexto y mostrar que la fiesta tiene
+   historia, no para competirle a la fecha que viene. */
+
+.archive {
+  max-width: 1400px;
+  margin: clamp(70px, 9vw, 110px) auto 0;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
+.archive .eyebrow {
+  margin-bottom: 24px;
+}
+
+.archive-grid {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: clamp(14px, 2vw, 26px);
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  list-style: none;
+}
+
+.archive-item img {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border: 1px solid var(--line);
+  object-fit: cover;
+  opacity: 0.72;
+  /* El brillo compensa a los flyers que ya son oscuros: con solo opacidad y
+     gris, uno negro sobre fondo negro desaparecía. */
+  filter: grayscale(1) brightness(1.35) contrast(0.92);
+  transition: opacity 260ms ease, filter 260ms ease;
+}
+
+.archive-item:hover img {
+  opacity: 1;
+  filter: none;
+}
+
+.archive-label {
+  margin: 9px 0 0;
+  color: #6d6965;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
 /* --- Fechas: presentación base (sin JS o con "reducir movimiento") ---------
    Una ficha por fecha, flyer al lado del detalle. El carrusel 3D se monta
    encima de esto; si el script no corre, esto es lo que se ve. */
@@ -837,17 +886,32 @@ svg {
   text-wrap: balance;
 }
 
-.social-cta a {
+/* Instagram, WhatsApp y mail apilados: es donde alguien busca cómo escribir. */
+.contact-links {
   display: flex;
   flex: 0 0 auto;
   min-width: 250px;
+  flex-direction: column;
+}
+
+.social-cta a {
+  display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 18px;
   padding: 20px 0;
   border-bottom: 1px solid currentColor;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
+  /* El href lleva el mail tal cual; la mayúscula es solo presentación. */
+  text-transform: uppercase;
+  transition: opacity 180ms ease;
+}
+
+.social-cta a:hover,
+.social-cta a:focus-visible {
+  opacity: 0.65;
 }
 
 footer {
