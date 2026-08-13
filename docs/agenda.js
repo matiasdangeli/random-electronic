@@ -123,10 +123,8 @@
 
     var label = document.createElement("p");
     label.className = "archive-label";
-    label.textContent = [
-      ev.edition ? "#" + ev.edition : "",
-      ev.name,
-    ].filter(Boolean).join(" · ");
+    label.textContent = (ev.edition ? "#" + ev.edition : "") +
+      (ev.name ? " · " + ev.name : "");
     item.appendChild(label);
 
     item.addEventListener("click", function () {
