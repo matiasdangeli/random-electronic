@@ -32,7 +32,7 @@ En RANDOM, `data-date` representa **la noche que anuncia el flyer**, no necesari
 
 Ejemplo: si el flyer dice `SÁBADO 4` y el evento empieza `00:00`, RANDOM interpreta ese comienzo como **domingo 5 a las 00:00**. La web sigue mostrando `SÁBADO 4`, porque esa es la fecha comunicada de la edición, pero internamente usa el instante civil correcto.
 
-La regla se aplica automáticamente cuando el primer horario explícito está entre `00:00` y `11:59`. Horarios como `16:00` o `23:00` permanecen en el mismo día indicado por el flyer. Si una programación empieza antes de medianoche y continúa después, los sets posteriores avanzan al día siguiente de forma normal.
+La regla se aplica automáticamente cuando el primer horario explícito está entre `00:00` y `07:59`. Horarios como `10:00`, `16:00` o `23:00` permanecen en el mismo día indicado por el flyer. Si una programación empieza antes de medianoche y continúa después, los sets posteriores avanzan al día siguiente de forma normal.
 
 Esta semántica es única para todo el sistema y alimenta:
 
