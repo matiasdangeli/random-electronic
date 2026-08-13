@@ -43,6 +43,26 @@ Instagram y el archivo sigue abajo.
 
 Para una edición con otro horario se puede correr ese corte con `data-until`.
 
+## Cuando la fecha no sigue el molde
+
+No todas las ediciones son un viernes de madrugada en Level. Lo que ya apareció
+y cómo se resuelve:
+
+- **De día** (la #66 fue sábado 16:00–22:00): poné `data-until` con la hora real
+  de cierre, si no el corte por defecto la deja un día de más en la agenda.
+- **En otra sala u otro país** (la #64 fue en Colón, Buenos Aires): cambiá
+  `data-venue`, la línea `.event-place` y el link de "cómo llegar". Nada de eso
+  está fijo en el sitio.
+- **Sin horarios por DJ**, solo line-up: usá `class="schedule schedule--lineup"`
+  y filas con el nombre solo, sin el `<span>` de la hora.
+- **Un solo flyer**, sin uno de set times: sacá la cara `flyer3d-face--back` y el
+  desplegable `full-flyer`. El archivo usa solo el flyer de adelante.
+- **Entrada paga o condiciones distintas**: `.free-entry` es texto libre, poné lo
+  que diga el flyer y nada más.
+- **Color**: `.event` ya trae un acento por defecto, así que una ficha sin
+  modificador se ve bien. Los modificadores (`event--plasma`, `event--sunset`…)
+  son opcionales, para acompañar el flyer mientras la fecha está por delante.
+
 ## Publicación
 
 El sitio es estático y vive en `docs/`: `index.html`, `styles.css`, `agenda.js`

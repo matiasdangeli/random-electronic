@@ -330,6 +330,9 @@ svg {
    encima de esto; si el script no corre, esto es lo que se ve. */
 
 .event {
+  /* Acento por defecto: así una fecha sin modificador de color se ve bien igual
+     y no hace falta una clase nueva por edición. */
+  --accent: #efe8df;
   display: grid;
   max-width: 1400px;
   min-height: 700px;
@@ -337,6 +340,10 @@ svg {
   grid-template-columns: minmax(300px, 0.86fr) 1.35fr;
   border: 1px solid var(--line);
   overflow: hidden;
+}
+
+.event-panel {
+  --accent: #efe8df;
 }
 
 .event--bone {
@@ -356,6 +363,20 @@ svg {
   background:
     radial-gradient(circle at 50% 0%, rgba(120, 190, 235, 0.16), transparent 42%),
     #06090c;
+}
+
+.event--sunset {
+  --accent: #ffc98a;
+  background:
+    radial-gradient(circle at 80% 8%, rgba(255, 138, 40, 0.22), transparent 38%),
+    #140b06;
+}
+
+.event--vuelta {
+  --accent: #a8cdf0;
+  background:
+    radial-gradient(circle at 20% 6%, rgba(110, 170, 225, 0.2), transparent 40%),
+    #070c14;
 }
 
 .flyer3d {
@@ -413,6 +434,20 @@ svg {
 
 .event-panel--xray {
   --accent: #cfe6f5;
+}
+
+.event-panel--sunset {
+  --accent: #ffc98a;
+}
+
+.event-panel--vuelta {
+  --accent: #a8cdf0;
+}
+
+/* Cuando el flyer trae line-up pero no horarios por DJ, la columna de la hora
+   sobra y los nombres van solos. */
+.schedule--lineup .schedule-row {
+  grid-template-columns: 1fr;
 }
 
 .event-panel .eyebrow,
