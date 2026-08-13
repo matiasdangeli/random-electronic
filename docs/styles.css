@@ -336,7 +336,7 @@ svg {
   opacity: 0.72;
   /* El brillo compensa a los flyers que ya son oscuros: con solo opacidad y
      gris, uno negro sobre fondo negro desaparecía. */
-  filter: saturate(0.15) brightness(1.35) contrast(0.92);
+  filter: saturate(0.35) brightness(1.35) contrast(0.92);
   transition: opacity 260ms ease, filter 260ms ease;
 }
 
@@ -1218,3 +1218,10 @@ footer a {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* El archivo conserva color y, al seleccionar una edición, las demás se apagan. */
+.archive-grid:has(.archive-item.is-selected) .archive-item:not(.is-selected) img {
+  filter: saturate(0.35) brightness(0.675) contrast(0.92);
+}
+.archive-item { cursor: pointer; }
