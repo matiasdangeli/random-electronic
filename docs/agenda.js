@@ -130,6 +130,14 @@
     ].filter(Boolean).join(" · ");
     item.appendChild(label);
 
+    item.addEventListener("click", function () {
+      var selected = item.classList.contains("is-selected");
+      Array.prototype.forEach.call(item.parentNode.children, function (other) {
+        other.classList.remove("is-selected");
+      });
+      if (!selected) item.classList.add("is-selected");
+    });
+
     return item;
   }
 
