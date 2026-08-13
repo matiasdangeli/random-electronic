@@ -13,18 +13,37 @@ Dentro de `<div class="carousel">`, se copia un `<article class="event" data-eve
 | Dato | Qué es |
 | --- | --- |
 | `data-edition` | Número de edición (`68`) |
-| `data-date` | Día del flyer, `AAAA-MM-DD` |
+| `data-date` | Día que figura en el flyer, `AAAA-MM-DD` |
 | `data-venue` | Sala en corto (`LEVEL`) |
 | `data-name` | Nombre visual de la edición (`TÉRMICA`) |
 | `data-timezone` | Zona IANA de la sede (`Europe/Andorra`, `America/Argentina/Buenos_Aires`) |
-| `data-start` | Opcional. Inicio explícito `AAAA-MM-DDTHH:MM` cuando no se puede deducir del flyer |
-| `data-until` | Opcional. Fin/corte explícito `AAAA-MM-DDTHH:MM` |
+| `data-start` | Opcional. Inicio civil explícito `AAAA-MM-DDTHH:MM` cuando no se puede deducir del flyer |
+| `data-until` | Opcional. Fin/corte civil explícito `AAAA-MM-DDTHH:MM` |
 
 Para compatibilidad con las fichas antiguas, si falta `data-timezone` el sitio usa `Europe/Andorra`; si la dirección contiene `Argentina`, usa `America/Argentina/Buenos_Aires`. En fechas nuevas conviene escribir siempre `data-timezone`.
 
 Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`).
 
 El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
+
+## La fecha del flyer y la madrugada
+
+En RANDOM, `data-date` representa **la noche que anuncia el flyer**, no necesariamente el día civil de cada hora.
+
+Ejemplo: si el flyer dice `SÁBADO 4` y el evento empieza `00:00`, RANDOM interpreta ese comienzo como **domingo 5 a las 00:00**. La web sigue mostrando `SÁBADO 4`, porque esa es la fecha comunicada de la edición, pero internamente usa el instante civil correcto.
+
+La regla se aplica automáticamente cuando el primer horario explícito está entre `00:00` y `07:59`. Horarios como `10:00`, `16:00` o `23:00` permanecen en el mismo día indicado por el flyer. Si una programación empieza antes de medianoche y continúa después, los sets posteriores avanzan al día siguiente de forma normal.
+
+Esta semántica es única para todo el sistema y alimenta:
+
+- countdown;
+- `● LIVE NOW`;
+- DJ que está tocando;
+- cambio automático entre sets;
+- momento en que la edición pasa al archivo;
+- inicio y fin que se envían al calendario.
+
+`data-start` y `data-until`, cuando se escriben con fecha y hora completas, son fechas civiles explícitas y no reciben este desplazamiento automático.
 
 ## Countdown y LIVE
 
@@ -47,15 +66,20 @@ El orden de preferencia es:
 3. `data-start` / `data-until` cuando están definidos.
 4. Como último fallback para el archivo, el sitio conserva el corte histórico de las 06:00 del día siguiente.
 
+Si no existe un horario suficientemente explícito, la ficha puede archivarse mediante el fallback histórico, pero no se inventan countdown, LIVE ni horario de calendario.
+
 Si hay `data-until`, ese valor manda para decidir cuándo deja de mostrarse la edición.
 
 ## Añadir al calendario
 
 Cuando una fecha tiene un horario explícito, `agenda.js` agrega automáticamente el botón `+ AÑADIR AL CALENDARIO`.
 
-El botón genera un archivo `.ics` con el nombre de la edición, inicio y fin reales, dirección, artistas de los set times cuando existen y enlace a `randomelectronic.com`.
+- En **iPhone/iPad**, el sitio mantiene el archivo `.ics`, porque abre correctamente el flujo nativo del calendario.
+- En **Android y escritorio**, abre Google Calendar con el evento ya rellenado, evitando que el navegador se limite a descargar un `.ics`.
 
-Las horas se exportan como instantes UTC calculados desde la zona horaria de la sede, de modo que iPhone, Mac, Google Calendar, Outlook y otros calendarios las muestran correctamente en la zona del usuario.
+En ambos casos se usan el nombre de la edición, el inicio y fin civiles reales, la dirección, los artistas de los set times cuando existen y el enlace a `randomelectronic.com`.
+
+Las horas se calculan desde la zona horaria de la sede y se convierten al instante correcto antes de enviarlas al calendario.
 
 Si no hay un horario suficientemente explícito, el botón no aparece: no se inventan horas.
 

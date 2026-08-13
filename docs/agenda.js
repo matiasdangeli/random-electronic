@@ -6,6 +6,7 @@
   var ANNIVERSARY_MONTH = 3;
   var ANNIVERSARY_DAY = 14;
   var ENDS_HOUR = 6;
+  var NIGHT_CUTOFF_MINUTES = 8 * 60;
   var DEFAULT_TIMEZONE = "Europe/Andorra";
   var SITE_URL = "https://randomelectronic.com/";
   var DAYS = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
@@ -30,7 +31,7 @@
   function formatterFor(timeZone) {
     if (!formatterCache[timeZone]) {
       formatterCache[timeZone] = new Intl.DateTimeFormat("en-CA", {
-        timeZone: timeZone, year:"numeric", month:"2-digit", day:"2-digit",
+        timeZone:timeZone, year:"numeric", month:"2-digit", day:"2-digit",
         hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23"
       });
     }
@@ -78,6 +79,17 @@
     return { start:start, end:end };
   }
 
+  /*
+   * En RANDOM la fecha del flyer nombra la noche social, no siempre el día civil.
+   * Ejemplo: “SÁBADO 4 · 00:00” significa la noche del sábado, o sea domingo 5
+   * a las 00:00 técnicamente. Si el primer horario explícito está entre 00:00 y
+   * 07:59, desplazamos el reloj al día siguiente. Horarios de día/tarde/noche
+   * como 10:00, 16:00 o 23:00 siguen perteneciendo al día escrito en el flyer.
+   */
+  function nightOffsetForRange(range) {
+    return range && range.start < NIGHT_CUTOFF_MINUTES ? 1440 : 0;
+  }
+
   function guessTimeZone(el) {
     var explicit = (el.getAttribute("data-timezone") || "").trim();
     if (explicit && validTimeZone(explicit)) return explicit;
@@ -86,39 +98,45 @@
     return DEFAULT_TIMEZONE;
   }
 
-  function rangeInstants(dateParts, range, timeZone) {
+  function rangeInstants(dateParts, range, timeZone, baseOffset) {
     if (!dateParts || !range) return null;
-    var end = range.end <= range.start ? range.end + 1440 : range.end;
-    return { start:wallToInstant(addMinutes(dateParts, range.start), timeZone), end:wallToInstant(addMinutes(dateParts, end), timeZone) };
+    var startMinutes = range.start + (baseOffset || 0);
+    var endMinutes = range.end + (baseOffset || 0);
+    while (endMinutes <= startMinutes) endMinutes += 1440;
+    return {
+      start:wallToInstant(addMinutes(dateParts, startMinutes), timeZone),
+      end:wallToInstant(addMinutes(dateParts, endMinutes), timeZone)
+    };
   }
 
-  function readSetTimes(el, dateParts, timeZone) {
+  function firstSetRange(el) {
+    var first = el.querySelector(".schedule:not(.schedule--lineup) .schedule-row span");
+    return first ? parseTimeRange(first.textContent) : null;
+  }
+
+  function readSetTimes(el, dateParts, timeZone, baseOffset) {
     if (!dateParts) return [];
     var rows = Array.prototype.slice.call(el.querySelectorAll(".schedule:not(.schedule--lineup) .schedule-row"));
-    var sets = [], dayOffset = 0, previousStart = -1;
+    var sets = [], dayOffset = baseOffset || 0, previousStart = -1;
     rows.forEach(function (row) {
       var time = row.querySelector("span");
       var artist = row.querySelector("strong");
       var range = time && parseTimeRange(time.textContent);
       if (!range || !artist) return;
 
-      var startMinutes = range.start + dayOffset * 1440;
+      var startMinutes = range.start + dayOffset;
       while (previousStart >= 0 && startMinutes < previousStart) {
-        dayOffset += 1;
-        startMinutes = range.start + dayOffset * 1440;
+        dayOffset += 1440;
+        startMinutes = range.start + dayOffset;
       }
-      var endOffset = dayOffset;
-      var endMinutes = range.end + endOffset * 1440;
-      while (endMinutes <= startMinutes) {
-        endOffset += 1;
-        endMinutes = range.end + endOffset * 1440;
-      }
+      var endMinutes = range.end + dayOffset;
+      while (endMinutes <= startMinutes) endMinutes += 1440;
 
       sets.push({
-        row: row,
-        artist: (artist.textContent || "").trim(),
-        start: wallToInstant(addMinutes(dateParts, startMinutes), timeZone),
-        end: wallToInstant(addMinutes(dateParts, endMinutes), timeZone)
+        row:row,
+        artist:(artist.textContent || "").trim(),
+        start:wallToInstant(addMinutes(dateParts, startMinutes), timeZone),
+        end:wallToInstant(addMinutes(dateParts, endMinutes), timeZone)
       });
       previousStart = startMinutes;
     });
@@ -147,19 +165,24 @@
     var dateParts = parseWall(el.getAttribute("data-date"));
     var timeZone = guessTimeZone(el);
     var panel = el.querySelector("[data-panel]");
-    var sets = readSetTimes(el, dateParts, timeZone);
     var meta = panel && panel.querySelector(".event-meta");
-    var metaWindow = rangeInstants(dateParts, meta && parseTimeRange(meta.textContent), timeZone);
+    var metaRange = meta && parseTimeRange(meta.textContent);
+    var setRange = firstSetRange(el);
+    var baseOffset = nightOffsetForRange(setRange || metaRange);
+    var sets = readSetTimes(el, dateParts, timeZone, baseOffset);
+    var metaWindow = rangeInstants(dateParts, metaRange, timeZone, nightOffsetForRange(metaRange));
     var dataStart = parseWall(el.getAttribute("data-start"));
     var dataUntil = parseWall(el.getAttribute("data-until"));
 
+    /* data-start/data-until son fechas civiles explícitas y nunca se desplazan. */
     var startAt = sets.length ? sets[0].start :
       (dataStart ? wallToInstant(dataStart, timeZone) :
-        (metaWindow ? metaWindow.start : (dateParts ? wallToInstant(dateParts, timeZone) : null)));
+        (metaWindow ? metaWindow.start : null));
 
     var until = dataUntil ? wallToInstant(dataUntil, timeZone) : null;
     if (!until && sets.length) until = sets[sets.length - 1].end;
     if (!until && metaWindow) until = metaWindow.end;
+    /* Solo fallback de archivo para fichas antiguas sin horario explícito. */
     if (!until && dateParts) until = wallToInstant(addMinutes(dateParts, 1440 + ENDS_HOUR * 60), timeZone);
 
     var calendarStart = null, calendarEnd = null;
@@ -287,15 +310,22 @@
     return "random-" + ev.edition + (name ? "-" + name : "") + ".ics";
   }
 
-  function downloadCalendar(ev) {
+  function calendarDetails(ev) {
     var place = ev.panel && ev.panel.querySelector(".event-place");
-    var description = ev.sets.length ? "Set times: " + ev.sets.map(function (set) { return set.artist; }).join(" · ") : "RANDOM Electronic Experience";
-    var summary = "RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : "");
+    return {
+      location:place ? place.textContent.trim() : "",
+      description:ev.sets.length ? "Set times: " + ev.sets.map(function (set) { return set.artist; }).join(" · ") : "RANDOM Electronic Experience",
+      summary:"RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : "")
+    };
+  }
+
+  function downloadCalendar(ev) {
+    var details = calendarDetails(ev);
     var lines = [
       "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//RANDOM//Electronic Experience//ES","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
       "UID:random-" + ev.edition + "-" + ev.dateParts.year + pad(ev.dateParts.month) + pad(ev.dateParts.day) + "@randomelectronic.com",
       "DTSTAMP:" + icsUTC(new Date()),"DTSTART:" + icsUTC(ev.calendarStart),"DTEND:" + icsUTC(ev.calendarEnd),
-      "SUMMARY:" + icsEscape(summary),"LOCATION:" + icsEscape(place ? place.textContent.trim() : ""),"DESCRIPTION:" + icsEscape(description),"URL:" + SITE_URL,
+      "SUMMARY:" + icsEscape(details.summary),"LOCATION:" + icsEscape(details.location),"DESCRIPTION:" + icsEscape(details.description),"URL:" + SITE_URL,
       "END:VEVENT","END:VCALENDAR",""
     ];
     var blob = new Blob([lines.join("\r\n")], { type:"text/calendar;charset=utf-8" });
@@ -305,6 +335,37 @@
     window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
   }
 
+  function googleCalendarUrl(ev) {
+    var details = calendarDetails(ev);
+    var params = new URLSearchParams();
+    params.set("action", "TEMPLATE");
+    params.set("text", details.summary);
+    params.set("dates", icsUTC(ev.calendarStart) + "/" + icsUTC(ev.calendarEnd));
+    params.set("details", details.description + "\n\n" + SITE_URL);
+    params.set("location", details.location);
+    params.set("ctz", ev.timeZone);
+    return "https://calendar.google.com/calendar/render?" + params.toString();
+  }
+
+  function isiOS() {
+    var ua = navigator.userAgent || "";
+    return /iPhone|iPad|iPod/i.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  }
+
+  /*
+   * iPhone/iPad: el .ics abre el flujo nativo que ya funciona bien.
+   * Android y escritorio: Google Calendar abre el evento listo para guardar,
+   * evitando que el navegador se limite a descargar un archivo .ics.
+   */
+  function openCalendar(ev) {
+    if (isiOS()) {
+      downloadCalendar(ev);
+      return;
+    }
+    window.open(googleCalendarUrl(ev), "_blank", "noopener,noreferrer");
+  }
+
   function installCalendarButton(ev) {
     if (!ev.panel || !ev.calendarStart || !ev.calendarEnd) return;
     var actions = ev.panel.querySelector(".event-actions");
@@ -312,7 +373,7 @@
     var button = document.createElement("button");
     button.type = "button"; button.className = "button button--calendar"; button.setAttribute("data-calendar-button", "");
     button.textContent = "+ AÑADIR AL CALENDARIO";
-    button.addEventListener("click", function () { downloadCalendar(ev); });
+    button.addEventListener("click", function () { openCalendar(ev); });
     actions.insertBefore(button, actions.querySelector(".free-entry") || null);
   }
 
