@@ -94,6 +94,7 @@
       until: until,
       edition: parseInt(el.getAttribute("data-edition"), 10) || 0,
       venue: (el.getAttribute("data-venue") || "").trim(),
+      name: (el.getAttribute("data-name") || "").trim(),
     };
   }
 
@@ -124,6 +125,7 @@
     label.className = "archive-label";
     label.textContent = [
       ev.edition ? "#" + ev.edition : "",
+      ev.name,
       ev.date ? shortDate(ev.date) : "",
     ].filter(Boolean).join(" · ");
     item.appendChild(label);
