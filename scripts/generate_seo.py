@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate crawlable RANDOM edition pages and the XML sitemap.
+"""Generate crawlable pages for active RANDOM dates and the XML sitemap.
 
 The event cards in docs/index.html remain the editorial source of truth. This
-script turns those cards into static pages during the GitHub Pages deployment,
-without adding a framework or a package dependency.
+script publishes only current or upcoming dates. Past editions stay in the
+interactive archive on the homepage instead of becoming separate pages.
 """
 
 from __future__ import annotations
@@ -325,11 +325,20 @@ def write_sitemap(editions: list[Edition]) -> None:
     (DOCS / "sitemap.xml").write_text(sitemap, encoding="utf-8")
 
 
+def is_current_or_upcoming(edition: Edition, now_utc: datetime) -> bool:
+    if edition.end:
+        return edition.end.astimezone(ZoneInfo("UTC")) > now_utc
+    local_today = now_utc.astimezone(ZoneInfo(edition.timezone)).date()
+    return datetime.strptime(edition.date, "%Y-%m-%d").date() >= local_today
+
+
 def main() -> None:
     editions = parse_editions(INDEX.read_text(encoding="utf-8"))
-    write_pages(editions)
-    write_sitemap(editions)
-    print(f"Generadas {len(editions)} páginas de edición y sitemap.xml")
+    now_utc = datetime.now(ZoneInfo("UTC"))
+    active_editions = [edition for edition in editions if is_current_or_upcoming(edition, now_utc)]
+    write_pages(active_editions)
+    write_sitemap(active_editions)
+    print(f"Generadas {len(active_editions)} páginas activas y sitemap.xml")
 
 
 if __name__ == "__main__":

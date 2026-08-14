@@ -12,12 +12,13 @@
   var DAYS = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
   var MONTHS = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
   var formatterCache = {};
+  var shareFileCache = new Map();
 
   function loadLiveStyles() {
     if (document.querySelector('link[data-random-live-styles]')) return;
     var link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "live.css";
+    link.href = "live.css?v=20260814-1";
     link.setAttribute("data-random-live-styles", "");
     document.head.appendChild(link);
   }
@@ -164,6 +165,7 @@
   function read(el) {
     var dateParts = parseWall(el.getAttribute("data-date"));
     var timeZone = guessTimeZone(el);
+    var card = el.querySelector("[data-card]");
     var panel = el.querySelector("[data-panel]");
     var meta = panel && panel.querySelector(".event-meta");
     var metaRange = meta && parseTimeRange(meta.textContent);
@@ -191,7 +193,7 @@
     else if (dataStart && dataUntil) { calendarStart = wallToInstant(dataStart, timeZone); calendarEnd = wallToInstant(dataUntil, timeZone); }
 
     return {
-      el:el, panel:panel, dateParts:dateParts, startAt:startAt, until:until,
+      el:el, card:card, panel:panel, dateParts:dateParts, startAt:startAt, until:until,
       calendarStart:calendarStart, calendarEnd:calendarEnd, sets:sets, timeZone:timeZone,
       edition:parseInt(el.getAttribute("data-edition"), 10) || 0,
       venue:(el.getAttribute("data-venue") || "").trim(), name:(el.getAttribute("data-name") || "").trim()
@@ -208,34 +210,41 @@
     return Date.UTC(ev.dateParts.year, ev.dateParts.month - 1, ev.dateParts.day);
   }
 
-  function editionSlug(ev) {
-    var name = (ev.name || "random").toLowerCase().normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-    return ev.edition + "-" + (name || "random");
-  }
-
-  function editionUrl(ev) {
-    return "/ediciones/" + editionSlug(ev) + "/";
-  }
-
   function archiveCard(ev) {
     var item = document.createElement("li");
     item.className = "archive-item";
-    var link = document.createElement("a");
-    link.className = "archive-link";
-    link.href = editionUrl(ev);
-    link.setAttribute("aria-label", "Ver RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : ""));
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "archive-link";
+    button.setAttribute("aria-pressed", "false");
+    button.setAttribute("aria-label", "Destacar RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : ""));
     var flyer = ev.el.querySelector(".flyer3d-face--front img");
     if (flyer) {
       var img = document.createElement("img");
       img.src = flyer.getAttribute("src"); img.alt = flyer.getAttribute("alt") || ""; img.loading = "lazy";
-      link.appendChild(img);
+      button.appendChild(img);
     }
-    var label = document.createElement("p");
+    var label = document.createElement("span");
     label.className = "archive-label";
     label.textContent = (ev.edition ? "#" + ev.edition : "") + (ev.name ? " · " + ev.name : "");
-    link.appendChild(label);
-    item.appendChild(link);
+    button.appendChild(label);
+    button.addEventListener("click", function () {
+      var selected = item.classList.contains("is-selected");
+      Array.prototype.forEach.call(item.parentNode.children, function (other) {
+        other.classList.remove("is-selected");
+        other.classList.remove("is-dimmed");
+        var otherButton = other.querySelector(".archive-link[aria-pressed]");
+        if (otherButton) otherButton.setAttribute("aria-pressed", "false");
+      });
+      if (!selected) {
+        item.classList.add("is-selected");
+        button.setAttribute("aria-pressed", "true");
+        Array.prototype.forEach.call(item.parentNode.children, function (other) {
+          if (other !== item && !other.classList.contains("archive-item--more")) other.classList.add("is-dimmed");
+        });
+      }
+    });
+    item.appendChild(button);
     return item;
   }
 
@@ -412,15 +421,201 @@
     actions.insertBefore(button, actions.querySelector(".free-entry") || null);
   }
 
-  function installEditionLink(ev) {
-    if (!ev.panel || !ev.edition || ev.panel.querySelector("[data-edition-link]")) return;
+  function shareFace(ev) {
+    var wantsBack = ev.el.getAttribute("data-flyer-face") === "back";
+    var back = ev.card && ev.card.querySelector(".flyer3d-face--back img");
+    return wantsBack && back ? "back" : "front";
+  }
+
+  function shareImage(ev) {
+    var selector = shareFace(ev) === "back" ? ".flyer3d-face--back img" : ".flyer3d-face--front img";
+    return ev.card && (ev.card.querySelector(selector) || ev.card.querySelector(".flyer3d-face--front img"));
+  }
+
+  function shareSource(image) {
+    return image && (image.getAttribute("data-share-src") || image.currentSrc || image.getAttribute("src"));
+  }
+
+  function shareSlug(value) {
+    return String(value || "random").toLowerCase().normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  function extensionFor(type, source) {
+    if (type === "image/png") return "png";
+    if (type === "image/jpeg") return "jpg";
+    if (type === "image/webp") return "webp";
+    var match = /\.([a-z0-9]{2,5})(?:[?#]|$)/i.exec(source || "");
+    return match ? match[1].toLowerCase() : "png";
+  }
+
+  function shareFilename(ev, face, type, source) {
+    var suffix = face === "back" ? "-set-times" : "";
+    return "random-" + ev.edition + "-" + shareSlug(ev.name) + suffix + "." + extensionFor(type, source);
+  }
+
+  function fileFromSource(source, ev, face) {
+    var cached = shareFileCache.get(source);
+    if (cached) return cached;
+
+    var pending = fetch(source, { cache:"force-cache" }).then(function (response) {
+      if (!response.ok) throw new Error("No se pudo cargar el flyer (" + response.status + ")");
+      return response.blob();
+    }).then(function (blob) {
+      if (!/^image\//.test(blob.type || "")) throw new Error("El archivo del flyer no es una imagen");
+      return new File([blob], shareFilename(ev, face, blob.type, source), { type:blob.type, lastModified:Date.now() });
+    }).catch(function (error) {
+      shareFileCache.delete(source);
+      throw error;
+    });
+
+    shareFileCache.set(source, pending);
+    return pending;
+  }
+
+  function prepareShareFile(ev) {
+    var image = shareImage(ev);
+    if (!image) return Promise.reject(new Error("No se encontró el flyer"));
+    var face = shareFace(ev);
+    var source = shareSource(image);
+    var fallback = image.currentSrc || image.getAttribute("src");
+    if (!source) return Promise.reject(new Error("El flyer no tiene archivo asociado"));
+
+    return fileFromSource(source, ev, face).catch(function (error) {
+      if (!fallback || fallback === source) throw error;
+      return fileFromSource(fallback, ev, face);
+    });
+  }
+
+  function shareTitle(ev) {
+    return "RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : "");
+  }
+
+  function setShareStatus(button, message) {
+    var status = button.parentNode && button.parentNode.querySelector("[data-share-status]");
+    if (status) status.textContent = message || "";
+  }
+
+  function resetShareButton(button) {
+    button.disabled = false;
+    button.removeAttribute("aria-busy");
+    button.innerHTML = 'COMPARTIR <span aria-hidden="true">↗</span>';
+  }
+
+  function readyShareButton(button) {
+    button.disabled = false;
+    button.removeAttribute("aria-busy");
+    button.innerHTML = 'COMPARTIR AHORA <span aria-hidden="true">↗</span>';
+  }
+
+  function downloadShareFile(file, button) {
+    var url = URL.createObjectURL(file);
     var link = document.createElement("a");
-    link.className = "event-permalink";
-    link.href = editionUrl(ev);
-    link.setAttribute("data-edition-link", "");
-    link.textContent = "VER EDICIÓN →";
-    var schedule = ev.panel.querySelector(".schedule");
-    ev.panel.insertBefore(link, schedule || ev.panel.querySelector(".event-actions") || null);
+    link.href = url; link.download = file.name;
+    document.body.appendChild(link); link.click(); link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    setShareStatus(button, "Flyer descargado. Ya podés abrirlo en Instagram.");
+  }
+
+  function canShareFile(file) {
+    if (typeof navigator.share !== "function") return false;
+    if (typeof navigator.canShare !== "function") return true;
+    try { return navigator.canShare({ files:[file] }); }
+    catch (error) { return false; }
+  }
+
+  function sharePreparedFile(ev, file, button) {
+    if (!canShareFile(file)) {
+      downloadShareFile(file, button);
+      resetShareButton(button);
+      return Promise.resolve();
+    }
+
+    if (navigator.userActivation && !navigator.userActivation.isActive) {
+      readyShareButton(button);
+      setShareStatus(button, "Flyer listo. Tocá Compartir ahora para abrir las opciones.");
+      return Promise.resolve();
+    }
+
+    return navigator.share({ title:shareTitle(ev), files:[file] }).then(function () {
+      resetShareButton(button);
+      setShareStatus(button, "Flyer compartido.");
+    }).catch(function (error) {
+      if (error && error.name === "AbortError") {
+        resetShareButton(button);
+        return;
+      }
+      if (error && error.name === "NotAllowedError") {
+        readyShareButton(button);
+        setShareStatus(button, "Flyer listo. Tocá Compartir ahora para abrir las opciones.");
+        return;
+      }
+      downloadShareFile(file, button);
+      resetShareButton(button);
+    });
+  }
+
+  function updateShareLabel(ev) {
+    if (!ev.panel) return;
+    var button = ev.panel.querySelector("[data-share-button]");
+    if (!button) return;
+    var content = shareFace(ev) === "back" ? "el line-up" : "el flyer";
+    button.setAttribute("aria-label", "Compartir " + content + " de " + shareTitle(ev));
+  }
+
+  function installShareButton(ev) {
+    if (!ev.panel || !shareImage(ev)) return;
+    var actions = ev.panel.querySelector(".event-actions");
+    if (!actions || actions.querySelector("[data-share-button]")) return;
+
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "button button--share";
+    button.setAttribute("data-share-button", "");
+    resetShareButton(button);
+
+    var status = document.createElement("span");
+    status.className = "sr-only";
+    status.setAttribute("data-share-status", "");
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+
+    button.addEventListener("click", function () {
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+      button.textContent = "PREPARANDO…";
+      setShareStatus(button, "Preparando el flyer en alta calidad.");
+      prepareShareFile(ev).then(function (file) {
+        return sharePreparedFile(ev, file, button);
+      }).catch(function () {
+        resetShareButton(button);
+        setShareStatus(button, "No se pudo preparar el flyer. Probá de nuevo.");
+      });
+    });
+
+    actions.insertBefore(button, actions.querySelector(".free-entry") || null);
+    actions.appendChild(status);
+    updateShareLabel(ev);
+  }
+
+  function setupShareState(events) {
+    if (!events.length) return;
+
+    function eventFromElement(element) {
+      return events.filter(function (ev) { return ev.el === element; })[0] || null;
+    }
+
+    document.addEventListener("random:event-active", function (event) {
+      var next = event.detail && eventFromElement(event.detail.event);
+      if (!next) return;
+      updateShareLabel(next);
+    });
+
+    document.addEventListener("random:flyer-face-change", function (event) {
+      var changed = event.detail && eventFromElement(event.detail.event);
+      if (!changed) return;
+      updateShareLabel(changed);
+    });
   }
 
   function run() {
@@ -442,9 +637,10 @@
       var title = ev.panel && ev.panel.querySelector("[data-event-title]");
       if (label && ev.edition) label.textContent = index === 0 ? contextualEventLabel("LA PRÓXIMA", ev) : "RANDOM #" + ev.edition;
       if (title && ev.dateParts) title.textContent = eventTitle(ev.dateParts);
-      installEditionLink(ev);
       installCalendarButton(ev);
+      installShareButton(ev);
     });
+    setupShareState(upcoming);
 
     text("[data-agenda-label]", upcoming.length ? "AGENDA / " + monthRange(upcoming) : "AGENDA");
     toggle("[data-carousel]", upcoming.length > 0);

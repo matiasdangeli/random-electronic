@@ -103,6 +103,15 @@
     var flips = cards.map(function () {
       return { target: 0, current: 0 };
     });
+    events.forEach(function (event) {
+      event.setAttribute("data-flyer-face", "front");
+    });
+
+    function announce(name, index) {
+      document.dispatchEvent(new CustomEvent(name, {
+        detail: { event:events[index], face:events[index].getAttribute("data-flyer-face") || "front" }
+      }));
+    }
 
     function resize() {
       var vw = window.innerWidth;
@@ -142,17 +151,27 @@
 
     function toggleFlip(index) {
       var flip = flips[index];
+      if (!cards[index].querySelector(".flyer3d-face--back img")) return;
       flip.target = flip.target === 0 ? 180 : 0;
+      events[index].setAttribute("data-flyer-face", flip.target === 180 ? "back" : "front");
       // Cualquier otro que haya quedado dado vuelta se endereza.
       flips.forEach(function (other, i) {
-        if (i !== index) other.target = 0;
+        if (i !== index) {
+          other.target = 0;
+          events[i].setAttribute("data-flyer-face", "front");
+        }
       });
+      announce("random:flyer-face-change", index);
     }
 
     function setActive(index) {
       if (index === activeIndex) return;
-      if (activeIndex >= 0) flips[activeIndex].target = 0;
+      if (activeIndex >= 0) {
+        flips[activeIndex].target = 0;
+        events[activeIndex].setAttribute("data-flyer-face", "front");
+      }
       activeIndex = index;
+      events[index].setAttribute("data-flyer-face", "front");
       panels.forEach(function (panel, i) {
         if (i === index) {
           panel.setAttribute("data-active", "");
@@ -162,6 +181,7 @@
           panel.setAttribute("aria-hidden", "true");
         }
       });
+      announce("random:event-active", index);
     }
 
     function layout() {

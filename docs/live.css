@@ -9,6 +9,9 @@
 .event-actions { flex-wrap:wrap; }
 .button--calendar { border-color:color-mix(in srgb,var(--accent) 48%,transparent); background:transparent; color:var(--accent); cursor:pointer; }
 .button--calendar:hover,.button--calendar:focus-visible { background:color-mix(in srgb,var(--accent) 10%,transparent); }
+.button--share { min-width:132px; border-color:color-mix(in srgb,var(--accent) 48%,transparent); appearance:none; background:color-mix(in srgb,var(--accent) 7%,transparent); color:var(--accent); cursor:pointer; }
+.button--share:hover,.button--share:focus-visible { background:color-mix(in srgb,var(--accent) 14%,transparent); }
+.button--share[aria-busy="true"],.button--share:disabled { opacity:.62; cursor:wait; transform:none; }
 .schedule-row { transition:background 220ms ease,padding 220ms ease; }
 .schedule-row.is-live { padding-right:12px; padding-left:12px; background:color-mix(in srgb,var(--accent) 9%,transparent); }
 .schedule-row.is-live strong::after { margin-left:10px; color:#ff453a; content:"●"; font-family:var(--font-mono); font-size:8px; vertical-align:middle; }
@@ -35,6 +38,9 @@
     justify-content:center;
     text-align:center;
     line-height:1.2;
+  }
+  .event-actions > .button--solid{
+    grid-column:1 / -1;
   }
   .event-actions > .free-entry{
     grid-column:1 / -1;
