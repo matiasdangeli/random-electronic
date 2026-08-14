@@ -162,18 +162,15 @@
       startParts:startParts,
       timeZone:timeZone,
       startLabel:startParts.day + " de " + MONTHS[startParts.month - 1].toLowerCase() + " de " + startParts.year + " a las " + pad(startParts.hour) + ":" + pad(startParts.minute) + ":" + pad(startParts.second) + ", " + zoneLabel,
-      yearsMonths:root.querySelector("[data-elapsed-years-months]"),
-      daysHours:root.querySelector("[data-elapsed-days-hours]"),
-      minutesSeconds:root.querySelector("[data-elapsed-minutes-seconds]")
+      values:root.querySelector("[data-elapsed-values]")
     };
   }
 
   function updateElapsedCounter(counter, now) {
     if (!counter) return;
     var elapsed = elapsedSince(counter.startParts, counter.timeZone, now);
-    if (counter.yearsMonths) counter.yearsMonths.textContent = pad(elapsed.years) + "A · " + pad(elapsed.months) + "M";
-    if (counter.daysHours) counter.daysHours.textContent = pad(elapsed.days) + "D · " + pad(elapsed.hours) + "H";
-    if (counter.minutesSeconds) counter.minutesSeconds.textContent = pad(elapsed.minutes) + "M · " + pad(elapsed.seconds) + "S";
+    // Una sola línea de números; las unidades viven en la línea de abajo.
+    if (counter.values) counter.values.textContent = [elapsed.years, elapsed.months, elapsed.days, elapsed.hours, elapsed.minutes, elapsed.seconds].map(pad).join(" · ");
     counter.root.setAttribute("aria-label", "Tiempo juntos: " + elapsed.years + " años, " + elapsed.months + " meses, " + elapsed.days + " días, " + elapsed.hours + " horas, " + elapsed.minutes + " minutos y " + elapsed.seconds + " segundos; desde el " + counter.startLabel);
   }
 
