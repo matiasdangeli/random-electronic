@@ -970,40 +970,72 @@ svg {
   line-height: 1.6;
 }
 
-/* Un solo bloque, como el countdown del hero: una línea de números y debajo
-   sus unidades. Ocupa el ancho completo de la sección porque los seis valores
-   en una línea no entran en una columna. */
+/* Un solo bloque, como el countdown del hero, pero cada número apoyado
+   exactamente sobre su unidad: cada par vive en su propia columna y las dos
+   piezas se centran entre sí. Ocupa el ancho completo de la sección porque los
+   seis pares no entran en una columna angosta.
+   El tamaño del número es el que manda: todo lo demás se mide en em, así el
+   bloque entero escala con un solo clamp. */
 .manifesto-counter {
+  display: flex;
+  /* Nunca se parte con la tipografía de la página; si falla la webfont y la
+     de reemplazo es más ancha, preferimos que baje de línea antes que se corte
+     "SEGUNDOS" contra el overflow de la sección. */
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: start;
+  gap: clamp(4px, 1.6vw, 24px);
   grid-column: 1 / -1;
   align-self: end;
   padding-top: clamp(26px, 3vw, 40px);
   border-top: 1px solid #c9c1b8;
-}
-
-.manifesto-counter strong {
-  display: block;
   font-family: var(--font-mono);
   font-size: clamp(14px, 4.2vw, 52px);
+}
+
+.manifesto-counter > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.29em;
+}
+
+.manifesto-counter strong,
+.manifesto-counter i {
+  font-size: 1em;
   font-weight: 500;
+  font-style: normal;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   letter-spacing: 0.08em;
-  white-space: nowrap;
+  /* El tracking deja aire suelto a la derecha y correría el número medio pixel
+     respecto de su palabra: se descuenta para que el centro sea el de la tinta. */
+  margin-right: -0.08em;
+}
+
+.manifesto-counter i {
+  color: #b4aca3;
 }
 
 .manifesto-counter span {
-  display: block;
-  margin-top: clamp(9px, 1.1vw, 15px);
-  font-family: var(--font-mono);
-  font-size: clamp(8px, 0.95vw, 12px);
+  margin-right: -0.16em;
+  font-size: max(8px, 0.23em);
   letter-spacing: 0.16em;
+  line-height: 1;
   color: #68625d;
+  white-space: nowrap;
 }
 
-/* Abajo de 360px la línea de unidades es más ancha que la de números: se le
-   baja el tracking para que no se parta en dos. */
+/* En pantallas muy angostas las palabras ya no pueden achicarse más sin dejar
+   de leerse: el aire que se recorta es el del tracking y el de las separaciones.
+   El margen negativo siempre acompaña al tracking, si no se corre el centro. */
 @media (max-width: 360px) {
+  .manifesto-counter {
+    gap: 1.2vw;
+  }
+
   .manifesto-counter span {
+    margin-right: -0.1em;
     letter-spacing: 0.1em;
   }
 }

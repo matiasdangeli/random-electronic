@@ -95,6 +95,8 @@
     };
   }
 
+  var ELAPSED_UNITS = ["years", "months", "days", "hours", "minutes", "seconds"];
+
   function elapsedSince(startParts, timeZone, now) {
     var zero = { years:0, months:0, days:0, hours:0, minutes:0, seconds:0 };
     var startAt = wallToInstant(startParts, timeZone);
@@ -162,15 +164,17 @@
       startParts:startParts,
       timeZone:timeZone,
       startLabel:startParts.day + " de " + MONTHS[startParts.month - 1].toLowerCase() + " de " + startParts.year + " a las " + pad(startParts.hour) + ":" + pad(startParts.minute) + ":" + pad(startParts.second) + ", " + zoneLabel,
-      values:root.querySelector("[data-elapsed-values]")
+      // Cada número tiene su propio nodo, alineado sobre su unidad.
+      values:ELAPSED_UNITS.map(function (unit) { return root.querySelector("[data-elapsed-" + unit + "]"); })
     };
   }
 
   function updateElapsedCounter(counter, now) {
     if (!counter) return;
     var elapsed = elapsedSince(counter.startParts, counter.timeZone, now);
-    // Una sola línea de números; las unidades viven en la línea de abajo.
-    if (counter.values) counter.values.textContent = [elapsed.years, elapsed.months, elapsed.days, elapsed.hours, elapsed.minutes, elapsed.seconds].map(pad).join(" · ");
+    for (var i = 0; i < ELAPSED_UNITS.length; i++) {
+      if (counter.values[i]) counter.values[i].textContent = pad(elapsed[ELAPSED_UNITS[i]]);
+    }
     counter.root.setAttribute("aria-label", "Tiempo juntos: " + elapsed.years + " años, " + elapsed.months + " meses, " + elapsed.days + " días, " + elapsed.hours + " horas, " + elapsed.minutes + " minutos y " + elapsed.seconds + " segundos; desde el " + counter.startLabel);
   }
 

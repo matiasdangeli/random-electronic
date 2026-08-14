@@ -103,7 +103,7 @@ El formato del archivo es `#NN · NOMBRE`. El nombre sale de `data-name`.
 
 El bloque de concepto muestra un contador vivo desde el 14 de abril de 2018 a las 23:59:59 de Argentina. La fecha y la zona horaria se configuran en `data-start` y `data-timezone`; años, meses y días se calculan como unidades calendario y no como aproximaciones.
 
-Es un solo bloque a lo ancho de la sección, con la misma lógica visual que el countdown del hero: una línea de números (`08 · 03 · 30 · 09 · 00 · 01`) y debajo sus unidades (`AÑOS · MESES · DÍAS · HORAS · MINUTOS · SEGUNDOS`).
+Es un solo bloque a lo ancho de la sección, con la misma lógica visual que el countdown del hero: una línea de números y debajo sus unidades. Cada número y su palabra comparten columna y se centran entre sí, así que `08` queda exactamente sobre `AÑOS`. El tamaño del número manda: el resto se mide en `em`, y todo el bloque escala con un solo `clamp`.
 
 ## Casos especiales
 
