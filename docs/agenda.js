@@ -19,7 +19,7 @@
     if (document.querySelector('link[data-random-live-styles]')) return;
     var link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "live.css?v=20260814-2";
+    link.href = "live.css?v=20260814-3";
     link.setAttribute("data-random-live-styles", "");
     document.head.appendChild(link);
   }
@@ -527,7 +527,7 @@
     link.href = url; link.download = file.name;
     document.body.appendChild(link); link.click(); link.remove();
     window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-    setPreviewStatus(preview, "Original descargado. Ya podés abrirlo en Instagram.");
+    setPreviewStatus(preview, "Imagen HD descargada. Ya podés abrirla en Instagram.");
   }
 
   function canShareFile(file) {
@@ -564,7 +564,7 @@
     }).catch(function (error) {
       if (error && error.name === "AbortError") {
         setPreviewAction(preview, "COMPARTIR AHORA", false, false);
-        setPreviewStatus(preview, "Original listo para compartir.");
+        setPreviewStatus(preview, "Imagen HD lista para compartir.");
         return;
       }
       if (error && error.name === "NotAllowedError") {
@@ -573,7 +573,7 @@
         return;
       }
       downloadShareFile(file, preview);
-      setPreviewAction(preview, "DESCARGAR ORIGINAL", false, false);
+      setPreviewAction(preview, "DESCARGAR IMAGEN HD", false, false);
     });
   }
 
@@ -634,7 +634,7 @@
       preview.originalSource = null;
       preview.image.removeAttribute("src");
       preview.image.alt = "";
-      preview.media.classList.remove("is-ready", "is-original");
+      preview.media.classList.remove("is-ready", "is-hq");
       preview.hint.hidden = true;
       document.body.classList.remove("share-preview-open");
       if (preview.trigger) preview.trigger.focus();
@@ -665,7 +665,7 @@
     preview.ev = ev;
     preview.trigger = trigger;
     preview.originalSource = source;
-    preview.media.classList.remove("is-ready", "is-original");
+    preview.media.classList.remove("is-ready", "is-hq");
     preview.image.src = image.currentSrc || image.getAttribute("src") || source;
     preview.image.alt = "Vista previa de " + (face === "back" ? "los set times" : "el flyer") + " de " + shareTitle(ev);
     preview.kicker.textContent = "RANDOM #" + ev.edition;
@@ -674,7 +674,7 @@
     preview.hint.hidden = true;
     var accent = ev.panel && window.getComputedStyle(ev.panel).getPropertyValue("--accent").trim();
     if (accent) preview.dialog.style.setProperty("--share-accent", accent);
-    setPreviewAction(preview, "PREPARANDO ORIGINAL…", true, true);
+    setPreviewAction(preview, "PREPARANDO IMAGEN HD…", true, true);
     setPreviewStatus(preview, "Cargando la imagen en alta calidad.");
 
     document.body.classList.add("share-preview-open");
@@ -688,10 +688,10 @@
       preview.originalSource = prepared.source;
       preview.image.src = prepared.source;
       preview.media.classList.add("is-ready");
-      preview.media.classList.toggle("is-original", prepared.original);
+      preview.media.classList.toggle("is-hq", prepared.original);
       preview.hint.hidden = !isIOS();
-      setPreviewAction(preview, canShareFile(file) ? "COMPARTIR AHORA" : "DESCARGAR ORIGINAL", false, false);
-      setPreviewStatus(preview, (prepared.original ? "Original listo · " : "Versión web lista · ") + readableFileSize(file.size));
+      setPreviewAction(preview, canShareFile(file) ? "COMPARTIR AHORA" : "DESCARGAR IMAGEN HD", false, false);
+      setPreviewStatus(preview, (prepared.original ? "Imagen HD lista · " : "Versión web lista · ") + readableFileSize(file.size));
     }).catch(function () {
       if (preview.requestId !== requestId) return;
       setPreviewAction(preview, "NO DISPONIBLE", false, true);
