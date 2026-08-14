@@ -1,7 +1,7 @@
 /* Estado dinámico de la próxima edición: countdown, LIVE y calendario. */
 .event-status { width:min(760px,100%); margin:30px auto 0; text-align:center; }
-.event-status-label { margin:0 0 9px; color:rgba(242,237,230,.58); font-family:var(--font-mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; }
-.event-countdown { margin:0; color:var(--paper); font-family:var(--font-mono); font-size:clamp(18px,2.35vw,32px); font-weight:500; letter-spacing:.08em; font-variant-numeric:tabular-nums; }
+.event-status-label { margin:0 0 9px; color:color-mix(in srgb,var(--edition-accent) 72%,var(--paper)); font-family:var(--font-mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; }
+.event-countdown { margin:0; color:var(--paper); font-family:var(--font-mono); font-size:clamp(18px,2.35vw,32px); font-weight:500; letter-spacing:.08em; font-variant-numeric:tabular-nums; text-shadow:0 0 24px var(--edition-glow); }
 .event-live { display:flex; align-items:center; justify-content:center; gap:14px; min-height:38px; }
 .event-live-badge { color:#ff453a; font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:.12em; white-space:nowrap; animation:random-live-pulse 1.6s ease-in-out infinite; }
 .event-live strong { color:var(--paper); font-size:clamp(18px,2.5vw,32px); letter-spacing:-.035em; }

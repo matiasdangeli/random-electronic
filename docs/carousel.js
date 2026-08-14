@@ -100,9 +100,14 @@
       dot.type = "button";
       dot.className = "carousel-dot";
       var title = panel.querySelector("h3");
+      var event = events[i];
+      var edition = event && event.getAttribute("data-edition");
+      var name = event && event.getAttribute("data-name");
+      var label = (edition ? "#" + edition : "") + (name ? " · " + name : "");
+      dot.textContent = label || (title ? title.textContent.trim() : "FECHA " + (i + 1));
       dot.setAttribute(
         "aria-label",
-        "Ver " + (title ? title.textContent.trim() : "fecha " + (i + 1))
+        "Ver " + (label || (title ? title.textContent.trim() : "fecha " + (i + 1)))
       );
       dot.addEventListener("click", function () {
         seekTo(i);

@@ -9,6 +9,10 @@
   --line: rgba(255, 255, 255, 0.16);
   --orange: #ff9d00;
   --violet: #3512c8;
+  --edition-accent: #ff9d00;
+  --edition-glow: rgba(255, 149, 0, 0.14);
+  --edition-glow-strong: rgba(255, 36, 122, 0.35);
+  --edition-glow-warm: rgba(255, 145, 0, 0.4);
 }
 
 * {
@@ -32,6 +36,20 @@ body {
   color: var(--paper);
   font-family: var(--font-sans);
   overflow-x: hidden;
+}
+
+body[data-edition-theme="67"] {
+  --edition-accent: #8294ff;
+  --edition-glow: rgba(74, 96, 255, 0.2);
+  --edition-glow-strong: rgba(83, 63, 255, 0.38);
+  --edition-glow-warm: rgba(133, 62, 255, 0.34);
+}
+
+body[data-edition-theme="68"] {
+  --edition-accent: #ff754f;
+  --edition-glow: rgba(255, 116, 69, 0.2);
+  --edition-glow-strong: rgba(255, 79, 94, 0.38);
+  --edition-glow-warm: rgba(255, 178, 57, 0.34);
 }
 
 a {
@@ -128,8 +146,9 @@ svg {
   min-width: 360px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(255, 149, 0, 0.14);
+  background: var(--edition-glow);
   filter: blur(100px);
+  transition: background 900ms ease;
   animation: breathe 7s ease-in-out infinite alternate;
 }
 
@@ -342,8 +361,8 @@ svg {
   aspect-ratio: 9 / 16;
   border: 1px solid var(--line);
   object-fit: cover;
-  opacity: 0.5;
-  filter: saturate(0.5) brightness(0.5);
+  opacity: 0.78;
+  filter: saturate(0.35) brightness(0.72);
   transform: scale(1);
   transform-origin: center;
   transition: opacity 340ms ease, filter 340ms ease,
@@ -354,6 +373,11 @@ svg {
   opacity: 1;
   filter: saturate(1);
   transform: scale(1.045);
+}
+
+.archive-item.is-dimmed img {
+  opacity: 0.36;
+  filter: saturate(0.18) brightness(0.42);
 }
 
 /* El hover solo donde hay mouse de verdad: en pantalla táctil se queda pegado
@@ -892,27 +916,37 @@ svg {
   }
 }
 
-.carousel-dot {
-  width: 46px;
-  height: 34px;
-  padding: 0;
-  border: 0;
-  background: none;
+ .carousel-dot {
+  display: inline-flex;
+  width: auto;
+  min-width: 46px;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: #77726d;
   cursor: pointer;
-  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  transition: color 260ms ease, border-color 260ms ease,
+    background 260ms ease, transform 260ms ease;
 }
 
-.carousel-dot::before {
-  display: block;
-  width: 100%;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.22);
-  content: "";
-  transition: background 260ms ease;
+.carousel-dot:hover,
+.carousel-dot:focus-visible {
+  color: var(--paper);
+  border-color: rgba(255, 255, 255, 0.62);
 }
 
-.carousel-dot[aria-current="true"]::before {
-  background: var(--paper);
+.carousel-dot[aria-current="true"] {
+  color: var(--paper);
+  border-color: var(--edition-accent);
+  background: color-mix(in srgb, var(--edition-accent) 12%, transparent);
+  transform: translateY(-2px);
 }
 
 .manifesto {
@@ -995,8 +1029,8 @@ svg {
   gap: 40px;
   padding: 80px clamp(22px, 6vw, 100px);
   background:
-    radial-gradient(circle at 75% 50%, rgba(255, 36, 122, 0.35), transparent 24%),
-    radial-gradient(circle at 90% 60%, rgba(255, 145, 0, 0.4), transparent 30%),
+    radial-gradient(circle at 75% 50%, var(--edition-glow-strong), transparent 24%),
+    radial-gradient(circle at 90% 60%, var(--edition-glow-warm), transparent 30%),
     #190874;
 }
 
@@ -1077,7 +1111,7 @@ footer a {
 }
 
 @media (max-width: 900px) {
-  .site-header nav a:not(:last-child) {
+  .site-header nav a:nth-child(2) {
     display: none;
   }
 
@@ -1093,11 +1127,11 @@ footer a {
     order: -1;
   }
 
-  .event-card {
+  .event {
     grid-template-columns: 1fr;
   }
 
-  .event-poster-wrap {
+  .flyer3d {
     height: min(130vw, 760px);
   }
 
@@ -1169,19 +1203,19 @@ footer a {
     margin-bottom: 42px;
   }
 
-  .event-card {
+  .event {
     margin-bottom: 34px;
   }
 
-  .event-poster-wrap {
+  .flyer3d {
     height: 142vw;
   }
 
-  .event-info {
+  .event-panel {
     padding: 34px 22px;
   }
 
-  .event-info h3 {
+  .event-panel h3 {
     font-size: 52px;
   }
 

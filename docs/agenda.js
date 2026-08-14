@@ -223,8 +223,16 @@
     item.appendChild(label);
     item.addEventListener("click", function () {
       var selected = item.classList.contains("is-selected");
-      Array.prototype.forEach.call(item.parentNode.children, function (other) { other.classList.remove("is-selected"); });
-      if (!selected) item.classList.add("is-selected");
+      Array.prototype.forEach.call(item.parentNode.children, function (other) {
+        other.classList.remove("is-selected");
+        other.classList.remove("is-dimmed");
+      });
+      if (!selected) {
+        item.classList.add("is-selected");
+        Array.prototype.forEach.call(item.parentNode.children, function (other) {
+          if (other !== item) other.classList.add("is-dimmed");
+        });
+      }
     });
     return item;
   }
@@ -260,6 +268,14 @@
 
   function setHidden(node, hidden) { if (node) node.hidden = hidden; }
 
+  function applyEditionTheme(event) {
+    var theme = event && event.edition ? String(event.edition) : "";
+    if (document.body.getAttribute("data-edition-theme") !== theme) {
+      if (theme) document.body.setAttribute("data-edition-theme", theme);
+      else document.body.removeAttribute("data-edition-theme");
+    }
+  }
+
   function updateEventLabels(events, active, next) {
     events.forEach(function (ev) {
       var label = ev.panel && ev.panel.querySelector("[data-event-label]");
@@ -280,6 +296,7 @@
     var active = events.filter(function (ev) { return ev.startAt && ev.until && now >= ev.startAt && now < ev.until; }).sort(function (a,b){ return a.startAt-b.startAt; })[0] || null;
     var next = events.filter(function (ev) { return ev.startAt && ev.startAt > now; }).sort(function (a,b){ return a.startAt-b.startAt; })[0] || null;
     updateEventLabels(events, active, next);
+    applyEditionTheme(active || next);
     if (!status) return;
 
     var label = status.querySelector("[data-event-status-label]");
