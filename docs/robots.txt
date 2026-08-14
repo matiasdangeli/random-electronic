@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://randomelectronic.com/sitemap.xml

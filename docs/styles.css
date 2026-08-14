@@ -372,6 +372,15 @@ svg {
   scroll-snap-align: start;
 }
 
+.archive-link {
+  display: block;
+}
+
+.archive-link:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 5px;
+}
+
 /* En reposo los flyers van al 50% de opacidad, saturacion y brillo: se leen,
    pero no compiten. Al pasar el mouse o tocar uno sube a color y luz plenos y
    crece apenas: lo justo para que destaque sin empujar a los de al lado.
@@ -389,19 +398,8 @@ svg {
     transform 420ms cubic-bezier(0.22, 0.68, 0.28, 1);
 }
 
-.archive-item.is-selected img {
-  opacity: 1;
-  filter: saturate(1);
-  transform: scale(1.045);
-}
-
-.archive-item.is-dimmed img {
-  opacity: 0.36;
-  filter: saturate(0.18) brightness(0.42);
-}
-
 /* El hover solo donde hay mouse de verdad: en pantalla táctil se queda pegado
-   después de tocar y el destacado nunca se apagaría. Ahí manda is-selected. */
+   después de tocar. */
 @media (hover: hover) {
   .archive-item:hover img {
     opacity: 1;
@@ -412,10 +410,6 @@ svg {
   .archive-item:hover .archive-label {
     color: var(--paper);
   }
-}
-
-.archive-item.is-selected .archive-label {
-  color: var(--paper);
 }
 
 .archive-label {
@@ -642,6 +636,23 @@ svg {
   font-size: 13px;
   line-height: 1.5;
   opacity: 0.5;
+}
+
+.event-permalink {
+  display: inline-flex;
+  margin: -20px 0 30px;
+  border-bottom: 1px solid currentColor;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  opacity: 0.78;
+}
+
+.event-permalink:hover,
+.event-permalink:focus-visible {
+  opacity: 1;
 }
 
 .schedule {
@@ -1217,6 +1228,3 @@ footer a {
     transition-duration: 0.01ms !important;
   }
 }
-
-
-.archive-item { cursor: pointer; }

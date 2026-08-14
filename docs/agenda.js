@@ -208,32 +208,34 @@
     return Date.UTC(ev.dateParts.year, ev.dateParts.month - 1, ev.dateParts.day);
   }
 
+  function editionSlug(ev) {
+    var name = (ev.name || "random").toLowerCase().normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return ev.edition + "-" + (name || "random");
+  }
+
+  function editionUrl(ev) {
+    return "/ediciones/" + editionSlug(ev) + "/";
+  }
+
   function archiveCard(ev) {
     var item = document.createElement("li");
     item.className = "archive-item";
+    var link = document.createElement("a");
+    link.className = "archive-link";
+    link.href = editionUrl(ev);
+    link.setAttribute("aria-label", "Ver RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : ""));
     var flyer = ev.el.querySelector(".flyer3d-face--front img");
     if (flyer) {
       var img = document.createElement("img");
       img.src = flyer.getAttribute("src"); img.alt = flyer.getAttribute("alt") || ""; img.loading = "lazy";
-      item.appendChild(img);
+      link.appendChild(img);
     }
     var label = document.createElement("p");
     label.className = "archive-label";
     label.textContent = (ev.edition ? "#" + ev.edition : "") + (ev.name ? " · " + ev.name : "");
-    item.appendChild(label);
-    item.addEventListener("click", function () {
-      var selected = item.classList.contains("is-selected");
-      Array.prototype.forEach.call(item.parentNode.children, function (other) {
-        other.classList.remove("is-selected");
-        other.classList.remove("is-dimmed");
-      });
-      if (!selected) {
-        item.classList.add("is-selected");
-        Array.prototype.forEach.call(item.parentNode.children, function (other) {
-          if (other !== item) other.classList.add("is-dimmed");
-        });
-      }
-    });
+    link.appendChild(label);
+    item.appendChild(link);
     return item;
   }
 
@@ -410,6 +412,17 @@
     actions.insertBefore(button, actions.querySelector(".free-entry") || null);
   }
 
+  function installEditionLink(ev) {
+    if (!ev.panel || !ev.edition || ev.panel.querySelector("[data-edition-link]")) return;
+    var link = document.createElement("a");
+    link.className = "event-permalink";
+    link.href = editionUrl(ev);
+    link.setAttribute("data-edition-link", "");
+    link.textContent = "VER EDICIÓN →";
+    var schedule = ev.panel.querySelector(".schedule");
+    ev.panel.insertBefore(link, schedule || ev.panel.querySelector(".event-actions") || null);
+  }
+
   function run() {
     loadLiveStyles();
     var all = Array.prototype.map.call(document.querySelectorAll("[data-event]"), read);
@@ -429,6 +442,7 @@
       var title = ev.panel && ev.panel.querySelector("[data-event-title]");
       if (label && ev.edition) label.textContent = index === 0 ? contextualEventLabel("LA PRÓXIMA", ev) : "RANDOM #" + ev.edition;
       if (title && ev.dateParts) title.textContent = eventTitle(ev.dateParts);
+      installEditionLink(ev);
       installCalendarButton(ev);
     });
 
