@@ -988,13 +988,17 @@ svg {
   border-bottom: 0;
 }
 
-.manifesto-stats strong {
-  font-size: clamp(54px, 5vw, 84px);
-  line-height: 1;
-  letter-spacing: -0.07em;
+.manifesto-counter strong {
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 2.35vw, 32px);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
-.manifesto-stats span {
+.manifesto-counter span {
   margin-top: 7px;
   font-family: var(--font-mono);
   font-size: 9px;
