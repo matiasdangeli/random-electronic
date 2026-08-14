@@ -288,7 +288,7 @@
           progress = seeking;
           seeking = null;
         }
-      } else if (count > 1 && !hovering && !drag && !flipping && visible && !document.hidden) {
+      } else if (count > 1 && !hovering && !drag && !flipping && visible && !document.hidden && !document.body.classList.contains("share-preview-open")) {
         // Con un flyer dado vuelta la fila se queda quieta: si no, se iría
         // rotando y quedaría mostrando la cara equivocada. Con una sola fecha
         // tampoco gira sola: quedaría yéndose y volviendo sin sentido.

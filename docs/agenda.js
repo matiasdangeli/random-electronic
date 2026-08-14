@@ -13,12 +13,13 @@
   var MONTHS = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
   var formatterCache = {};
   var shareFileCache = new Map();
+  var sharePreviewInstance = null;
 
   function loadLiveStyles() {
     if (document.querySelector('link[data-random-live-styles]')) return;
     var link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "live.css?v=20260814-1";
+    link.href = "live.css?v=20260814-2";
     link.setAttribute("data-random-live-styles", "");
     document.head.appendChild(link);
   }
@@ -481,9 +482,13 @@
     var fallback = image.currentSrc || image.getAttribute("src");
     if (!source) return Promise.reject(new Error("El flyer no tiene archivo asociado"));
 
-    return fileFromSource(source, ev, face).catch(function (error) {
+    return fileFromSource(source, ev, face).then(function (file) {
+      return { file:file, source:source, original:true };
+    }).catch(function (error) {
       if (!fallback || fallback === source) throw error;
-      return fileFromSource(fallback, ev, face);
+      return fileFromSource(fallback, ev, face).then(function (file) {
+        return { file:file, source:fallback, original:false };
+      });
     });
   }
 
@@ -491,30 +496,38 @@
     return "RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : "");
   }
 
-  function setShareStatus(button, message) {
-    var status = button.parentNode && button.parentNode.querySelector("[data-share-status]");
-    if (status) status.textContent = message || "";
+  function readableFileSize(bytes) {
+    var size = Math.round((bytes / 1024 / 1024) * 10) / 10;
+    return String(size).replace(".", ",") + " MB";
   }
 
-  function resetShareButton(button) {
-    button.disabled = false;
-    button.removeAttribute("aria-busy");
-    button.innerHTML = 'COMPARTIR <span aria-hidden="true">↗</span>';
+  function setPreviewAction(preview, label, busy, disabled) {
+    preview.action.textContent = label;
+    preview.action.disabled = !!disabled;
+    if (busy) preview.action.setAttribute("aria-busy", "true");
+    else preview.action.removeAttribute("aria-busy");
   }
 
-  function readyShareButton(button) {
-    button.disabled = false;
-    button.removeAttribute("aria-busy");
-    button.innerHTML = 'COMPARTIR AHORA <span aria-hidden="true">↗</span>';
+  function setPreviewStatus(preview, message) {
+    preview.status.textContent = message || "";
   }
 
-  function downloadShareFile(file, button) {
+  function closeSharePreview(preview) {
+    if (typeof preview.dialog.close === "function" && preview.dialog.open) preview.dialog.close();
+    else {
+      preview.dialog.removeAttribute("open");
+      document.body.classList.remove("share-preview-open");
+      if (preview.trigger) preview.trigger.focus();
+    }
+  }
+
+  function downloadShareFile(file, preview) {
     var url = URL.createObjectURL(file);
     var link = document.createElement("a");
     link.href = url; link.download = file.name;
     document.body.appendChild(link); link.click(); link.remove();
     window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-    setShareStatus(button, "Flyer descargado. Ya podés abrirlo en Instagram.");
+    setPreviewStatus(preview, "Original descargado. Ya podés abrirlo en Instagram.");
   }
 
   function canShareFile(file) {
@@ -524,34 +537,165 @@
     catch (error) { return false; }
   }
 
-  function sharePreparedFile(ev, file, button) {
+  function sharePreparedFile(file, preview) {
     if (!canShareFile(file)) {
-      downloadShareFile(file, button);
-      resetShareButton(button);
+      downloadShareFile(file, preview);
       return Promise.resolve();
     }
 
-    if (navigator.userActivation && !navigator.userActivation.isActive) {
-      readyShareButton(button);
-      setShareStatus(button, "Flyer listo. Tocá Compartir ahora para abrir las opciones.");
+    setPreviewAction(preview, "ABRIENDO…", true, true);
+    var result;
+    try {
+      // En iOS, agregar title/text/url crea elementos separados y puede hacer
+      // que algunos destinos prioricen otra cosa. Compartimos solo la imagen.
+      result = navigator.share({ files:[file] });
+    } catch (error) {
+      result = Promise.reject(error);
+    }
+
+    if (!result || typeof result.then !== "function") {
+      setPreviewAction(preview, "COMPARTIR AHORA", false, false);
+      setPreviewStatus(preview, "No se pudo abrir el panel. Probá de nuevo.");
       return Promise.resolve();
     }
 
-    return navigator.share({ title:shareTitle(ev), files:[file] }).then(function () {
-      resetShareButton(button);
-      setShareStatus(button, "Flyer compartido.");
+    return result.then(function () {
+      closeSharePreview(preview);
     }).catch(function (error) {
       if (error && error.name === "AbortError") {
-        resetShareButton(button);
+        setPreviewAction(preview, "COMPARTIR AHORA", false, false);
+        setPreviewStatus(preview, "Original listo para compartir.");
         return;
       }
       if (error && error.name === "NotAllowedError") {
-        readyShareButton(button);
-        setShareStatus(button, "Flyer listo. Tocá Compartir ahora para abrir las opciones.");
+        setPreviewAction(preview, "COMPARTIR AHORA", false, false);
+        setPreviewStatus(preview, "Tocá Compartir ahora nuevamente.");
         return;
       }
-      downloadShareFile(file, button);
-      resetShareButton(button);
+      downloadShareFile(file, preview);
+      setPreviewAction(preview, "DESCARGAR ORIGINAL", false, false);
+    });
+  }
+
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  }
+
+  function createSharePreview() {
+    if (sharePreviewInstance) return sharePreviewInstance;
+
+    var dialog = document.createElement("dialog");
+    dialog.className = "share-preview";
+    dialog.setAttribute("aria-labelledby", "share-preview-title");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.innerHTML = '' +
+      '<div class="share-preview-card">' +
+        '<button class="share-preview-close" type="button" aria-label="Cerrar vista previa">×</button>' +
+        '<div class="share-preview-media" data-share-preview-media>' +
+          '<img data-share-preview-image alt="" />' +
+        '</div>' +
+        '<div class="share-preview-copy">' +
+          '<p class="share-preview-kicker" data-share-preview-kicker></p>' +
+          '<h2 id="share-preview-title" data-share-preview-title></h2>' +
+          '<p class="share-preview-face" data-share-preview-face></p>' +
+          '<button class="button share-preview-action" type="button" data-share-preview-action></button>' +
+          '<p class="share-preview-status" role="status" aria-live="polite" data-share-preview-status></p>' +
+          '<p class="share-preview-hint" data-share-preview-hint hidden>En iPhone, mantené apretado el flyer y elegí Compartir para verlo también en el panel.</p>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(dialog);
+
+    var preview = {
+      dialog:dialog,
+      image:dialog.querySelector("[data-share-preview-image]"),
+      media:dialog.querySelector("[data-share-preview-media]"),
+      kicker:dialog.querySelector("[data-share-preview-kicker]"),
+      title:dialog.querySelector("[data-share-preview-title]"),
+      face:dialog.querySelector("[data-share-preview-face]"),
+      action:dialog.querySelector("[data-share-preview-action]"),
+      status:dialog.querySelector("[data-share-preview-status]"),
+      hint:dialog.querySelector("[data-share-preview-hint]"),
+      close:dialog.querySelector(".share-preview-close"),
+      file:null,
+      ev:null,
+      trigger:null,
+      originalSource:null,
+      requestId:0
+    };
+
+    preview.close.addEventListener("click", function () { closeSharePreview(preview); });
+    dialog.addEventListener("click", function (event) {
+      if (event.target === dialog) closeSharePreview(preview);
+    });
+    dialog.addEventListener("close", function () {
+      preview.requestId += 1;
+      preview.file = null;
+      preview.originalSource = null;
+      preview.image.removeAttribute("src");
+      preview.image.alt = "";
+      preview.media.classList.remove("is-ready", "is-original");
+      preview.hint.hidden = true;
+      document.body.classList.remove("share-preview-open");
+      if (preview.trigger) preview.trigger.focus();
+    });
+    preview.action.addEventListener("click", function () {
+      if (!preview.file) return;
+      if (!canShareFile(preview.file)) {
+        downloadShareFile(preview.file, preview);
+        return;
+      }
+      sharePreparedFile(preview.file, preview);
+    });
+
+    sharePreviewInstance = preview;
+    return preview;
+  }
+
+  function openSharePreview(ev, trigger) {
+    var preview = createSharePreview();
+    var image = shareImage(ev);
+    if (!image) return;
+    var face = shareFace(ev);
+    var source = shareSource(image);
+    var requestId = preview.requestId + 1;
+
+    preview.requestId = requestId;
+    preview.file = null;
+    preview.ev = ev;
+    preview.trigger = trigger;
+    preview.originalSource = source;
+    preview.media.classList.remove("is-ready", "is-original");
+    preview.image.src = image.currentSrc || image.getAttribute("src") || source;
+    preview.image.alt = "Vista previa de " + (face === "back" ? "los set times" : "el flyer") + " de " + shareTitle(ev);
+    preview.kicker.textContent = "RANDOM #" + ev.edition;
+    preview.title.textContent = ev.name || "PRÓXIMA FECHA";
+    preview.face.textContent = face === "back" ? "LINE-UP / SET TIMES" : "FLYER PRINCIPAL";
+    preview.hint.hidden = true;
+    var accent = ev.panel && window.getComputedStyle(ev.panel).getPropertyValue("--accent").trim();
+    if (accent) preview.dialog.style.setProperty("--share-accent", accent);
+    setPreviewAction(preview, "PREPARANDO ORIGINAL…", true, true);
+    setPreviewStatus(preview, "Cargando la imagen en alta calidad.");
+
+    document.body.classList.add("share-preview-open");
+    if (typeof preview.dialog.showModal === "function") preview.dialog.showModal();
+    else preview.dialog.setAttribute("open", "");
+
+    prepareShareFile(ev).then(function (prepared) {
+      if (preview.requestId !== requestId) return;
+      var file = prepared.file;
+      preview.file = file;
+      preview.originalSource = prepared.source;
+      preview.image.src = prepared.source;
+      preview.media.classList.add("is-ready");
+      preview.media.classList.toggle("is-original", prepared.original);
+      preview.hint.hidden = !isIOS();
+      setPreviewAction(preview, canShareFile(file) ? "COMPARTIR AHORA" : "DESCARGAR ORIGINAL", false, false);
+      setPreviewStatus(preview, (prepared.original ? "Original listo · " : "Versión web lista · ") + readableFileSize(file.size));
+    }).catch(function () {
+      if (preview.requestId !== requestId) return;
+      setPreviewAction(preview, "NO DISPONIBLE", false, true);
+      setPreviewStatus(preview, "No se pudo cargar el flyer. Cerrá y probá de nuevo.");
     });
   }
 
@@ -572,29 +716,14 @@
     button.type = "button";
     button.className = "button button--share";
     button.setAttribute("data-share-button", "");
-    resetShareButton(button);
-
-    var status = document.createElement("span");
-    status.className = "sr-only";
-    status.setAttribute("data-share-status", "");
-    status.setAttribute("role", "status");
-    status.setAttribute("aria-live", "polite");
+    button.setAttribute("aria-haspopup", "dialog");
+    button.innerHTML = 'COMPARTIR <span aria-hidden="true">↗</span>';
 
     button.addEventListener("click", function () {
-      button.disabled = true;
-      button.setAttribute("aria-busy", "true");
-      button.textContent = "PREPARANDO…";
-      setShareStatus(button, "Preparando el flyer en alta calidad.");
-      prepareShareFile(ev).then(function (file) {
-        return sharePreparedFile(ev, file, button);
-      }).catch(function () {
-        resetShareButton(button);
-        setShareStatus(button, "No se pudo preparar el flyer. Probá de nuevo.");
-      });
+      openSharePreview(ev, button);
     });
 
     actions.insertBefore(button, actions.querySelector(".free-entry") || null);
-    actions.appendChild(status);
     updateShareLabel(ev);
   }
 

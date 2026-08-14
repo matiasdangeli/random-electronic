@@ -26,7 +26,7 @@ Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección 
 
 Para compartir en máxima calidad, cada `<img>` puede sumar `data-share-src="assets/share/random-NN.png"`. Ese PNG/JPG es el original; el WebP liviano sigue siendo el que carga visualmente la página.
 
-Los originales no se descargan al navegar: se preparan recién cuando la persona toca `COMPARTIR`. Si el navegador pierde el permiso durante la descarga, el botón pasa a `COMPARTIR AHORA` para abrir el panel nativo con un segundo toque.
+Los originales no se descargan al navegar: se preparan recién cuando la persona toca `COMPARTIR`. Primero aparece una vista previa propia con la cara elegida; cuando el original está listo, `COMPARTIR AHORA` muestra el panel nativo.
 
 El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
 
@@ -89,7 +89,9 @@ Si no hay un horario suficientemente explícito, el botón no aparece: no se inv
 
 ## Compartir flyer
 
-Cada próxima fecha agrega `COMPARTIR` en el mismo bloque que ubicación y calendario. Comparte el archivo original de la cara que se está viendo: frente o set times. En iPhone abre la hoja nativa, donde aparecen Instagram, WhatsApp y los demás destinos que ofrezcan las apps instaladas; cuando el navegador no admite archivos compartidos, descarga el mismo original.
+Cada próxima fecha agrega `COMPARTIR` en el mismo bloque que ubicación y calendario. Abre una vista previa grande de la cara que se está viendo —frente o set times— mientras prepara el original. Desde ahí, `COMPARTIR AHORA` envía únicamente esa imagen al panel nativo; cuando el navegador no admite archivos compartidos, descarga el mismo original.
+
+Safari no permite que una web defina la miniatura de la cabecera del panel nativo. En iPhone, la vista previa incluye además la alternativa de mantener apretado el flyer y elegir `Compartir`, que hace que iOS lo trate desde su menú contextual de imagen.
 
 Los originales viven en `docs/assets/share/` y solo se preparan al tocar `COMPARTIR`. No reemplazan los WebP del carrusel ni frenan la carga inicial del sitio.
 
