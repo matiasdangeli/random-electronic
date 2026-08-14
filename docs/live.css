@@ -12,6 +12,100 @@
 .button--share { min-width:132px; border-color:color-mix(in srgb,var(--accent) 48%,transparent); appearance:none; background:color-mix(in srgb,var(--accent) 7%,transparent); color:var(--accent); cursor:pointer; }
 .button--share:hover,.button--share:focus-visible { background:color-mix(in srgb,var(--accent) 14%,transparent); }
 .button--share[aria-busy="true"],.button--share:disabled { opacity:.62; cursor:wait; transform:none; }
+body.share-preview-open { overflow:hidden; }
+.share-preview {
+  width:min(440px,calc(100vw - 24px));
+  max-width:none;
+  max-height:calc(100svh - 24px);
+  margin:auto;
+  padding:0;
+  overflow:auto;
+  overscroll-behavior:contain;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:28px;
+  background:#141414;
+  color:var(--paper,#f4f0eb);
+  box-shadow:0 28px 90px rgba(0,0,0,.72);
+}
+.share-preview:not([open]) { display:none; }
+.share-preview::backdrop { background:rgba(0,0,0,.82); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.share-preview-card { position:relative; padding:16px clamp(16px,4vw,24px) 24px; }
+.share-preview-close {
+  position:absolute;
+  z-index:2;
+  top:13px;
+  right:13px;
+  display:grid;
+  width:38px;
+  height:38px;
+  padding:0;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:50%;
+  appearance:none;
+  background:rgba(8,8,8,.76);
+  color:#fff;
+  font-size:24px;
+  font-weight:300;
+  line-height:1;
+  cursor:pointer;
+}
+.share-preview-close:hover,.share-preview-close:focus-visible { background:rgba(255,255,255,.13); }
+.share-preview-media {
+  position:relative;
+  width:auto;
+  height:min(54svh,520px);
+  margin:4px auto 20px;
+  overflow:hidden;
+  aspect-ratio:2943 / 5329;
+  border-radius:17px;
+  background:#070707;
+  box-shadow:0 18px 44px rgba(0,0,0,.5);
+}
+.share-preview-media img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  -webkit-user-select:auto;
+  user-select:auto;
+  -webkit-touch-callout:default;
+}
+.share-preview-media.is-ready::after {
+  position:absolute;
+  right:9px;
+  bottom:9px;
+  padding:5px 7px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  background:rgba(0,0,0,.68);
+  color:#fff;
+  content:"HQ";
+  font-family:var(--font-mono);
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.12em;
+  pointer-events:none;
+}
+.share-preview-copy { text-align:center; }
+.share-preview-kicker,.share-preview-face,.share-preview-status,.share-preview-hint { font-family:var(--font-mono); text-transform:uppercase; }
+.share-preview-kicker { margin:0 0 6px; color:var(--share-accent,#efe8df); font-size:9px; font-weight:700; letter-spacing:.18em; }
+.share-preview-copy h2 { margin:0; color:#fff; font-size:clamp(28px,8vw,40px); letter-spacing:-.045em; line-height:1; }
+.share-preview-face { margin:8px 0 18px; color:#85817d; font-size:9px; letter-spacing:.14em; }
+.share-preview-action {
+  width:100%;
+  min-height:56px;
+  justify-content:center;
+  border-color:var(--share-accent,#efe8df);
+  background:var(--share-accent,#efe8df);
+  color:#090909;
+  text-align:center;
+  cursor:pointer;
+}
+.share-preview-action:hover,.share-preview-action:focus-visible { filter:brightness(1.07); }
+.share-preview-action[aria-busy="true"],.share-preview-action:disabled { opacity:.58; cursor:wait; transform:none; }
+.share-preview-status { min-height:13px; margin:11px 0 0; color:#8e8a86; font-size:8px; letter-spacing:.09em; }
+.share-preview-hint { margin:14px auto 0; max-width:340px; color:#aaa6a1; font-size:8px; letter-spacing:.08em; line-height:1.55; text-transform:none; }
 .schedule-row { transition:background 220ms ease,padding 220ms ease; }
 .schedule-row.is-live { padding-right:12px; padding-left:12px; background:color-mix(in srgb,var(--accent) 9%,transparent); }
 .schedule-row.is-live strong::after { margin-left:10px; color:#ff453a; content:"●"; font-family:var(--font-mono); font-size:8px; vertical-align:middle; }
@@ -45,5 +139,8 @@
   .event-actions > .free-entry{
     grid-column:1 / -1;
   }
+  .share-preview { width:calc(100vw - 16px); max-height:calc(100svh - 16px); border-radius:24px; }
+  .share-preview-card { padding:12px 14px 20px; }
+  .share-preview-media { height:min(51svh,490px); margin-top:2px; }
 }
 @media (prefers-reduced-motion:reduce){ .event-live-badge{animation:none} }
