@@ -153,10 +153,12 @@ svg {
   color: var(--muted);
 }
 
+/* El margen de abajo es negativo para comerse el aire vacío del PNG, pero
+   estaba tan cerrado que el logo quedaba pegado al titular. */
 .hero-wordmark {
   width: min(530px, 76vw);
   height: 220px;
-  margin: -14px auto -38px;
+  margin: -14px auto -6px;
   object-fit: contain;
   filter: drop-shadow(0 18px 44px rgba(0, 0, 0, 0.7));
 }
@@ -328,7 +330,7 @@ svg {
   list-style: none;
 }
 
-/* En reposo los flyers van al 50% de opacidad y 70% de saturacion: se leen,
+/* En reposo los flyers van al 50% de opacidad, saturacion y brillo: se leen,
    pero no compiten. Al pasar el mouse o tocar uno sube a color y luz plenos y
    crece apenas: lo justo para que destaque sin empujar a los de al lado.
    Crece la imagen y no la ficha entera, porque escalar el texto lo empasta. */
@@ -338,7 +340,7 @@ svg {
   border: 1px solid var(--line);
   object-fit: cover;
   opacity: 0.5;
-  filter: saturate(0.7);
+  filter: saturate(0.5) brightness(0.5);
   transform: scale(1);
   transform-origin: center;
   transition: opacity 340ms ease, filter 340ms ease,
@@ -1143,7 +1145,7 @@ footer a {
   .hero-wordmark {
     width: 88vw;
     height: 150px;
-    margin-bottom: -26px;
+    margin-bottom: -2px;
   }
 
   .hero h1 {
