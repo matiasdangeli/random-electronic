@@ -24,6 +24,10 @@ Para compatibilidad con las fichas antiguas, si falta `data-timezone` el sitio u
 
 Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`). El carrusel no crea botones para girar ni para elegir ediciones: se recorre arrastrando y el flyer central se da vuelta al tocarlo.
 
+Para compartir en máxima calidad, cada `<img>` puede sumar `data-share-src="assets/share/random-NN.png"`. Ese PNG/JPG es el original; el WebP liviano sigue siendo el que carga visualmente la página.
+
+Los originales no se descargan al navegar: se preparan recién cuando la persona toca `COMPARTIR`. Si el navegador pierde el permiso durante la descarga, el botón pasa a `COMPARTIR AHORA` para abrir el panel nativo con un segundo toque.
+
 El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
 
 ## La fecha del flyer y la madrugada
@@ -83,9 +87,15 @@ Las horas se calculan desde la zona horaria de la sede y se convierten al instan
 
 Si no hay un horario suficientemente explícito, el botón no aparece: no se inventan horas.
 
+## Compartir flyer
+
+Cada próxima fecha agrega `COMPARTIR` en el mismo bloque que ubicación y calendario. Comparte el archivo original de la cara que se está viendo: frente o set times. En iPhone abre la hoja nativa, donde aparecen Instagram, WhatsApp y los demás destinos que ofrezcan las apps instaladas; cuando el navegador no admite archivos compartidos, descarga el mismo original.
+
+Los originales viven en `docs/assets/share/` y solo se preparan al tocar `COMPARTIR`. No reemplazan los WebP del carrusel ni frenan la carga inicial del sitio.
+
 ## Archivo automático
 
-Cuando una fecha termina baja sola al archivo y queda chica y apagada. Las fichas viejas no se borran: son las que construyen el historial.
+Cuando una fecha termina baja sola al archivo y queda chica y apagada. Al tocarla se agranda, recupera color y luz al 100%; un segundo toque desactiva el destaque. El archivo no navega a páginas separadas.
 
 El formato del archivo es `#NN · NOMBRE`. El nombre sale de `data-name`.
 
@@ -109,10 +119,10 @@ El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 - `agenda.js`: agenda, countdown, LIVE, zonas horarias y calendario.
 - `live.css`: estilos del countdown, LIVE y botón de calendario.
 - `carousel.js`: carrusel 3D.
-- `edition.css`: estilos de las páginas individuales de cada edición.
-- `scripts/generate_seo.py`: genera las URLs de edición y `sitemap.xml` a partir de `index.html`.
+- `edition.css`: estilos de las páginas temporales de fechas activas.
+- `scripts/generate_seo.py`: genera las URLs activas y `sitemap.xml` a partir de `index.html`.
 
-Las páginas `/ediciones/NN-nombre/` y `sitemap.xml` quedan versionadas en el repositorio para que tanto GitHub Pages como Cloudflare publiquen exactamente los mismos archivos. El workflow de GitHub Pages vuelve a generarlos antes de cada deploy.
+Solo las fechas actuales o próximas tienen una URL `/ediciones/NN-nombre/` para datos estructurados `Event`. Las pasadas viven únicamente en el archivo interactivo de la home. `sitemap.xml` incluye la home y esas fechas activas; el workflow vuelve a generarlo antes de cada deploy.
 
 Después de modificar una edición en `docs/index.html`, ejecutar `python3 scripts/generate_seo.py` antes de guardar los cambios.
 

@@ -374,6 +374,15 @@ svg {
 
 .archive-link {
   display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .archive-link:focus-visible {
@@ -398,6 +407,17 @@ svg {
     transform 420ms cubic-bezier(0.22, 0.68, 0.28, 1);
 }
 
+.archive-item.is-selected img {
+  opacity: 1;
+  filter: saturate(1) brightness(1);
+  transform: scale(1.045);
+}
+
+.archive-item.is-dimmed img {
+  opacity: 0.36;
+  filter: saturate(0.18) brightness(0.42);
+}
+
 /* El hover solo donde hay mouse de verdad: en pantalla táctil se queda pegado
    después de tocar. */
 @media (hover: hover) {
@@ -413,12 +433,17 @@ svg {
 }
 
 .archive-label {
+  display: block;
   margin: 9px 0 0;
   transition: color 340ms ease;
   color: #6d6965;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
+}
+
+.archive-item.is-selected .archive-label {
+  color: var(--paper);
 }
 
 .archive-item--more {
@@ -638,23 +663,6 @@ svg {
   opacity: 0.5;
 }
 
-.event-permalink {
-  display: inline-flex;
-  margin: -20px 0 30px;
-  border-bottom: 1px solid currentColor;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  opacity: 0.78;
-}
-
-.event-permalink:hover,
-.event-permalink:focus-visible {
-  opacity: 1;
-}
-
 .schedule {
   border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
 }
@@ -697,6 +705,18 @@ svg {
   font-size: 9px;
   letter-spacing: 0.12em;
   opacity: 0.7;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* --- Carrusel 3D de flyers -------------------------------------------------
@@ -852,6 +872,27 @@ svg {
 
 .carousel-panels .event-place {
   margin-bottom: 24px;
+}
+
+.carousel-panels .event-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.carousel-panels .event-actions > .button {
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  padding: 12px 10px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.carousel-panels .event-actions > .button--solid,
+.carousel-panels .event-actions > .free-entry {
+  grid-column: 1 / -1;
 }
 
 /* Con lugar de sobra, el detalle va al costado del flyer en vez de abajo: se
