@@ -426,6 +426,45 @@ svg {
   letter-spacing: 0.14em;
 }
 
+.archive-item--more {
+  width: clamp(142px, 11vw, 166px);
+}
+
+.archive-more {
+  display: flex;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  padding: clamp(16px, 1.5vw, 22px);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.035);
+  color: #d5d0c9;
+  font-family: var(--font-mono);
+  transition: background 220ms ease, color 220ms ease, border-color 220ms ease;
+}
+
+.archive-more strong {
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.12em;
+}
+
+.archive-more span {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.archive-more:hover,
+.archive-more:focus-visible {
+  border-color: var(--paper);
+  outline: none;
+  background: var(--paper);
+  color: var(--ink);
+}
+
 /* En pantalla chica la fila se sale del padding de la sección para que el
    flyer siguiente asome contra el borde y se entienda que se puede deslizar. */
 @media (max-width: 700px) {
@@ -439,6 +478,10 @@ svg {
 
   .archive-item {
     width: 128px;
+  }
+
+  .archive-item--more {
+    width: 142px;
   }
 }
 

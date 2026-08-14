@@ -237,6 +237,13 @@
     return item;
   }
 
+  function archiveMoreCard() {
+    var item = document.createElement("li");
+    item.className = "archive-item archive-item--more";
+    item.innerHTML = '<a class="archive-more" href="#contacto" aria-label="Ir a contacto para saber más sobre RANDOM"><strong>¿QUERÉS SABER MÁS?</strong><span aria-hidden="true">↓</span></a>';
+    return item;
+  }
+
   function monthRange(list) {
     var first = list[0].dateParts, last = list[list.length - 1].dateParts;
     if (first.year !== last.year) return MONTHS[first.month-1] + " " + first.year + " – " + MONTHS[last.month-1] + " " + last.year;
@@ -410,6 +417,7 @@
 
     var grid = document.querySelector("[data-archive-grid]");
     past.forEach(function (ev) { if (ev.dateParts && grid) grid.appendChild(archiveCard(ev)); if (ev.el.parentNode) ev.el.parentNode.removeChild(ev.el); });
+    if (grid && past.some(function (ev) { return !!ev.dateParts; })) grid.appendChild(archiveMoreCard());
     toggle("[data-archive]", past.some(function (ev) { return !!ev.dateParts; }));
     upcoming.forEach(function (ev) { if (ev.el.parentNode) ev.el.parentNode.appendChild(ev.el); });
     upcoming.forEach(function (ev,index) {
