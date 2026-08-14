@@ -28,7 +28,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=20260814-4" />
+    <link rel="stylesheet" href="styles.css?v=20260814-5" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -1065,10 +1065,19 @@
           <h2>SOMOS<br />RANDOM.</h2>
           <p>Desde 2018 nos encontramos acá. Cambiaron los lugares, las caras y las noches.. pero seguimos siendo RANDOM.</p>
         </div>
-        <div class="manifesto-stats">
-          <div><strong data-stat-editions>66</strong><span>EDICIONES</span></div>
-          <div><strong data-stat-years>8</strong><span>AÑOS JUNTOS</span></div>
-          <div><strong>∞</strong><span>FORMAS DE VIVIRLO</span></div>
+        <div
+          class="manifesto-stats manifesto-counter"
+          data-elapsed-counter
+          data-start="2018-04-14T23:59:59"
+          data-timezone="America/Argentina/Buenos_Aires"
+          role="timer"
+          aria-live="off"
+          aria-atomic="true"
+          aria-label="Tiempo juntos desde el 14 de abril de 2018 a las 23:59:59, hora argentina"
+        >
+          <div aria-hidden="true"><strong data-elapsed-years-months>00A · 00M</strong><span>AÑOS · MESES</span></div>
+          <div aria-hidden="true"><strong data-elapsed-days-hours>00D · 00H</strong><span>DÍAS · HORAS</span></div>
+          <div aria-hidden="true"><strong data-elapsed-minutes-seconds>00M · 00S</strong><span>MINUTOS · SEGUNDOS</span></div>
         </div>
       </section>
 
@@ -1114,7 +1123,7 @@
     </script>
 
     <!-- agenda.js va primero: separa próximas fechas y archivo antes del carrusel. -->
-    <script src="agenda.js?v=20260814-8" defer></script>
+    <script src="agenda.js?v=20260814-9" defer></script>
     <script src="carousel.js?v=20260814-2" defer></script>
   </body>
 </html>

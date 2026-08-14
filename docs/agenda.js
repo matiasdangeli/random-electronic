@@ -2,9 +2,6 @@
 (function () {
   "use strict";
 
-  var FIRST_YEAR = 2018;
-  var ANNIVERSARY_MONTH = 3;
-  var ANNIVERSARY_DAY = 14;
   var ENDS_HOUR = 6;
   var NIGHT_CUTOFF_MINUTES = 8 * 60;
   var DEFAULT_TIMEZONE = "Europe/Andorra";
@@ -25,9 +22,9 @@
   }
 
   function parseWall(value) {
-    var parts = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(String(value || "").trim());
+    var parts = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(String(value || "").trim());
     if (!parts) return null;
-    return { year:+parts[1], month:+parts[2], day:+parts[3], hour:+(parts[4] || 0), minute:+(parts[5] || 0), second:0 };
+    return { year:+parts[1], month:+parts[2], day:+parts[3], hour:+(parts[4] || 0), minute:+(parts[5] || 0), second:+(parts[6] || 0) };
   }
 
   function formatterFor(timeZone) {
@@ -70,6 +67,114 @@
   function addMinutes(dateParts, minutes) {
     var date = new Date(Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day, 0, minutes, 0));
     return { year:date.getUTCFullYear(), month:date.getUTCMonth()+1, day:date.getUTCDate(), hour:date.getUTCHours(), minute:date.getUTCMinutes(), second:0 };
+  }
+
+  function daysInMonth(year, month) {
+    return new Date(Date.UTC(year, month, 0)).getUTCDate();
+  }
+
+  function addWallMonths(parts, months) {
+    var total = (parts.year * 12) + (parts.month - 1) + months;
+    var year = Math.floor(total / 12);
+    var month = total - (year * 12) + 1;
+    return {
+      year:year,
+      month:month,
+      day:Math.min(parts.day, daysInMonth(year, month)),
+      hour:parts.hour,
+      minute:parts.minute,
+      second:parts.second
+    };
+  }
+
+  function addWallDays(parts, days) {
+    var date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + days, parts.hour, parts.minute, parts.second));
+    return {
+      year:date.getUTCFullYear(), month:date.getUTCMonth()+1, day:date.getUTCDate(),
+      hour:date.getUTCHours(), minute:date.getUTCMinutes(), second:date.getUTCSeconds()
+    };
+  }
+
+  function elapsedSince(startParts, timeZone, now) {
+    var zero = { years:0, months:0, days:0, hours:0, minutes:0, seconds:0 };
+    var startAt = wallToInstant(startParts, timeZone);
+    if (!startAt || now < startAt) return zero;
+
+    var current = zonedParts(now, timeZone);
+    var totalMonths = ((current.year - startParts.year) * 12) + current.month - startParts.month;
+    var monthAnchorParts = addWallMonths(startParts, totalMonths);
+    var monthAnchor = wallToInstant(monthAnchorParts, timeZone);
+
+    while (totalMonths > 0 && monthAnchor > now) {
+      totalMonths -= 1;
+      monthAnchorParts = addWallMonths(startParts, totalMonths);
+      monthAnchor = wallToInstant(monthAnchorParts, timeZone);
+    }
+
+    var nextMonthParts = addWallMonths(startParts, totalMonths + 1);
+    var nextMonth = wallToInstant(nextMonthParts, timeZone);
+    while (nextMonth <= now) {
+      totalMonths += 1;
+      monthAnchorParts = nextMonthParts;
+      monthAnchor = nextMonth;
+      nextMonthParts = addWallMonths(startParts, totalMonths + 1);
+      nextMonth = wallToInstant(nextMonthParts, timeZone);
+    }
+
+    var days = Math.max(0, Math.floor((now - monthAnchor) / 86400000));
+    var dayAnchorParts = addWallDays(monthAnchorParts, days);
+    var dayAnchor = wallToInstant(dayAnchorParts, timeZone);
+
+    while (days > 0 && dayAnchor > now) {
+      days -= 1;
+      dayAnchorParts = addWallDays(monthAnchorParts, days);
+      dayAnchor = wallToInstant(dayAnchorParts, timeZone);
+    }
+
+    var nextDayParts = addWallDays(monthAnchorParts, days + 1);
+    var nextDay = wallToInstant(nextDayParts, timeZone);
+    while (nextDay <= now) {
+      days += 1;
+      dayAnchorParts = nextDayParts;
+      dayAnchor = nextDay;
+      nextDayParts = addWallDays(monthAnchorParts, days + 1);
+      nextDay = wallToInstant(nextDayParts, timeZone);
+    }
+
+    var remaining = Math.max(0, Math.floor((now - dayAnchor) / 1000));
+    var hours = Math.floor(remaining / 3600); remaining -= hours * 3600;
+    var minutes = Math.floor(remaining / 60); remaining -= minutes * 60;
+    return {
+      years:Math.floor(totalMonths / 12), months:totalMonths % 12, days:days,
+      hours:hours, minutes:minutes, seconds:remaining
+    };
+  }
+
+  function setupElapsedCounter() {
+    var root = document.querySelector("[data-elapsed-counter]");
+    if (!root) return null;
+    var startParts = parseWall(root.getAttribute("data-start"));
+    var timeZone = (root.getAttribute("data-timezone") || "").trim();
+    if (!startParts || !validTimeZone(timeZone)) return null;
+    var zoneLabel = timeZone === "America/Argentina/Buenos_Aires" ? "hora argentina" : "zona horaria " + timeZone.replace(/_/g, " ");
+    return {
+      root:root,
+      startParts:startParts,
+      timeZone:timeZone,
+      startLabel:startParts.day + " de " + MONTHS[startParts.month - 1].toLowerCase() + " de " + startParts.year + " a las " + pad(startParts.hour) + ":" + pad(startParts.minute) + ":" + pad(startParts.second) + ", " + zoneLabel,
+      yearsMonths:root.querySelector("[data-elapsed-years-months]"),
+      daysHours:root.querySelector("[data-elapsed-days-hours]"),
+      minutesSeconds:root.querySelector("[data-elapsed-minutes-seconds]")
+    };
+  }
+
+  function updateElapsedCounter(counter, now) {
+    if (!counter) return;
+    var elapsed = elapsedSince(counter.startParts, counter.timeZone, now);
+    if (counter.yearsMonths) counter.yearsMonths.textContent = pad(elapsed.years) + "A · " + pad(elapsed.months) + "M";
+    if (counter.daysHours) counter.daysHours.textContent = pad(elapsed.days) + "D · " + pad(elapsed.hours) + "H";
+    if (counter.minutesSeconds) counter.minutesSeconds.textContent = pad(elapsed.minutes) + "M · " + pad(elapsed.seconds) + "S";
+    counter.root.setAttribute("aria-label", "Tiempo juntos: " + elapsed.years + " años, " + elapsed.months + " meses, " + elapsed.days + " días, " + elapsed.hours + " horas, " + elapsed.minutes + " minutos y " + elapsed.seconds + " segundos; desde el " + counter.startLabel);
   }
 
   function parseTimeRange(value) {
@@ -143,13 +248,6 @@
       previousStart = startMinutes;
     });
     return sets;
-  }
-
-  function yearsSinceAnniversary(now) {
-    var years = now.getFullYear() - FIRST_YEAR;
-    var anniversary = new Date(now.getFullYear(), ANNIVERSARY_MONTH, ANNIVERSARY_DAY);
-    if (now < anniversary) years -= 1;
-    return Math.max(0, years);
   }
 
   function text(selector, value) {
@@ -309,8 +407,8 @@
     });
   }
 
-  function updateDynamicState(events, status, state) {
-    var now = new Date();
+  function updateDynamicState(events, status, state, now) {
+    now = now || new Date();
     if (state.reloadAt && now >= state.reloadAt && !state.reloading) {
       state.reloading = true; window.location.reload(); return;
     }
@@ -765,16 +863,18 @@
     toggle("[data-carousel]", upcoming.length > 0);
     toggle("[data-agenda-empty]", upcoming.length === 0);
 
-    var editions = document.querySelector("[data-stat-editions]");
-    var completed = all.filter(function (ev) { return ev.dateParts && ev.until && ev.until <= now; }).sort(function (a,b){ return (b.until-a.until)||(b.edition-a.edition); });
-    if (editions) editions.textContent = completed.length ? String(completed[0].edition) : "0";
-    text("[data-stat-years]", String(yearsSinceAnniversary(now)));
     text("[data-year]", String(now.getFullYear()));
 
     var status = setupHeroStatus();
+    var elapsedCounter = setupElapsedCounter();
     var state = { reloadAt:upcoming.length ? upcoming[0].until : null, reloading:false };
-    updateDynamicState(upcoming, status, state);
-    window.setInterval(function () { updateDynamicState(upcoming, status, state); }, 1000);
+    function tick() {
+      var tickNow = new Date();
+      updateDynamicState(upcoming, status, state, tickNow);
+      updateElapsedCounter(elapsedCounter, tickNow);
+      window.setTimeout(tick, 1000 - (Date.now() % 1000) + 5);
+    }
+    tick();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run); else run();

@@ -101,7 +101,7 @@ Cuando una fecha termina baja sola al archivo y queda chica y apagada. Al tocarl
 
 El formato del archivo es `#NN · NOMBRE`. El nombre sale de `data-name`.
 
-El contador de ediciones representa la última edición ya terminada; las futuras no cuentan aunque estén cargadas en el HTML.
+El bloque de concepto muestra un contador vivo desde el 14 de abril de 2018 a las 23:59:59 de Argentina. La fecha y la zona horaria se configuran en `data-start` y `data-timezone`; años, meses y días se calculan como unidades calendario y no como aproximaciones.
 
 ## Casos especiales
 
