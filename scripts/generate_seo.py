@@ -251,7 +251,8 @@ def render_page(edition: Edition) -> str:
     if edition.map_url:
         actions.append(f'<a class="edition-button edition-button--primary" href="{html.escape(edition.map_url, quote=True)}" target="_blank" rel="noreferrer">CÓMO LLEGAR <span>→</span></a>')
     actions.append('<a class="edition-button" href="/#fechas">PRÓXIMAS FECHAS <span>→</span></a>')
-    entry = f'<p class="edition-entry">{html.escape(edition.entry)}</p>' if edition.entry else ""
+    schedule_html = f"        {render_schedule(edition)}\n" if edition.schedule else ""
+    entry_html = f'        <p class="edition-entry">{html.escape(edition.entry)}</p>\n' if edition.entry else ""
     meta = " · ".join(part for part in [edition.meta, edition.place] if part)
     schema_json = json.dumps(schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
@@ -294,10 +295,8 @@ def render_page(edition: Edition) -> str:
         <h1>{html.escape(edition.name)}</h1>
         <p class="edition-date">{html.escape(edition.title)} · {year}</p>
         <p class="edition-meta">{html.escape(meta)}</p>
-        {render_schedule(edition)}
-        <div class="edition-actions">{''.join(actions)}</div>
-        {entry}
-      </article>
+{schedule_html}        <div class="edition-actions">{''.join(actions)}</div>
+{entry_html}      </article>
     </main>
     <footer><img src="/assets/random-symbol.png" alt="" width="1500" height="1500" /><span>RANDOM · DESDE 2018</span></footer>
   </body>

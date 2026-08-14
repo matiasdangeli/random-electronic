@@ -112,7 +112,9 @@ El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 - `edition.css`: estilos de las páginas individuales de cada edición.
 - `scripts/generate_seo.py`: genera las URLs de edición y `sitemap.xml` a partir de `index.html`.
 
-El workflow de GitHub Pages genera las páginas `/ediciones/NN-nombre/`, crea el sitemap y publica automáticamente en cada push a `main`.
+Las páginas `/ediciones/NN-nombre/` y `sitemap.xml` quedan versionadas en el repositorio para que tanto GitHub Pages como Cloudflare publiquen exactamente los mismos archivos. El workflow de GitHub Pages vuelve a generarlos antes de cada deploy.
+
+Después de modificar una edición en `docs/index.html`, ejecutar `python3 scripts/generate_seo.py` antes de guardar los cambios.
 
 ## Desarrollo
 
