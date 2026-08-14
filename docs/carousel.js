@@ -63,24 +63,6 @@
     var panelBox = document.createElement("div");
     panelBox.className = "carousel-panels";
 
-    var nav = document.createElement("div");
-    nav.className = "carousel-nav";
-
-    // Dar vuelta el flyer: además de tocarlo, un botón que se ve y va con
-    // teclado. El texto se actualiza en updateFlipButton().
-    var flipButton = document.createElement("button");
-    flipButton.type = "button";
-    flipButton.className = "carousel-flip";
-    flipButton.appendChild(document.createTextNode("VER SET TIMES "));
-    var flipIcon = document.createElement("span");
-    flipIcon.setAttribute("aria-hidden", "true");
-    flipIcon.textContent = "↻";
-    flipButton.appendChild(flipIcon);
-    flipButton.addEventListener("click", function () {
-      if (activeIndex >= 0) toggleFlip(activeIndex);
-    });
-    nav.appendChild(flipButton);
-
     cards.forEach(function (card) {
       EDGES.forEach(function (z) {
         var edge = document.createElement("div");
@@ -93,32 +75,12 @@
       space.appendChild(card);
     });
 
-    var dots = panels.map(function (panel, i) {
+    panels.forEach(function (panel) {
       panelBox.appendChild(panel);
-
-      var dot = document.createElement("button");
-      dot.type = "button";
-      dot.className = "carousel-dot";
-      var title = panel.querySelector("h3");
-      var event = events[i];
-      var edition = event && event.getAttribute("data-edition");
-      var name = event && event.getAttribute("data-name");
-      var label = (edition ? "#" + edition : "") + (name ? " · " + name : "");
-      dot.textContent = label || (title ? title.textContent.trim() : "FECHA " + (i + 1));
-      dot.setAttribute(
-        "aria-label",
-        "Ver " + (label || (title ? title.textContent.trim() : "fecha " + (i + 1)))
-      );
-      dot.addEventListener("click", function () {
-        seekTo(i);
-      });
-      if (count > 1) nav.appendChild(dot);
-      return dot;
     });
 
     root.appendChild(stage);
     root.appendChild(panelBox);
-    root.appendChild(nav);
     root.classList.add("is-3d");
 
     // -- estado ------------------------------------------------------------
@@ -185,13 +147,6 @@
       flips.forEach(function (other, i) {
         if (i !== index) other.target = 0;
       });
-      updateFlipButton();
-    }
-
-    function updateFlipButton() {
-      var vuelto = activeIndex >= 0 && flips[activeIndex].target !== 0;
-      flipButton.firstChild.nodeValue = vuelto ? "VER FLYER " : "VER SET TIMES ";
-      flipButton.setAttribute("aria-pressed", vuelto ? "true" : "false");
     }
 
     function setActive(index) {
@@ -207,10 +162,6 @@
           panel.setAttribute("aria-hidden", "true");
         }
       });
-      dots.forEach(function (dot, i) {
-        dot.setAttribute("aria-current", i === index ? "true" : "false");
-      });
-      updateFlipButton();
     }
 
     function layout() {

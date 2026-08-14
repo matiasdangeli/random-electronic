@@ -22,7 +22,7 @@ Dentro de `<div class="carousel">`, se copia un `<article class="event" data-eve
 
 Para compatibilidad con las fichas antiguas, si falta `data-timezone` el sitio usa `Europe/Andorra`; si la dirección contiene `Argentina`, usa `America/Argentina/Buenos_Aires`. En fechas nuevas conviene escribir siempre `data-timezone`.
 
-Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`).
+Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`). El carrusel no crea botones para girar ni para elegir ediciones: se recorre arrastrando y el flyer central se da vuelta al tocarlo.
 
 El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
 
@@ -96,7 +96,7 @@ El contador de ediciones representa la última edición ya terminada; las futura
 - **Evento de día:** usá el horario real en `.event-meta` y, si hace falta otro corte, `data-until`.
 - **Otra ciudad o país:** cambiá `data-timezone`, `data-venue`, `.event-place` y el link de cómo llegar.
 - **Sin horarios por DJ:** usá `class="schedule schedule--lineup"`; habrá countdown si existe un rango horario, pero no se mostrará un artista LIVE inventado.
-- **Un solo flyer:** sacá la cara `flyer3d-face--back` y el desplegable `full-flyer`.
+- **Un solo flyer:** sacá la cara `flyer3d-face--back`.
 - **Entrada paga o condición distinta:** `.free-entry` es texto libre.
 - **Color:** los modificadores de `.event` son opcionales.
 
