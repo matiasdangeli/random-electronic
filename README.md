@@ -91,7 +91,7 @@ Si no hay un horario suficientemente explícito, el botón no aparece: no se inv
 
 Cada próxima fecha agrega `COMPARTIR` en el mismo bloque que ubicación y calendario. Abre una vista previa grande de la cara que se está viendo —frente o set times— mientras prepara la imagen HD optimizada. Desde ahí, `COMPARTIR AHORA` envía únicamente esa imagen al panel nativo; cuando el navegador no admite archivos compartidos, descarga el mismo archivo.
 
-Safari no permite que una web defina la miniatura de la cabecera del panel nativo. En iPhone, la vista previa incluye además la alternativa de mantener apretado el flyer y elegir `Compartir`, que hace que iOS lo trate desde su menú contextual de imagen.
+Safari no permite que una web defina la miniatura de la cabecera del panel nativo; la vista previa propia garantiza que el flyer se vea antes de abrirlo.
 
 Los JPG sociales viven en `docs/assets/share/` y solo se preparan al tocar `COMPARTIR`. No reemplazan los WebP del carrusel ni frenan la carga inicial del sitio.
 
