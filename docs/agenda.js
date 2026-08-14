@@ -240,7 +240,7 @@
   function archiveMoreCard() {
     var item = document.createElement("li");
     item.className = "archive-item archive-item--more";
-    item.innerHTML = '<a class="archive-more" href="#contacto" aria-label="Ir a contacto para saber más sobre RANDOM"><strong>¿QUERÉS SABER MÁS?</strong><span aria-hidden="true">↓</span></a>';
+    item.innerHTML = '<a class="archive-more" href="#contacto" aria-label="Ir a contacto y seguir la historia de RANDOM"><strong>SEGUÍ LA HISTORIA</strong><span aria-hidden="true">↓</span></a>';
     return item;
   }
 
@@ -268,7 +268,7 @@
     var status = document.createElement("div");
     status.className = "event-status";
     status.hidden = true;
-    status.innerHTML = '<p class="event-status-label" data-event-status-label></p><p class="event-countdown" data-event-countdown></p><div class="event-live" data-event-live hidden><span class="event-live-badge">● LIVE NOW</span><strong data-event-live-artist></strong></div>';
+    status.innerHTML = '<p class="event-status-label" data-event-status-label></p><p class="event-countdown" data-event-countdown></p><div class="event-live" data-event-live hidden><span class="event-live-badge">● AHORA EN RANDOM</span><strong data-event-live-artist></strong></div>';
     hero.insertBefore(status, actions);
     return status;
   }
@@ -283,12 +283,16 @@
     }
   }
 
+  function contextualEventLabel(prefix, ev) {
+    return prefix + " · #" + ev.edition + (ev.name ? " · " + ev.name : "");
+  }
+
   function updateEventLabels(events, active, next) {
     events.forEach(function (ev) {
       var label = ev.panel && ev.panel.querySelector("[data-event-label]");
       if (!label || !ev.edition) return;
-      if (active === ev) label.textContent = "● LIVE NOW · RANDOM #" + ev.edition;
-      else if (!active && next === ev) label.textContent = "PRÓXIMA FECHA · RANDOM #" + ev.edition;
+      if (active === ev) label.textContent = contextualEventLabel("● AHORA EN RANDOM", ev);
+      else if (!active && next === ev) label.textContent = contextualEventLabel("LA PRÓXIMA", ev);
       else label.textContent = "RANDOM #" + ev.edition;
     });
   }
@@ -319,7 +323,7 @@
       setHidden(countdown, true); setHidden(live, false); setHidden(status, false); return;
     }
     if (next) {
-      if (label) label.textContent = "PRÓXIMA RANDOM · #" + next.edition + (next.name ? " · " + next.name : "");
+      if (label) label.textContent = contextualEventLabel("LA PRÓXIMA", next);
       if (countdown) countdown.textContent = countdownText(next.startAt - now);
       setHidden(countdown, false); setHidden(live, true); setHidden(status, false); return;
     }
@@ -423,7 +427,7 @@
     upcoming.forEach(function (ev,index) {
       var label = ev.panel && ev.panel.querySelector("[data-event-label]");
       var title = ev.panel && ev.panel.querySelector("[data-event-title]");
-      if (label && ev.edition) label.textContent = (index === 0 ? "PRÓXIMA FECHA · " : "") + "RANDOM #" + ev.edition;
+      if (label && ev.edition) label.textContent = index === 0 ? contextualEventLabel("LA PRÓXIMA", ev) : "RANDOM #" + ev.edition;
       if (title && ev.dateParts) title.textContent = eventTitle(ev.dateParts);
       installCalendarButton(ev);
     });
