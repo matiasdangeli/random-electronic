@@ -339,8 +339,13 @@ svg {
   border-top: 1px solid var(--line);
 }
 
-.archive .eyebrow {
-  margin-bottom: 24px;
+.archive-title {
+  margin-bottom: clamp(26px, 2.4vw, 34px);
+  color: #c8c3bd;
+  font-size: clamp(14px, 1.25vw, 16px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.18em;
 }
 
 .archive-grid {
