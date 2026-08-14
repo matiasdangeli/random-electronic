@@ -19,7 +19,7 @@
     if (document.querySelector('link[data-random-live-styles]')) return;
     var link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "live.css?v=20260814-3";
+    link.href = "live.css?v=20260814-4";
     link.setAttribute("data-random-live-styles", "");
     document.head.appendChild(link);
   }
@@ -577,11 +577,6 @@
     });
   }
 
-  function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  }
-
   function createSharePreview() {
     if (sharePreviewInstance) return sharePreviewInstance;
 
@@ -601,7 +596,6 @@
           '<p class="share-preview-face" data-share-preview-face></p>' +
           '<button class="button share-preview-action" type="button" data-share-preview-action></button>' +
           '<p class="share-preview-status" role="status" aria-live="polite" data-share-preview-status></p>' +
-          '<p class="share-preview-hint" data-share-preview-hint hidden>En iPhone, mantené apretado el flyer y elegí Compartir para verlo también en el panel.</p>' +
         '</div>' +
       '</div>';
     document.body.appendChild(dialog);
@@ -615,7 +609,6 @@
       face:dialog.querySelector("[data-share-preview-face]"),
       action:dialog.querySelector("[data-share-preview-action]"),
       status:dialog.querySelector("[data-share-preview-status]"),
-      hint:dialog.querySelector("[data-share-preview-hint]"),
       close:dialog.querySelector(".share-preview-close"),
       file:null,
       ev:null,
@@ -635,7 +628,6 @@
       preview.image.removeAttribute("src");
       preview.image.alt = "";
       preview.media.classList.remove("is-ready", "is-hq");
-      preview.hint.hidden = true;
       document.body.classList.remove("share-preview-open");
       if (preview.trigger) preview.trigger.focus();
     });
@@ -671,7 +663,6 @@
     preview.kicker.textContent = "RANDOM #" + ev.edition;
     preview.title.textContent = ev.name || "PRÓXIMA FECHA";
     preview.face.textContent = face === "back" ? "LINE-UP / SET TIMES" : "FLYER PRINCIPAL";
-    preview.hint.hidden = true;
     var accent = ev.panel && window.getComputedStyle(ev.panel).getPropertyValue("--accent").trim();
     if (accent) preview.dialog.style.setProperty("--share-accent", accent);
     setPreviewAction(preview, "PREPARANDO IMAGEN HD…", true, true);
@@ -689,7 +680,6 @@
       preview.image.src = prepared.source;
       preview.media.classList.add("is-ready");
       preview.media.classList.toggle("is-hq", prepared.original);
-      preview.hint.hidden = !isIOS();
       setPreviewAction(preview, canShareFile(file) ? "COMPARTIR AHORA" : "DESCARGAR IMAGEN HD", false, false);
       setPreviewStatus(preview, (prepared.original ? "Imagen HD lista · " : "Versión web lista · ") + readableFileSize(file.size));
     }).catch(function () {
