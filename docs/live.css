@@ -79,7 +79,7 @@ body.share-preview-open { overflow:hidden; }
   user-select:auto;
   -webkit-touch-callout:default;
 }
-.share-preview-media.is-original::after {
+.share-preview-media.is-hq::after {
   position:absolute;
   right:9px;
   bottom:9px;

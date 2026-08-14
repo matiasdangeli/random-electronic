@@ -24,9 +24,9 @@ Para compatibilidad con las fichas antiguas, si falta `data-timezone` el sitio u
 
 Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`). El carrusel no crea botones para girar ni para elegir ediciones: se recorre arrastrando y el flyer central se da vuelta al tocarlo.
 
-Para compartir en máxima calidad, cada `<img>` puede sumar `data-share-src="assets/share/random-NN.png"`. Ese PNG/JPG es el original; el WebP liviano sigue siendo el que carga visualmente la página.
+Para compartir en alta calidad, cada `<img>` puede sumar `data-share-src="assets/share/random-NN.jpg"`. Ese JPG se exporta a 1080 × 1920 y calidad 92: coincide con el formato Full HD de Stories y conserva detalle de sobra sin cargar el PNG de producción. El WebP liviano sigue siendo el que muestra la página.
 
-Los originales no se descargan al navegar: se preparan recién cuando la persona toca `COMPARTIR`. Primero aparece una vista previa propia con la cara elegida; cuando el original está listo, `COMPARTIR AHORA` muestra el panel nativo.
+Los archivos HD no se descargan al navegar: se preparan recién cuando la persona toca `COMPARTIR`. Primero aparece una vista previa propia con la cara elegida; cuando la imagen está lista, `COMPARTIR AHORA` muestra el panel nativo.
 
 El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
 
@@ -89,11 +89,11 @@ Si no hay un horario suficientemente explícito, el botón no aparece: no se inv
 
 ## Compartir flyer
 
-Cada próxima fecha agrega `COMPARTIR` en el mismo bloque que ubicación y calendario. Abre una vista previa grande de la cara que se está viendo —frente o set times— mientras prepara el original. Desde ahí, `COMPARTIR AHORA` envía únicamente esa imagen al panel nativo; cuando el navegador no admite archivos compartidos, descarga el mismo original.
+Cada próxima fecha agrega `COMPARTIR` en el mismo bloque que ubicación y calendario. Abre una vista previa grande de la cara que se está viendo —frente o set times— mientras prepara la imagen HD optimizada. Desde ahí, `COMPARTIR AHORA` envía únicamente esa imagen al panel nativo; cuando el navegador no admite archivos compartidos, descarga el mismo archivo.
 
 Safari no permite que una web defina la miniatura de la cabecera del panel nativo. En iPhone, la vista previa incluye además la alternativa de mantener apretado el flyer y elegir `Compartir`, que hace que iOS lo trate desde su menú contextual de imagen.
 
-Los originales viven en `docs/assets/share/` y solo se preparan al tocar `COMPARTIR`. No reemplazan los WebP del carrusel ni frenan la carga inicial del sitio.
+Los JPG sociales viven en `docs/assets/share/` y solo se preparan al tocar `COMPARTIR`. No reemplazan los WebP del carrusel ni frenan la carga inicial del sitio.
 
 ## Archivo automático
 
