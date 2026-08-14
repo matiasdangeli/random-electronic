@@ -66,11 +66,14 @@ svg {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+/* El tamaño va en width/height y no en transform: scale(). Con scale, la caja
+   quedaba en 112x40 mientras el logo se veía 174x62, así que desbordaba 31px
+   por lado, el padding del encabezado no lo respetaba y en el celular el borde
+   del logo caía justo sobre el borde de la pantalla. */
 .brand img {
-  width: 112px;
-  height: 40px;
+  width: 174px;
+  height: 62px;
   object-fit: contain;
-  transform: scale(1.55);
 }
 
 .site-header nav {
@@ -1134,8 +1137,8 @@ footer a {
   }
 
   .brand img {
-    width: 88px;
-    height: 34px;
+    width: 136px;
+    height: 53px;
   }
 
   .hero-content {
