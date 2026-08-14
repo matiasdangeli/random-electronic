@@ -482,9 +482,13 @@
     var fallback = image.currentSrc || image.getAttribute("src");
     if (!source) return Promise.reject(new Error("El flyer no tiene archivo asociado"));
 
-    return fileFromSource(source, ev, face).catch(function (error) {
+    return fileFromSource(source, ev, face).then(function (file) {
+      return { file:file, source:source, original:true };
+    }).catch(function (error) {
       if (!fallback || fallback === source) throw error;
-      return fileFromSource(fallback, ev, face);
+      return fileFromSource(fallback, ev, face).then(function (file) {
+        return { file:file, source:fallback, original:false };
+      });
     });
   }
 
@@ -627,6 +631,11 @@
     dialog.addEventListener("close", function () {
       preview.requestId += 1;
       preview.file = null;
+      preview.originalSource = null;
+      preview.image.removeAttribute("src");
+      preview.image.alt = "";
+      preview.media.classList.remove("is-ready", "is-original");
+      preview.hint.hidden = true;
       document.body.classList.remove("share-preview-open");
       if (preview.trigger) preview.trigger.focus();
     });
@@ -656,13 +665,13 @@
     preview.ev = ev;
     preview.trigger = trigger;
     preview.originalSource = source;
-    preview.media.classList.remove("is-ready");
+    preview.media.classList.remove("is-ready", "is-original");
     preview.image.src = image.currentSrc || image.getAttribute("src") || source;
     preview.image.alt = "Vista previa de " + (face === "back" ? "los set times" : "el flyer") + " de " + shareTitle(ev);
     preview.kicker.textContent = "RANDOM #" + ev.edition;
     preview.title.textContent = ev.name || "PRÓXIMA FECHA";
     preview.face.textContent = face === "back" ? "LINE-UP / SET TIMES" : "FLYER PRINCIPAL";
-    preview.hint.hidden = !isIOS();
+    preview.hint.hidden = true;
     var accent = ev.panel && window.getComputedStyle(ev.panel).getPropertyValue("--accent").trim();
     if (accent) preview.dialog.style.setProperty("--share-accent", accent);
     setPreviewAction(preview, "PREPARANDO ORIGINAL…", true, true);
@@ -672,13 +681,17 @@
     if (typeof preview.dialog.showModal === "function") preview.dialog.showModal();
     else preview.dialog.setAttribute("open", "");
 
-    prepareShareFile(ev).then(function (file) {
+    prepareShareFile(ev).then(function (prepared) {
       if (preview.requestId !== requestId) return;
+      var file = prepared.file;
       preview.file = file;
-      if (preview.originalSource) preview.image.src = preview.originalSource;
+      preview.originalSource = prepared.source;
+      preview.image.src = prepared.source;
       preview.media.classList.add("is-ready");
+      preview.media.classList.toggle("is-original", prepared.original);
+      preview.hint.hidden = !isIOS();
       setPreviewAction(preview, canShareFile(file) ? "COMPARTIR AHORA" : "DESCARGAR ORIGINAL", false, false);
-      setPreviewStatus(preview, "Original listo · " + readableFileSize(file.size));
+      setPreviewStatus(preview, (prepared.original ? "Original listo · " : "Versión web lista · ") + readableFileSize(file.size));
     }).catch(function () {
       if (preview.requestId !== requestId) return;
       setPreviewAction(preview, "NO DISPONIBLE", false, true);
