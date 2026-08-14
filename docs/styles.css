@@ -423,7 +423,7 @@ svg {
   transition: color 340ms ease;
   color: #6d6965;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.14em;
 }
 
