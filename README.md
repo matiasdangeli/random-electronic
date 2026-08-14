@@ -109,12 +109,15 @@ El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 - `agenda.js`: agenda, countdown, LIVE, zonas horarias y calendario.
 - `live.css`: estilos del countdown, LIVE y botón de calendario.
 - `carousel.js`: carrusel 3D.
+- `edition.css`: estilos de las páginas individuales de cada edición.
+- `scripts/generate_seo.py`: genera las URLs de edición y `sitemap.xml` a partir de `index.html`.
 
-El workflow de GitHub Pages publica automáticamente en cada push a `main`.
+El workflow de GitHub Pages genera las páginas `/ediciones/NN-nombre/`, crea el sitemap y publica automáticamente en cada push a `main`.
 
 ## Desarrollo
 
 ```bash
+python3 scripts/generate_seo.py
 python3 -m http.server -d docs 8000
 ```
 
