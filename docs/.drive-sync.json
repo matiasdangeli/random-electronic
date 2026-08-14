@@ -10,6 +10,41 @@
     "ignored": "Files whose names do not identify an edition"
   },
   "files": {
+    "53": {
+      "driveFileId": "1MWwPDafa8jvz2II1tkJRgL27rvwL3SwP",
+      "modifiedTime": "2026-08-14T02:34:18.705Z",
+      "sourceMimeType": "image/jpeg",
+      "repositoryPath": "docs/assets/random-53.webp",
+      "name": "EL RETORNO"
+    },
+    "54": {
+      "driveFileId": "1M5iD-gKQTRc4W5PiY_2B3lGIHKHRXkzf",
+      "modifiedTime": "2026-08-14T02:33:42.267Z",
+      "sourceMimeType": "image/jpeg",
+      "repositoryPath": "docs/assets/random-54.webp",
+      "name": "RAW"
+    },
+    "55": {
+      "driveFileId": "1xO-oAOSMCY0bgwBB1I7XSgx5Ge6_NGcf",
+      "modifiedTime": "2026-08-14T02:34:38.202Z",
+      "sourceMimeType": "image/jpeg",
+      "repositoryPath": "docs/assets/random-55.webp",
+      "name": "FATTY'S"
+    },
+    "56": {
+      "driveFileId": "1hqe3IrOXrdSqpRS-WzRXG5snVJ7QiYal",
+      "modifiedTime": "2026-08-14T02:32:14.182Z",
+      "sourceMimeType": "image/png",
+      "repositoryPath": "docs/assets/random-56.webp",
+      "name": "HIBERNATION"
+    },
+    "57": {
+      "driveFileId": "1uLFdv9mMKdIDKN4ZZR5JQRiUwCOT0aA1",
+      "modifiedTime": "2026-08-14T02:31:55.482Z",
+      "sourceMimeType": "image/jpeg",
+      "repositoryPath": "docs/assets/random-57.webp",
+      "name": "APRES SKI"
+    },
     "58": {
       "driveFileId": "1kRYebCfnSmodIF2LGLXdiPl6PIDK5rUi",
       "modifiedTime": "2026-08-13T06:02:52.251Z",
@@ -72,5 +107,5 @@
       "repositoryPath": "docs/assets/random-65-set-times.webp"
     }
   },
-  "lastSyncedAt": "2026-08-13T06:21:05.830Z"
+  "lastSyncedAt": "2026-08-14T02:41:57.232Z"
 }
