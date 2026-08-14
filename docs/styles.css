@@ -310,6 +310,7 @@ svg {
   font-size: clamp(52px, 8vw, 122px);
   line-height: 0.82;
   letter-spacing: -0.075em;
+  white-space: nowrap;
 }
 
 /* Cuando no hay ninguna fecha por delante. */
@@ -1129,6 +1130,10 @@ footer a {
 
   .section-heading {
     margin-bottom: 42px;
+  }
+
+  .section-heading h2 {
+    font-size: clamp(38px, 11.8vw, 52px);
   }
 
   .event {
