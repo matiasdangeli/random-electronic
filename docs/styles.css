@@ -175,12 +175,12 @@ svg {
   color: var(--muted);
 }
 
-/* El margen de abajo es negativo para comerse el aire vacío del PNG, pero
-   estaba tan cerrado que el logo quedaba pegado al titular. */
+/* Los márgenes descuentan el aire transparente que el PNG cuadrado trae dentro;
+   sin eso el bloque se separa de más. Aun así queda respiro real arriba y abajo. */
 .hero-wordmark {
   width: min(530px, 76vw);
   height: 220px;
-  margin: -14px auto -6px;
+  margin: -2px auto 14px;
   object-fit: contain;
   filter: drop-shadow(0 18px 44px rgba(0, 0, 0, 0.7));
 }
@@ -198,7 +198,7 @@ svg {
   align-items: center;
   justify-content: center;
   gap: 24px;
-  margin-top: 42px;
+  margin-top: 56px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
@@ -1062,7 +1062,7 @@ footer a {
   .hero-wordmark {
     width: 88vw;
     height: 150px;
-    margin-bottom: -2px;
+    margin-bottom: 10px;
   }
 
   .hero h1 {
