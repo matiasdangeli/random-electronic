@@ -344,12 +344,26 @@ svg {
 }
 
 .archive-grid {
-  display: grid;
-  margin: 0;
-  padding: 0;
+  display: flex;
+  margin: -8px 0 0;
+  padding: 8px 2px 12px;
   gap: clamp(14px, 2vw, 26px);
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
   list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.archive-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.archive-item {
+  width: clamp(112px, 10vw, 150px);
+  flex: 0 0 auto;
+  scroll-snap-align: start;
 }
 
 /* En reposo los flyers van al 50% de opacidad, saturacion y brillo: se leen,
@@ -407,38 +421,19 @@ svg {
   letter-spacing: 0.14em;
 }
 
-/* En pantalla chica la grilla se parte en varias filas apenas hay tres o cuatro
-   fechas. Pasa a ser una sola fila que se desliza con el dedo, y se sale del
-   padding de la sección para que el flyer siguiente asome contra el borde: así
-   se ve que hay más sin necesidad de flechas ni puntos. */
+/* En pantalla chica la fila se sale del padding de la sección para que el
+   flyer siguiente asome contra el borde y se entienda que se puede deslizar. */
 @media (max-width: 700px) {
   .archive-grid {
-    display: flex;
     margin-right: calc(-1 * clamp(20px, 5vw, 80px));
     margin-left: calc(-1 * clamp(20px, 5vw, 80px));
-    /* Arriba y abajo va aire para que el flyer que crece al tocarlo no quede
-       recortado: el scroll horizontal también corta en vertical. */
-    padding: 8px clamp(20px, 5vw, 80px);
-    margin-top: -8px;
+    padding: 8px clamp(20px, 5vw, 80px) 12px;
     gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    /* Sin esto el snap ignora el padding y pega el primer flyer contra el borde,
-       desalineado del título. */
     scroll-padding-left: clamp(20px, 5vw, 80px);
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-  }
-
-  .archive-grid::-webkit-scrollbar {
-    display: none;
   }
 
   .archive-item {
-    flex: 0 0 auto;
     width: 128px;
-    scroll-snap-align: start;
   }
 }
 
