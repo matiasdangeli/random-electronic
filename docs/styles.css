@@ -66,13 +66,13 @@ svg {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* El tamaño va en width/height y no en transform: scale(). Con scale, la caja
-   quedaba en 112x40 mientras el logo se veía 174x62, así que desbordaba 31px
-   por lado, el padding del encabezado no lo respetaba y en el celular el borde
-   del logo caía justo sobre el borde de la pantalla. */
+/* La caja tiene la relación exacta del logo recortado (2.384), así que la
+   imagen la llena de borde a borde: lo que se ve empieza donde empieza la caja.
+   Con el PNG cuadrado sobraban 56px de vacío a cada lado y el logo quedaba
+   descentrado respecto del menú de la derecha. */
 .brand img {
-  width: 174px;
-  height: 62px;
+  width: 62px;
+  height: 26px;
   object-fit: contain;
 }
 
@@ -1137,8 +1137,8 @@ footer a {
   }
 
   .brand img {
-    width: 136px;
-    height: 53px;
+    width: 52px;
+    height: 22px;
   }
 
   .hero-content {
