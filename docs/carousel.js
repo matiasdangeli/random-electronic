@@ -32,6 +32,20 @@
   var FLOAT_TILT = 1.6; // cuánto se bambolea mientras flota (grados)
   var FLIP_DAMP = 0.11; // velocidad con la que se da vuelta
 
+  // "Reducir movimiento" no debería cambiar el diseño de la página, solo sacar
+  // lo que se mueve sin que se lo pidan. Con la preferencia activa el carrusel
+  // se arma igual —mismo escenario, se pasa de fecha arrastrando— pero no
+  // avanza solo, no flota, no sigue al mouse y los cambios son instantáneos.
+  var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  if (REDUCED) {
+    SPEED = 0;
+    TILT_X = 0;
+    TILT_Y = 0;
+    FLOAT_Y = 0;
+    FLOAT_TILT = 0;
+  }
+
   function smoothstep(t) {
     return t * t * (3 - 2 * t);
   }
@@ -277,16 +291,25 @@
       var flipping = false;
       for (var i = 0; i < flips.length; i++) {
         var flip = flips[i];
-        flip.current += (flip.target - flip.current) * FLIP_DAMP * delta;
-        if (Math.abs(flip.target - flip.current) < 0.05) flip.current = flip.target;
+        if (REDUCED) {
+          flip.current = flip.target;
+        } else {
+          flip.current += (flip.target - flip.current) * FLIP_DAMP * delta;
+          if (Math.abs(flip.target - flip.current) < 0.05) flip.current = flip.target;
+        }
         if (flip.target !== 0 || flip.current !== 0) flipping = true;
       }
 
       if (seeking !== null) {
-        progress += (seeking - progress) * SEEK_DAMP * delta;
-        if (Math.abs(seeking - progress) < 0.002) {
+        if (REDUCED) {
           progress = seeking;
           seeking = null;
+        } else {
+          progress += (seeking - progress) * SEEK_DAMP * delta;
+          if (Math.abs(seeking - progress) < 0.002) {
+            progress = seeking;
+            seeking = null;
+          }
         }
       } else if (count > 1 && !hovering && !drag && !flipping && visible && !document.hidden && !document.body.classList.contains("share-preview-open")) {
         // Con un flyer dado vuelta la fila se queda quieta: si no, se iría
@@ -383,10 +406,6 @@
   }
 
   function start() {
-    // Respetar "reducir movimiento": la lista de fechas ya es legible sin esto.
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
     if (!("requestAnimationFrame" in window) || !CSS.supports("transform-style", "preserve-3d")) {
       return;
     }

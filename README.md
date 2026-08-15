@@ -24,6 +24,8 @@ Para compatibilidad con las fichas antiguas, si falta `data-timezone` el sitio u
 
 Adentro de la ficha se cambian a mano el horario (`.event-meta`), la dirección (`.event-place`), los set times, el link de "cómo llegar" y los flyers (`assets/random-NN.webp` y, cuando existe, `assets/random-NN-set-times.webp`). El carrusel no crea botones para girar ni para elegir ediciones: se recorre arrastrando y el flyer central se da vuelta al tocarlo.
 
+Con "reducir movimiento" activado en el sistema, el carrusel se arma igual: mismo escenario, mismos flyers, se sigue pasando de fecha arrastrando y el flyer se da vuelta al tocarlo. Lo que se apaga es todo lo que se mueve sin que se lo pidan — el avance automático, la flotación, la inclinación que sigue al mouse — y los cambios pasan a ser instantáneos en vez de animados.
+
 Para compartir en alta calidad, cada `<img>` puede sumar `data-share-src="assets/share/random-NN.jpg"`. Ese JPG se exporta a 1080 × 1920 y calidad 92: coincide con el formato Full HD de Stories y conserva detalle de sobra sin cargar el PNG de producción. El WebP liviano sigue siendo el que muestra la página.
 
 Los archivos HD no se descargan al navegar: se preparan recién cuando la persona toca `COMPARTIR`. Primero aparece una vista previa propia con la cara elegida; cuando la imagen está lista, `COMPARTIR AHORA` muestra el panel nativo.
