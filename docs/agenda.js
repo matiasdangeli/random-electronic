@@ -16,7 +16,7 @@
     if (document.querySelector('link[data-random-live-styles]')) return;
     var link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "live.css?v=20260814-4";
+    link.href = "live.css?v=20260814-5";
     link.setAttribute("data-random-live-styles", "");
     document.head.appendChild(link);
   }

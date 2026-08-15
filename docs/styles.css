@@ -172,6 +172,7 @@ svg {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.22em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
@@ -200,7 +201,7 @@ svg {
   gap: 24px;
   margin-top: 56px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   color: #928d87;
 }
@@ -219,12 +220,10 @@ svg {
   padding: 0 20px;
   border: 1px solid currentColor;
   font-family: var(--font-mono);
-  /* 10px y no 11px: en la grilla de dos columnas del celular, "+ AÑADIR AL
-     CALENDARIO" deja de entrar en una línea a 11px. Con 0.12em de tracking y
-     48px de alto, una etiqueta de dos palabras se lee bien a este tamaño. */
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
+  text-transform: uppercase;
   transition: transform 180ms ease, background 180ms ease, color 180ms ease;
 }
 
@@ -283,7 +282,7 @@ svg {
   align-items: center;
   gap: 12px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: #716d68;
 }
@@ -441,7 +440,7 @@ svg {
   transition: color 340ms ease;
   color: #6d6965;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.14em;
 }
 
@@ -655,6 +654,7 @@ svg {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   opacity: 0.65;
 }
 
@@ -705,8 +705,9 @@ svg {
 
 .free-entry {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.12em;
+  text-transform: uppercase;
   opacity: 0.7;
 }
 
@@ -879,7 +880,9 @@ svg {
 
 .carousel-panels .event-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* No van mitad y mitad: "+ AÑADIR AL CALENDARIO" es bastante más larga que
+     "COMPARTIR", y con columnas iguales se partía en dos líneas en el celular. */
+  grid-template-columns: 1.16fr 0.84fr;
   gap: 10px;
   align-items: stretch;
 }
@@ -888,7 +891,10 @@ svg {
   width: 100%;
   min-width: 0;
   min-height: 54px;
-  padding: 12px 10px;
+  /* "+ AÑADIR AL CALENDARIO" es la etiqueta más larga y entra justa en media
+     fila: se le recorta el aire lateral para que no se parta en dos. */
+  padding: 12px 6px;
+  letter-spacing: 0.1em;
   text-align: center;
   line-height: 1.2;
 }
