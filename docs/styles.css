@@ -219,6 +219,9 @@ svg {
   padding: 0 20px;
   border: 1px solid currentColor;
   font-family: var(--font-mono);
+  /* 10px y no 11px: en la grilla de dos columnas del celular, "+ AÑADIR AL
+     CALENDARIO" deja de entrar en una línea a 11px. Con 0.12em de tracking y
+     48px de alto, una etiqueta de dos palabras se lee bien a este tamaño. */
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -678,7 +681,7 @@ svg {
 
 .schedule-row span {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   opacity: 0.6;
 }
@@ -958,7 +961,7 @@ svg {
 
 .manifesto-copy h2 {
   margin: 0 0 30px;
-  font-size: clamp(54px, 7vw, 110px);
+  font-size: clamp(54px, 9.5vw, 150px);
   line-height: 0.85;
   letter-spacing: -0.08em;
 }
@@ -1064,7 +1067,9 @@ svg {
   margin: 0;
   font-size: clamp(38px, 5.4vw, 84px);
   font-weight: 800;
-  line-height: 0.9;
+  /* 0.9 dejaba 0,19px entre la cola del "¿" y la línea siguiente: se tocaban.
+     0.95 despeja sin perder el interlineado corto del resto de los titulares. */
+  line-height: 0.95;
   letter-spacing: -0.07em;
   /* Reparte las líneas parejas en vez de dejar una sola palabra colgando. */
   text-wrap: balance;
@@ -1106,9 +1111,9 @@ footer {
   align-items: center;
   border-top: 1px solid var(--line);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.12em;
-  color: #77726d;
+  color: #8f8983;
 }
 
 footer img {
