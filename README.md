@@ -101,6 +101,8 @@ Los JPG sociales viven en `docs/assets/share/` y solo se preparan al tocar `COMP
 
 Cuando una fecha termina baja sola al archivo y queda chica y apagada. Al tocarla se agranda, recupera color y luz al 100%; un segundo toque desactiva el destaque. El archivo no navega a páginas separadas.
 
+El archivo es una tira horizontal con la barra escondida. Con el dedo se desliza solo; con mouse se arrastra, porque un mouse común no tiene rueda horizontal ni barra a la que agarrarse (`Shift` + rueda también sirve). Mientras hay algo a lo que correrse el cursor es una manito, y soltar después de arrastrar no destaca la tarjeta de abajo.
+
 El formato del archivo es `#NN · NOMBRE`. El nombre sale de `data-name`.
 
 El bloque de concepto muestra un contador vivo desde el 14 de abril de 2018 a las 23:59:59 de Argentina. La fecha y la zona horaria se configuran en `data-start` y `data-timezone`; años, meses y días se calculan como unidades calendario y no como aproximaciones.

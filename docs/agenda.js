@@ -355,6 +355,67 @@
     return item;
   }
 
+  // El archivo se desliza en horizontal, con la barra escondida. Con el dedo
+  // eso alcanza; con un mouse común no hay rueda horizontal ni barra a la que
+  // agarrarse, así que la tira se arrastra. Sin el dragstart, arrastrar sobre un
+  // flyer dispara el drag nativo del navegador y te llevás la imagen en vez de
+  // mover la tira: por eso con trackpad no se notaba y con mouse sí.
+  function setupArchiveDrag(grid) {
+    if (!grid) return;
+    var drag = null;
+    var justDragged = false;
+
+    function updateAffordance() {
+      grid.classList.toggle("is-scrollable", grid.scrollWidth > grid.clientWidth + 4);
+    }
+
+    grid.addEventListener("dragstart", function (e) { e.preventDefault(); });
+
+    grid.addEventListener("pointerdown", function (e) {
+      justDragged = false;
+      // Con el dedo el navegador ya lo desliza mejor que nosotros.
+      if (e.pointerType === "touch" || e.button !== 0) return;
+      drag = { x:e.clientX, from:grid.scrollLeft, moved:false };
+    });
+
+    grid.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      if (!drag.moved) {
+        if (Math.abs(dx) <= 4) return;
+        drag.moved = true;
+        grid.classList.add("is-dragging");
+        try { grid.setPointerCapture(e.pointerId); } catch (error) {}
+      }
+      grid.scrollLeft = drag.from - dx;
+    });
+
+    function endDrag(e) {
+      if (!drag) return;
+      justDragged = drag.moved;
+      drag = null;
+      grid.classList.remove("is-dragging");
+      try {
+        if (e && e.pointerId !== undefined && grid.hasPointerCapture(e.pointerId)) grid.releasePointerCapture(e.pointerId);
+      } catch (error) {}
+    }
+
+    grid.addEventListener("pointerup", endDrag);
+    grid.addEventListener("pointercancel", endDrag);
+    grid.addEventListener("pointerleave", endDrag);
+
+    // Soltar después de arrastrar no tiene que destacar la tarjeta de abajo.
+    grid.addEventListener("click", function (e) {
+      if (!justDragged) return;
+      justDragged = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
+
+    updateAffordance();
+    window.addEventListener("resize", updateAffordance);
+  }
+
   function monthRange(list) {
     var first = list[0].dateParts, last = list[list.length - 1].dateParts;
     if (first.year !== last.year) return MONTHS[first.month-1] + " " + first.year + " – " + MONTHS[last.month-1] + " " + last.year;
@@ -849,6 +910,7 @@
     past.forEach(function (ev) { if (ev.dateParts && grid) grid.appendChild(archiveCard(ev)); if (ev.el.parentNode) ev.el.parentNode.removeChild(ev.el); });
     if (grid && past.some(function (ev) { return !!ev.dateParts; })) grid.appendChild(archiveMoreCard());
     toggle("[data-archive]", past.some(function (ev) { return !!ev.dateParts; }));
+    setupArchiveDrag(grid);
     upcoming.forEach(function (ev) { if (ev.el.parentNode) ev.el.parentNode.appendChild(ev.el); });
     upcoming.forEach(function (ev,index) {
       var label = ev.panel && ev.panel.querySelector("[data-event-label]");

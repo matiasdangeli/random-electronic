@@ -368,6 +368,18 @@ svg {
   display: none;
 }
 
+/* Solo cuando hay algo a lo que correrse: si el archivo entra entero en
+   pantalla, la manito sería mentira. */
+.archive-grid.is-scrollable {
+  cursor: grab;
+}
+
+.archive-grid.is-dragging {
+  cursor: grabbing;
+  /* El imán del snap pelea contra el arrastre y da saltos. */
+  scroll-snap-type: none;
+}
+
 .archive-item {
   width: clamp(112px, 10vw, 150px);
   flex: 0 0 auto;
