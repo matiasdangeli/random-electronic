@@ -983,7 +983,10 @@ svg {
      "SEGUNDOS" contra el overflow de la sección. */
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: start;
+  /* Reparte el aire sobrante entre los pares en vez de dejarlo todo junto al
+     margen derecho: el contador queda como una banda de punta a punta. El gap
+     es el piso, cuando no sobra nada. */
+  justify-content: space-between;
   gap: clamp(4px, 1.6vw, 24px);
   grid-column: 1 / -1;
   align-self: end;
@@ -1014,7 +1017,7 @@ svg {
 }
 
 .manifesto-counter i {
-  color: #b4aca3;
+  color: #8a837b;
 }
 
 .manifesto-counter span {
