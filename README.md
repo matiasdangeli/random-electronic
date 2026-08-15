@@ -66,7 +66,7 @@ Todos los cálculos se hacen con la zona horaria de la sede. La hora local del v
 El orden de preferencia es:
 
 1. Los horarios de `.schedule-row` cuando hay set times.
-2. El rango explícito de `.event-meta`, por ejemplo `00:00 — 05:00`.
+2. El rango explícito de `.event-meta`, por ejemplo `00:00 – 05:00`.
 3. `data-start` / `data-until` cuando están definidos.
 4. Como último fallback para el archivo, el sitio conserva el corte histórico de las 06:00 del día siguiente.
 
