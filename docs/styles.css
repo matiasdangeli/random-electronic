@@ -309,7 +309,10 @@ svg {
   display: grid;
   max-width: 1400px;
   margin: 0 auto 70px;
-  grid-template-columns: 1fr 2fr 1fr;
+  /* La primera columna nunca baja del ancho de su texto: con dos meses la
+     etiqueta se partía en dos líneas y quedaba colgando abajo de la base del
+     titular. La tercera está vacía y es de donde sale el lugar. */
+  grid-template-columns: minmax(max-content, 1fr) 2fr 1fr;
   align-items: end;
   gap: 24px;
 }
