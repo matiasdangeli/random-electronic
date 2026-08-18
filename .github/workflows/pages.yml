@@ -32,17 +32,23 @@ jobs:
           node-version: 22
       - name: Cache remote gallery images
         uses: actions/cache@v4
+        continue-on-error: true
         with:
           path: .cache/eleventy-img
           key: gallery-images-${{ runner.os }}-${{ hashFiles('docs/gallery.json') }}
           restore-keys: |
             gallery-images-${{ runner.os }}-
       - name: Install image optimizer
+        continue-on-error: true
         run: npm install --no-save --no-package-lock @11ty/eleventy-img@7.0.0
       - name: Build responsive gallery images
         run: |
-          node scripts/build_gallery_images.mjs
-          cp .cache/gallery.generated.json docs/gallery.json
+          if node scripts/build_gallery_images.mjs; then
+            cp .cache/gallery.generated.json docs/gallery.json
+            echo "Galería optimizada generada correctamente."
+          else
+            echo "La optimización falló; se publica la galería con las imágenes originales de Drive."
+          fi
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
