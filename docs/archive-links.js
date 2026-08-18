@@ -37,14 +37,23 @@
     });
   }
 
+  function connectGeneralGallery(root) {
+    var more = (root || document).querySelector(".archive-more");
+    if (!more) return;
+    more.href = "/galeria/";
+    more.setAttribute("aria-label", "Abrir la galería general de RANDOM");
+  }
+
   function init() {
     connectArchiveCards(document);
+    connectGeneralGallery(document);
 
     var grid = document.querySelector("[data-archive-grid]");
     if (!grid || typeof MutationObserver !== "function") return;
 
     var observer = new MutationObserver(function () {
       connectArchiveCards(grid);
+      connectGeneralGallery(grid);
     });
     observer.observe(grid, { childList: true, subtree: true });
   }
