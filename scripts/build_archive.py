@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''Build permanent edition pages and inject optional photo galleries.'''
+'''Build permanent edition pages and photo galleries.'''
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import generate_seo as seo  # noqa: E402
 
 GALLERY_DATA = DOCS / "gallery.json"
+GALLERY_DIR = DOCS / "galeria"
 
 
 def load_galleries() -> dict[int, dict]:
@@ -60,10 +61,33 @@ def inject_archive_navigation(page: str) -> str:
     if "archive-links.js" not in page:
         page = page.replace(
             "  </body>",
-            '    <script src="/archive-links.js?v=20260818-1" defer></script>\n  </body>',
+            '    <script src="/archive-links.js?v=20260818-2" defer></script>\n  </body>',
             1,
         )
     return page
+
+
+def render_photo_item(photo: dict, edition_number: int | None = None) -> str:
+    src = html.escape(str(photo["src"]), quote=True)
+    webp = html.escape(str(photo["webp"]), quote=True)
+    avif = html.escape(str(photo.get("avif", "")), quote=True)
+    alt = html.escape(str(photo["alt"]), quote=True)
+    width = int(photo["width"])
+    height = int(photo["height"])
+    avif_source = (
+        f'<source srcset="{avif}" type="image/avif" />'
+        if avif else ""
+    )
+    edition_attr = f' data-edition="{edition_number}"' if edition_number else ""
+    edition_label = f" de RANDOM #{edition_number}" if edition_number else ""
+    return (
+        f'<a class="edition-gallery-item" href="{src}" '
+        f'data-pswp-width="{width}" data-pswp-height="{height}"{edition_attr} '
+        f'aria-label="Abrir foto{edition_label}" target="_blank" rel="noreferrer">'
+        f'<picture>{avif_source}<img src="{webp}" alt="{alt}" '
+        f'width="{width}" height="{height}" loading="lazy" decoding="async" /></picture>'
+        "</a>"
+    )
 
 
 def render_gallery(edition: seo.Edition, gallery: dict) -> str:
@@ -74,27 +98,7 @@ def render_gallery(edition: seo.Edition, gallery: dict) -> str:
         f'<p class="edition-gallery-credit">FOTOS · {html.escape(credit)}</p>'
         if credit else ""
     )
-
-    items = []
-    for photo in gallery["photos"]:
-        src = html.escape(str(photo["src"]), quote=True)
-        webp = html.escape(str(photo["webp"]), quote=True)
-        avif = html.escape(str(photo.get("avif", "")), quote=True)
-        alt = html.escape(str(photo["alt"]), quote=True)
-        width = int(photo["width"])
-        height = int(photo["height"])
-        avif_source = (
-            f'<source srcset="{avif}" type="image/avif" />'
-            if avif else ""
-        )
-        items.append(
-            f'<a class="edition-gallery-item" href="{src}" '
-            f'data-pswp-width="{width}" data-pswp-height="{height}" '
-            f'target="_blank" rel="noreferrer">'
-            f'<picture>{avif_source}<img src="{webp}" alt="{alt}" '
-            f'width="{width}" height="{height}" loading="lazy" decoding="async" /></picture>'
-            "</a>"
-        )
+    items = "".join(render_photo_item(photo, edition.number) for photo in gallery["photos"])
 
     return f'''
     <section class="edition-gallery" aria-labelledby="fotos">
@@ -106,7 +110,7 @@ def render_gallery(edition: seo.Edition, gallery: dict) -> str:
         {credit_html}
       </div>
       <div class="edition-gallery-grid" data-photo-gallery>
-        {''.join(items)}
+        {items}
       </div>
     </section>
 '''
@@ -131,6 +135,89 @@ def inject_gallery(page: str, edition: seo.Edition, gallery: dict) -> str:
         1,
     )
     return page
+
+
+def render_general_gallery(galleries: dict[int, dict]) -> str:
+    ordered = sorted(galleries.items(), key=lambda item: item[0], reverse=True)
+    photos = [
+        (number, photo)
+        for number, gallery in ordered
+        for photo in gallery["photos"]
+    ]
+    items = "".join(render_photo_item(photo, number) for number, photo in photos)
+    photo_count = len(photos)
+    edition_count = len(galleries)
+    gallery_url = f"{seo.SITE_URL.rstrip('/')}/galeria/"
+    description = "Galería general de RANDOM: fotos de todas las ediciones disponibles en un solo archivo visual."
+    og_image = html.escape(str(photos[0][1]["src"]), quote=True) if photos else f"{seo.SITE_URL}/assets/random-wordmark-tight.png"
+
+    return f'''<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070707" />
+    <meta name="description" content="{html.escape(description, quote=True)}" />
+    <link rel="canonical" href="{gallery_url}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RANDOM" />
+    <meta property="og:url" content="{gallery_url}" />
+    <meta property="og:title" content="GALERÍA — RANDOM" />
+    <meta property="og:description" content="{html.escape(description, quote=True)}" />
+    <meta property="og:image" content="{og_image}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="/edition.css?v=20260818-1" />
+    <link rel="stylesheet" href="/gallery.css?v=20260818-1" />
+    <link rel="stylesheet" href="/gallery-index.css?v=20260818-1" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.css" />
+    <title>GALERÍA — RANDOM</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">SALTAR AL CONTENIDO</a>
+    <header class="edition-header">
+      <a href="/" aria-label="RANDOM, inicio"><img src="/assets/random-wordmark-tight.png" alt="RANDOM" width="1454" height="610" /></a>
+      <a href="/">VOLVER A RANDOM</a>
+    </header>
+    <main id="contenido" class="gallery-page">
+      <header class="gallery-page-hero">
+        <div>
+          <p class="gallery-page-kicker">RANDOM · DESDE 2018</p>
+          <h1>GALERÍA</h1>
+        </div>
+        <p class="gallery-page-meta">{photo_count} FOTOS · {edition_count} EDICIONES</p>
+      </header>
+      <p class="gallery-page-note">Todas las fotos disponibles de RANDOM, juntas en un solo archivo.</p>
+      <div class="edition-gallery-grid gallery-page-grid" data-photo-gallery>
+        {items}
+      </div>
+    </main>
+    <footer><img src="/assets/random-symbol.png" alt="" width="1500" height="1500" /><span>RANDOM · DESDE 2018</span></footer>
+    <script src="/gallery.js?v=20260818-1" type="module"></script>
+  </body>
+</html>
+'''
+
+
+def write_general_gallery(galleries: dict[int, dict]) -> int:
+    GALLERY_DIR.mkdir(parents=True, exist_ok=True)
+    page = render_general_gallery(galleries)
+    (GALLERY_DIR / "index.html").write_text(page, encoding="utf-8")
+    return sum(len(gallery["photos"]) for gallery in galleries.values())
+
+
+def add_gallery_to_sitemap() -> None:
+    sitemap_path = DOCS / "sitemap.xml"
+    sitemap = sitemap_path.read_text(encoding="utf-8")
+    gallery_url = f"{seo.SITE_URL.rstrip('/')}/galeria/"
+    entry = f"  <url><loc>{html.escape(gallery_url)}</loc></url>\n"
+    if gallery_url not in sitemap:
+        sitemap = sitemap.replace("</urlset>", entry + "</urlset>", 1)
+        sitemap_path.write_text(sitemap, encoding="utf-8")
 
 
 def main() -> None:
@@ -164,9 +251,12 @@ def main() -> None:
             encoding="utf-8",
         )
 
+    photo_count = write_general_gallery(galleries)
+    add_gallery_to_sitemap()
+
     print(
         f"Generadas {len(editions)} páginas permanentes, "
-        f"{len(galleries)} galería(s) y sitemap.xml"
+        f"{len(galleries)} galería(s), {photo_count} fotos en /galeria/ y sitemap.xml"
     )
 
 
