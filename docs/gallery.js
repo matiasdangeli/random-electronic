@@ -1,6 +1,8 @@
 import PhotoSwipeLightbox from "https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.js";
 
 const galleries = document.querySelectorAll("[data-photo-gallery]");
+const GALLERY_SIZES =
+  "(max-width: 760px) 50vw, (max-width: 1484px) 33vw, 470px";
 
 function absoluteUrl(value) {
   return new URL(value, window.location.href).href;
@@ -23,6 +25,60 @@ function probeUrl(value) {
     return url.href;
   } catch {
     return value;
+  }
+}
+
+function responsivePhotoMap(data) {
+  const photos = new Map();
+
+  Object.values(data || {}).forEach((gallery) => {
+    [gallery?.photos, gallery?.all_photos].forEach((collection) => {
+      if (!Array.isArray(collection)) return;
+      collection.forEach((photo) => {
+        if (!photo?.src || !photo?.srcset) return;
+        photos.set(absoluteUrl(photo.src), photo);
+      });
+    });
+  });
+
+  return photos;
+}
+
+async function enhanceResponsiveImages() {
+  if (!galleries.length) return;
+
+  try {
+    const response = await fetch("/gallery.json", { cache: "force-cache" });
+    if (!response.ok) return;
+    const photos = responsivePhotoMap(await response.json());
+    if (!photos.size) return;
+
+    galleries.forEach((gallery) => {
+      gallery.querySelectorAll("a[data-pswp-width]").forEach((item) => {
+        const photo = photos.get(absoluteUrl(item.href));
+        if (!photo?.srcset) return;
+
+        if (photo.srcset.jpeg) {
+          item.dataset.pswpSrcset = photo.srcset.jpeg;
+        }
+
+        const img = item.querySelector("img");
+        if (!img) return;
+
+        if (photo.srcset.webp) {
+          img.srcset = photo.srcset.webp;
+          img.sizes = GALLERY_SIZES;
+        }
+
+        const avifSource = item.querySelector('source[type="image/avif"]');
+        if (avifSource && photo.srcset.avif) {
+          avifSource.srcset = photo.srcset.avif;
+          avifSource.sizes = GALLERY_SIZES;
+        }
+      });
+    });
+  } catch {
+    // El HTML ya contiene una imagen optimizada de respaldo.
   }
 }
 
@@ -55,7 +111,10 @@ async function prepareGallery(gallery) {
   await Promise.all(autoItems.map(prepareAutoSize));
 }
 
+const responsiveImagesReady = enhanceResponsiveImages();
+
 async function initGallery(gallery) {
+  await responsiveImagesReady;
   await prepareGallery(gallery);
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

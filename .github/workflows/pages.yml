@@ -26,12 +26,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cache remote gallery images
+        uses: actions/cache@v4
+        with:
+          path: .cache/eleventy-img
+          key: gallery-images-${{ runner.os }}-${{ hashFiles('docs/gallery.json') }}
+          restore-keys: |
+            gallery-images-${{ runner.os }}-
+      - name: Install image optimizer
+        run: npm install --no-save --no-package-lock @11ty/eleventy-img@7.0.0
+      - name: Build responsive gallery images
+        run: |
+          node scripts/build_gallery_images.mjs
+          cp .cache/gallery.generated.json docs/gallery.json
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
       - name: Generate permanent edition pages, galleries and sitemap
         run: python3 scripts/build_archive.py
+      - name: Refresh gallery client cache key
+        run: |
+          find docs/ediciones docs/galeria -name index.html -type f -exec \
+            sed -i 's/gallery.js?v=20260818-2/gallery.js?v=20260818-3/g' {} +
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
