@@ -166,6 +166,88 @@ servicio cambia de reglas. Si algún día son miles, lo único que hay que
 cambiar es el campo `base` de `docs/fotos.json` para apuntar a otro origen: el
 resto de la galería no se entera.
 
+## Página 404
+
+`docs/404.html` es la que se ve al entrar a una dirección que no existe.
+GitHub Pages la sirve sola, sin configurar nada. Es una sola pantalla: el
+símbolo, el número, una frase y dos botones para volver.
+
+La frase cambia sola en cada visita —la fiesta se llama RANDOM— y la lista
+está al final del archivo. Si el script no corre, se lee la que ya está
+escrita en el HTML.
+
+Lleva `noindex`: una página de error no tiene por qué aparecer en Google. Sus
+rutas arrancan con `/` porque se sirve desde cualquier dirección rota,
+incluidas las de `/ediciones/`, y una ruta relativa se rompería ahí.
+
+## Preguntas frecuentes
+
+Las cinco preguntas viven en `docs/index.html`, dentro de la sección
+`#preguntas`. Son `<details>` nativos: abren y cierran sin una línea de
+JavaScript, se manejan con el teclado y el buscador del navegador encuentra el
+texto aunque estén cerradas.
+
+Las respuestas se editan a mano. **Al cambiar una hay que cambiarla también en
+el bloque `FAQPage` de datos estructurados**, arriba en el `<head>`: es el que
+puede hacer que Google muestre las preguntas directamente en el resultado de
+búsqueda, y tiene que decir exactamente lo mismo que la página.
+
+## Tienda
+
+`LAS NOCHES` tiene su equivalente en `TIENDA`: la sección no existe hasta que
+`docs/tienda.json` trae productos. Vacío, no aparece, no ocupa lugar y no se
+pide ni `shop.css`.
+
+### El cobro
+
+El sitio es estático: no hay servidor donde crear una orden ni donde esconder
+una clave. Así que el pago no pasa por acá. Cada producto lleva un **link de
+pago** que se genera desde el panel del proveedor —Mercado Pago, Wise, PayPal,
+Stripe, el que sea— y el comprador termina la compra en la página de ese
+proveedor, que es la que cobra con tarjeta.
+
+Eso significa que la tienda **no** tiene carrito, ni control de stock, ni
+confirmación automática de la venta. A cambio no hay ninguna credencial
+publicada, que en un sitio estático es la única forma segura de cobrar.
+
+Debajo del catálogo va el bloque de transferencia, con los alias y un botón
+que los copia: escribir un alias a mano desde el teléfono es donde se pierde
+la venta.
+
+### Cargar un producto
+
+Se agrega un objeto a `productos` en `docs/tienda.json`:
+
+```json
+{
+  "id": "remera",
+  "nombre": "REMERA RANDOM",
+  "detalle": "Algodón pesado, negra, estampa al frente.",
+  "precio": "€25",
+  "imagen": "remera.webp",
+  "talles": ["S", "M", "L", "XL"],
+  "link": "https://link-de-pago-del-proveedor",
+  "estado": "disponible"
+}
+```
+
+| Campo | Qué es |
+| --- | --- |
+| `id` | Nombre corto interno, no se muestra |
+| `nombre` | Cómo aparece en la tarjeta |
+| `detalle` | Opcional. Una línea de descripción |
+| `precio` | Texto libre, así sirve para `€25` y para `$25.000` |
+| `imagen` | Opcional. Archivo dentro de `docs/assets/tienda/`, cuadrado y en WebP |
+| `talles` | Opcional. Se muestran como texto |
+| `link` | El link de pago. Sin él la tarjeta se muestra pero no vende |
+| `estado` | `agotado` deja la tarjeta apagada y sin botón |
+
+Los medios de transferencia van en `pago.medios`, y `pago.nota` con
+`pago.contacto` son la línea de abajo con el enlace para escribir.
+
+Como el pago se termina afuera, el talle o cualquier otra aclaración conviene
+pedirlos en la nota, para que el comprador los mande al escribir.
+
 ## Casos especiales
 
 - **Evento de día:** usá el horario real en `.event-meta` y, si hace falta otro corte, `data-until`.
@@ -188,6 +270,10 @@ El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 - `gallery.js`: galería de fotos, miniaturas por tandas y visor.
 - `gallery.css`: estilos de la galería, se piden solo si hay fotos.
 - `fotos.json`: qué fotos hay en cada edición. Lo genera el script.
+- `shop.js`: catálogo de la tienda y bloque de transferencia.
+- `shop.css`: estilos de la tienda, se piden solo si hay productos.
+- `tienda.json`: productos y medios de pago. Se edita a mano.
+- `404.html`: página de dirección inexistente.
 - `scripts/prepare_photos.py`: convierte las fotos originales y arma `fotos.json`.
 - `scripts/generate_seo.py`: genera las URLs activas y `sitemap.xml` a partir de `index.html`.
 

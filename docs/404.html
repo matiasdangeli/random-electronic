@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070707" />
+    <!-- Una página de error no tiene que aparecer en Google. -->
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="Esta página de RANDOM no existe. Las próximas fechas sí." />
+    <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <!-- Las rutas arrancan con / porque esta página se sirve desde cualquier
+         dirección que no exista, y una ruta relativa se rompería en /ediciones/. -->
+    <link rel="stylesheet" href="/styles.css?v=20260815-2" />
+    <title>404 · RANDOM</title>
+    <style>
+      /* Una sola pantalla, centrada, sin nada que cargar de más: es la página
+         que ve alguien que ya se equivocó, así que tiene que aparecer entera
+         y de una. */
+      .lost {
+        display: flex;
+        min-height: 100svh;
+        padding: clamp(28px, 6vw, 80px);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: clamp(22px, 3vw, 34px);
+      }
+
+      .lost-code {
+        margin: 0;
+        color: var(--paper);
+        font-size: clamp(96px, 26vw, 300px);
+        font-weight: 800;
+        line-height: 0.78;
+        letter-spacing: -0.075em;
+      }
+
+      .lost-line {
+        max-width: 22ch;
+        margin: 0;
+        font-size: clamp(20px, 3.4vw, 34px);
+        font-weight: 600;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+      }
+
+      .lost-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .lost-mark {
+        width: clamp(60px, 9vw, 96px);
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="lost">
+      <img class="lost-mark" src="/assets/random-symbol.png" alt="RANDOM" />
+      <p class="eyebrow">ERROR 404</p>
+      <h1 class="lost-code">404</h1>
+      <!-- El texto por defecto ya está escrito: si el script no corre, la
+           página se lee igual. -->
+      <p class="lost-line" data-lost-line>ESTA PÁGINA NO EXISTE. LA FIESTA SÍ.</p>
+      <div class="lost-actions">
+        <a class="button button--light" href="/">VOLVER AL INICIO <span>→</span></a>
+        <a class="button" href="/#fechas">PRÓXIMAS FECHAS <span>→</span></a>
+      </div>
+    </main>
+
+    <script>
+      // La fiesta se llama RANDOM: la frase cambia sola cada vez que alguien
+      // cae acá. Es lo único que hace esta página.
+      (function () {
+        var line = document.querySelector("[data-lost-line]");
+        var frases = [
+          "ESTA PÁGINA NO EXISTE. LA FIESTA SÍ.",
+          "ACÁ NO HAY NADA. EN LA PISTA SÍ.",
+          "TE PERDISTE. PASA EN LAS MEJORES NOCHES.",
+          "ESTA DIRECCIÓN NO ENTRÓ EN LA LISTA.",
+          "BUSCASTE ALGO RANDOM. TE SALIÓ BIEN."
+        ];
+        if (line) line.textContent = frases[Math.floor(Math.random() * frases.length)];
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "base": "assets/tienda/",
+  "pago": {
+    "medios": []
+  },
+  "productos": []
+}
