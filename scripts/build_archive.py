@@ -18,6 +18,17 @@ GALLERY_DATA = DOCS / "gallery.json"
 GALLERY_DIR = DOCS / "galeria"
 
 
+def validate_photo(photo: dict, index: int, number: int, collection: str) -> None:
+    if not isinstance(photo, dict):
+        raise RuntimeError(f"Foto {index} de #{number} en {collection} inválida")
+    for field in ("src", "webp", "alt"):
+        if not photo.get(field):
+            raise RuntimeError(f"Foto {index} de #{number} en {collection}: falta {field}")
+    for field in ("width", "height"):
+        if field in photo and int(photo[field]) <= 0:
+            raise RuntimeError(f"Foto {index} de #{number} en {collection}: {field} inválido")
+
+
 def load_galleries() -> dict[int, dict]:
     if not GALLERY_DATA.exists():
         return {}
@@ -39,11 +50,15 @@ def load_galleries() -> dict[int, dict]:
             raise RuntimeError(f"La galería #{number} no tiene fotos")
 
         for index, photo in enumerate(photos, start=1):
-            if not isinstance(photo, dict):
-                raise RuntimeError(f"Foto {index} de #{number} inválida")
-            for field in ("src", "webp", "width", "height", "alt"):
-                if not photo.get(field):
-                    raise RuntimeError(f"Foto {index} de #{number}: falta {field}")
+            validate_photo(photo, index, number, "photos")
+
+        all_photos = value.get("all_photos")
+        if all_photos is not None:
+            if not isinstance(all_photos, list) or not all_photos:
+                raise RuntimeError(f"La galería general de #{number} no tiene fotos")
+            for index, photo in enumerate(all_photos, start=1):
+                validate_photo(photo, index, number, "all_photos")
+
         galleries[number] = value
 
     return galleries
@@ -72,20 +87,27 @@ def render_photo_item(photo: dict, edition_number: int | None = None) -> str:
     webp = html.escape(str(photo["webp"]), quote=True)
     avif = html.escape(str(photo.get("avif", "")), quote=True)
     alt = html.escape(str(photo["alt"]), quote=True)
-    width = int(photo["width"])
-    height = int(photo["height"])
+    width = int(photo.get("width") or 0)
+    height = int(photo.get("height") or 0)
+    has_size = width > 0 and height > 0
     avif_source = (
         f'<source srcset="{avif}" type="image/avif" />'
         if avif else ""
     )
     edition_attr = f' data-edition="{edition_number}"' if edition_number else ""
     edition_label = f" de RANDOM #{edition_number}" if edition_number else ""
+    if has_size:
+        size_data = f'data-pswp-width="{width}" data-pswp-height="{height}"'
+        image_size = f'width="{width}" height="{height}" '
+    else:
+        size_data = 'data-pswp-width="1" data-pswp-height="1" data-pswp-auto-size'
+        image_size = ""
+
     return (
-        f'<a class="edition-gallery-item" href="{src}" '
-        f'data-pswp-width="{width}" data-pswp-height="{height}"{edition_attr} '
+        f'<a class="edition-gallery-item" href="{src}" {size_data}{edition_attr} '
         f'aria-label="Abrir foto{edition_label}" target="_blank" rel="noreferrer">'
         f'<picture>{avif_source}<img src="{webp}" alt="{alt}" '
-        f'width="{width}" height="{height}" loading="lazy" decoding="async" /></picture>'
+        f'{image_size}loading="lazy" decoding="async" /></picture>'
         "</a>"
     )
 
@@ -131,10 +153,14 @@ def inject_gallery(page: str, edition: seo.Edition, gallery: dict) -> str:
     page = page.replace("    <footer>", gallery_html + "\n    <footer>", 1)
     page = page.replace(
         "  </body>",
-        '    <script src="/gallery.js?v=20260818-1" type="module"></script>\n  </body>',
+        '    <script src="/gallery.js?v=20260818-2" type="module"></script>\n  </body>',
         1,
     )
     return page
+
+
+def gallery_photos(gallery: dict) -> list[dict]:
+    return gallery.get("all_photos") or gallery["photos"]
 
 
 def render_general_gallery(galleries: dict[int, dict]) -> str:
@@ -142,7 +168,7 @@ def render_general_gallery(galleries: dict[int, dict]) -> str:
     photos = [
         (number, photo)
         for number, gallery in ordered
-        for photo in gallery["photos"]
+        for photo in gallery_photos(gallery)
     ]
     items = "".join(render_photo_item(photo, number) for number, photo in photos)
     photo_count = len(photos)
@@ -197,7 +223,7 @@ def render_general_gallery(galleries: dict[int, dict]) -> str:
       </div>
     </main>
     <footer><img src="/assets/random-symbol.png" alt="" width="1500" height="1500" /><span>RANDOM · DESDE 2018</span></footer>
-    <script src="/gallery.js?v=20260818-1" type="module"></script>
+    <script src="/gallery.js?v=20260818-2" type="module"></script>
   </body>
 </html>
 '''
@@ -207,7 +233,7 @@ def write_general_gallery(galleries: dict[int, dict]) -> int:
     GALLERY_DIR.mkdir(parents=True, exist_ok=True)
     page = render_general_gallery(galleries)
     (GALLERY_DIR / "index.html").write_text(page, encoding="utf-8")
-    return sum(len(gallery["photos"]) for gallery in galleries.values())
+    return sum(len(gallery_photos(gallery)) for gallery in galleries.values())
 
 
 def add_gallery_to_sitemap() -> None:
