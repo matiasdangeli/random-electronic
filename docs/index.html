@@ -52,6 +52,7 @@
         <a class="brand" href="#inicio" aria-label="RANDOM, inicio"><img src="assets/random-wordmark-tight.png" alt="RANDOM" /></a>
         <nav aria-label="Navegación principal">
           <a href="#fechas">FECHAS</a>
+          <a href="#fotos" data-gallery-nav hidden>FOTOS</a>
           <a href="#concepto">CONCEPTO</a>
           <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">INSTAGRAM ↗</a>
         </nav>
@@ -1094,6 +1095,22 @@
         </div>
       </section>
 
+      <!-- Una sección escondida nunca aparece en pantalla, así que no puede
+           avisar que alguien se le acercó. Esta línea invisible sí: cuando
+           asoma, gallery.js pide fotos.json. -->
+      <div class="gallery-anchor" data-gallery-anchor aria-hidden="true"></div>
+
+      <!-- Galería. La sección arranca escondida y vacía: gallery.js la arma
+           recién cuando alguien se acerca, y solo si docs/fotos.json trae
+           fotos. Las fotos se preparan con scripts/prepare_photos.py. -->
+      <section class="gallery" id="fotos" data-gallery hidden>
+        <div class="section-heading">
+          <p class="eyebrow" data-gallery-count>GALERÍA</p>
+          <h2>LAS NOCHES</h2>
+        </div>
+        <div data-gallery-body></div>
+      </section>
+
       <section class="manifesto" id="concepto">
         <div class="manifesto-mark" aria-hidden="true" style="transform:none"><img src="assets/random-symbol.png" alt="" style="width:125%;max-width:none;margin-left:-12%;filter:brightness(0)" /></div>
         <div class="manifesto-copy">
@@ -1168,5 +1185,6 @@
     <!-- agenda.js va primero: separa próximas fechas y archivo antes del carrusel. -->
     <script src="agenda.js?v=20260814-12" defer></script>
     <script src="carousel.js?v=20260814-3" defer></script>
+    <script src="gallery.js?v=20260818-1" defer></script>
   </body>
 </html>

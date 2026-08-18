@@ -109,6 +109,63 @@ El bloque de concepto muestra un contador vivo desde el 14 de abril de 2018 a la
 
 Es un solo bloque a lo ancho de la sección, con la misma lógica visual que el countdown del hero: una línea de números y debajo sus unidades. Cada número y su palabra comparten columna y se centran entre sí, así que `08` queda exactamente sobre `AÑOS`. El tamaño del número manda: el resto se mide en `em`, y todo el bloque escala con un solo `clamp`.
 
+## Galería de fotos
+
+Debajo del archivo, `LAS NOCHES` muestra las fotos de cada edición: una tira
+para elegir la fecha, una grilla de miniaturas cuadradas y un visor a pantalla
+completa que se pasa con el dedo, con las flechas o con el teclado.
+
+La sección no existe hasta que hay fotos. Con `docs/fotos.json` vacío no
+aparece, no ocupa lugar y no se pide ni un byte de más: quien no baja hasta
+ahí solo carga `gallery.js`, y `gallery.css` se pide recién cuando hay algo
+para mostrar.
+
+### Cargar las fotos de una fecha
+
+1. Poner los originales en `fotos/NN/`, donde `NN` es el número de edición.
+   Esa carpeta no se publica ni se sube al repositorio.
+2. Opcional: `fotos/NN/credito.txt` con el nombre del fotógrafo, tal como
+   tiene que aparecer en el visor (`@nombre`).
+3. Correr el script y subir el resultado:
+
+```bash
+python3 scripts/prepare_photos.py
+```
+
+De cada foto salen tres archivos, para que cada pantalla baje solo lo que
+muestra:
+
+| Archivo | Qué es |
+| --- | --- |
+| `NOMBRE-s.webp` | miniatura cuadrada de 320 px, grilla en el teléfono |
+| `NOMBRE-m.webp` | miniatura cuadrada de 640 px, pantallas retina y escritorio |
+| `NOMBRE.webp` | foto completa de 1400 px, la que abre el visor |
+
+Todo va a `docs/assets/fotos/NN/` y el script reescribe `docs/fotos.json`, que
+es lo que lee la galería. El nombre, la fecha y la sala salen de la ficha de la
+edición en `docs/index.html`: no se escriben dos veces.
+
+El script no rehace lo que ya está hecho, así que agregar tres fotos a una
+edición de cuarenta tarda lo que tardan esas tres. Con `--force` convierte todo
+de nuevo. Si se borra una foto del origen, sus archivos se van del sitio en la
+próxima corrida.
+
+Necesita Pillow una sola vez: `pip3 install pillow`.
+
+### Cuántas fotos
+
+Las fotos quedan guardadas para siempre en el historial de Git, así que
+conviene subir una selección y no el volcado entero de la cámara. Con unas 30
+por fecha la edición se cuenta completa y pesa alrededor de 7 MB; el script
+avisa cuando una edición pasa de 40.
+
+Las fotos viven en el mismo repositorio que el resto del sitio porque es lo
+más rápido: las sirve el CDN de GitHub Pages con Cloudflare adelante, sin
+llamadas a otro dominio, sin token que caduque y sin nada que se rompa si un
+servicio cambia de reglas. Si algún día son miles, lo único que hay que
+cambiar es el campo `base` de `docs/fotos.json` para apuntar a otro origen: el
+resto de la galería no se entera.
+
 ## Casos especiales
 
 - **Evento de día:** usá el horario real en `.event-meta` y, si hace falta otro corte, `data-until`.
@@ -128,6 +185,10 @@ El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 - `live.css`: estilos del countdown, LIVE y botón de calendario.
 - `carousel.js`: carrusel 3D.
 - `edition.css`: estilos de las páginas temporales de fechas activas.
+- `gallery.js`: galería de fotos, miniaturas por tandas y visor.
+- `gallery.css`: estilos de la galería, se piden solo si hay fotos.
+- `fotos.json`: qué fotos hay en cada edición. Lo genera el script.
+- `scripts/prepare_photos.py`: convierte las fotos originales y arma `fotos.json`.
 - `scripts/generate_seo.py`: genera las URLs activas y `sitemap.xml` a partir de `index.html`.
 
 Solo las fechas actuales o próximas tienen una URL `/ediciones/NN-nombre/` para datos estructurados `Event`. Las pasadas viven únicamente en el archivo interactivo de la home. `sitemap.xml` incluye la home y esas fechas activas; el workflow vuelve a generarlo antes de cada deploy.

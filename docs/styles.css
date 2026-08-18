@@ -341,6 +341,13 @@ svg {
   color: var(--paper);
 }
 
+/* Línea de aviso de la galería: no se ve, pero ocupa un pixel para que el
+   navegador pueda decir cuándo aparece en pantalla. El resto de los estilos de
+   la galería viven en gallery.css y se piden solo si hay fotos. */
+.gallery-anchor {
+  height: 1px;
+}
+
 /* --- Archivo: las fechas que ya pasaron -----------------------------------
    Chicas y apagadas. Están para dar contexto y mostrar que la fiesta tiene
    historia, no para competirle a la fecha que viene. */

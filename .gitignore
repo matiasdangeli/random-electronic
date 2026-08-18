@@ -1,2 +1,6 @@
 __pycache__/
 node_modules/
+
+# Fotos originales de las fiestas: pesan cientos de MB y no se publican.
+# scripts/prepare_photos.py las convierte a docs/assets/fotos/.
+/fotos/
