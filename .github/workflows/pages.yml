@@ -49,6 +49,10 @@ jobs:
           enablement: true
       - name: Generate permanent edition pages, galleries and sitemap
         run: python3 scripts/build_archive.py
+      - name: Refresh gallery client cache key
+        run: |
+          find docs/ediciones docs/galeria -name index.html -type f -exec \
+            sed -i 's/gallery.js?v=20260818-2/gallery.js?v=20260818-3/g' {} +
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
