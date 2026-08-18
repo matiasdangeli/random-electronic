@@ -48,6 +48,24 @@ def load_galleries() -> dict[int, dict]:
     return galleries
 
 
+def inject_archive_navigation(page: str) -> str:
+    """Make past-edition cards on the homepage navigate to permanent pages."""
+    if "archive-links.css" not in page:
+        page = page.replace(
+            "  </head>",
+            '    <link rel="stylesheet" href="/archive-links.css?v=20260818-1" />\n  </head>',
+            1,
+        )
+
+    if "archive-links.js" not in page:
+        page = page.replace(
+            "  </body>",
+            '    <script src="/archive-links.js?v=20260818-1" defer></script>\n  </body>',
+            1,
+        )
+    return page
+
+
 def render_gallery(edition: seo.Edition, gallery: dict) -> str:
     title = html.escape(str(gallery.get("title", "FOTOS")))
     eyebrow = html.escape(str(gallery.get("eyebrow", f"RANDOM #{edition.number}")))
@@ -116,7 +134,8 @@ def inject_gallery(page: str, edition: seo.Edition, gallery: dict) -> str:
 
 
 def main() -> None:
-    editions = seo.parse_editions(seo.INDEX.read_text(encoding="utf-8"))
+    source = seo.INDEX.read_text(encoding="utf-8")
+    editions = seo.parse_editions(source)
     galleries = load_galleries()
     by_number = {edition.number: edition for edition in editions}
 
@@ -126,6 +145,10 @@ def main() -> None:
             "Hay galerías sin edición en index.html: "
             + ", ".join(f"#{number}" for number in unknown)
         )
+
+    # La home conserva su HTML editorial original en el repo. En el artefacto
+    # publicado agregamos solamente la navegación del archivo histórico.
+    seo.INDEX.write_text(inject_archive_navigation(source), encoding="utf-8")
 
     # Reutilizamos el generador existente, pero le pasamos todas las ediciones:
     # así las URLs históricas dejan de desaparecer cuando termina una fecha.
