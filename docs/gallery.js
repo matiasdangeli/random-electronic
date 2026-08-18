@@ -14,7 +14,49 @@ function fileNameFromUrl(value) {
   }
 }
 
-galleries.forEach((gallery) => {
+function probeUrl(value) {
+  try {
+    const url = new URL(value, window.location.href);
+    if (url.hostname === "drive.google.com" && url.pathname === "/thumbnail") {
+      url.searchParams.set("sz", "w64");
+    }
+    return url.href;
+  } catch {
+    return value;
+  }
+}
+
+function prepareAutoSize(item) {
+  if (!item.hasAttribute("data-pswp-auto-size")) return Promise.resolve();
+  const img = item.querySelector("img");
+  if (!img) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (width, height) => {
+      if (done) return;
+      done = true;
+      const ratio = width > 0 && height > 0 ? height / width : 1067 / 1600;
+      item.dataset.pswpWidth = "1600";
+      item.dataset.pswpHeight = String(Math.max(1, Math.round(1600 * ratio)));
+      resolve();
+    };
+
+    const probe = new Image();
+    probe.onload = () => finish(probe.naturalWidth, probe.naturalHeight);
+    probe.onerror = () => finish(1600, 1067);
+    probe.src = probeUrl(img.currentSrc || img.src);
+    window.setTimeout(() => finish(1600, 1067), 2500);
+  });
+}
+
+async function prepareGallery(gallery) {
+  const autoItems = Array.from(gallery.querySelectorAll("[data-pswp-auto-size]"));
+  await Promise.all(autoItems.map(prepareAutoSize));
+}
+
+async function initGallery(gallery) {
+  await prepareGallery(gallery);
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const lightbox = new PhotoSwipeLightbox({
@@ -104,4 +146,8 @@ galleries.forEach((gallery) => {
   });
 
   lightbox.init();
+}
+
+galleries.forEach((gallery) => {
+  initGallery(gallery);
 });
