@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # 07:17 en Argentina: retira automáticamente las páginas cuando la fecha termina.
+    # Regenera a diario las páginas permanentes, sitemap y galerías.
     - cron: "17 10 * * *"
 
 permissions:
@@ -30,8 +30,8 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Generate active edition pages and sitemap
-        run: python3 scripts/generate_seo.py
+      - name: Generate permanent edition pages, galleries and sitemap
+        run: python3 scripts/build_archive.py
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
