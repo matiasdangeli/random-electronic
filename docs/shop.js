@@ -234,10 +234,6 @@
 
   var FAQ = [
     {
-      question: "¿RANDOM es gratis?",
-      answer: "Sí. RANDOM es un evento gratuito. Vení, disfrutá y sé parte de la experiencia."
-    },
-    {
       question: "¿Dónde y cuándo es la próxima edición?",
       answer: "Cada edición tiene su propia fecha, horario y ubicación. Encontrás toda la información actualizada en esta web y en nuestro Instagram."
     },
