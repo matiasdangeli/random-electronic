@@ -239,7 +239,7 @@
     },
     {
       question: "¿Qué música suena en RANDOM?",
-      answer: "Principalmente música electrónica, con distintos artistas y estilos en cada edición. La idea es que cada RANDOM tenga su propia identidad."
+      answer: "Solo música electrónica, con distintos artistas y estilos en cada edición."
     },
     {
       question: "¿Tengo que reservar o simplemente puedo ir?",
