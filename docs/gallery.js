@@ -391,9 +391,6 @@
     sentinel.setAttribute("aria-hidden", "true");
     body.appendChild(sentinel);
 
-    var navLink = document.querySelector("[data-gallery-nav]");
-    if (navLink) navLink.hidden = false;
-
     section.hidden = false;
     showMore();
 

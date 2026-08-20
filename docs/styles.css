@@ -423,11 +423,10 @@ svg {
   }
 }
 
-/* Líneas de aviso de la galería y la tienda: no se ven, pero ocupan un pixel
-   para que el navegador pueda decir cuándo aparecen en pantalla. Sus secciones
-   arrancan escondidas, y algo escondido nunca llega a aparecer. El resto de
-   sus estilos vive en gallery.css y shop.css, y se piden solo si hay algo
-   que mostrar. */
+/* Líneas de aviso: no se ven, pero ocupan un pixel para que el navegador pueda
+   decir cuándo aparecen en pantalla. Sus secciones arrancan escondidas, y algo
+   escondido nunca llega a aparecer. El resto de sus estilos vive en
+   gallery.css y shop.css, y se piden solo si hay algo que mostrar. */
 .gallery-anchor,
 .shop-anchor {
   height: 1px;

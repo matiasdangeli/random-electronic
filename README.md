@@ -111,9 +111,17 @@ Es un solo bloque a lo ancho de la sección, con la misma lógica visual que el 
 
 ## Galería de fotos
 
-Debajo del archivo, `LAS NOCHES` muestra todas las fotos juntas: una sola
-grilla de miniaturas cuadradas, sin dividir por fecha, y un visor a pantalla
-completa que se pasa con el dedo, con las flechas o con el teclado.
+La galería vive en su propia página, `docs/galeria/`, y no en la home: es una
+dirección para compartir —en la bio de Instagram, por ejemplo— y la home queda
+para las fechas. El link `FOTOS` del menú lleva ahí.
+
+`LAS NOCHES` muestra todas las fotos juntas: una sola grilla de miniaturas
+cuadradas, sin dividir por fecha, y un visor a pantalla completa que se pasa
+con el dedo, con las flechas o con el teclado.
+
+La página es un archivo suelto que solo trae la cabecera, la sección vacía y
+`gallery.js`; todo lo demás lo arma el script leyendo `/fotos.json`. Por eso
+las rutas del manifiesto, los estilos y las fotos arrancan con `/`.
 
 El manifiesto sigue agrupado por edición porque así se guardan los archivos,
 pero la galería lo aplana en una sola tira, de la noche más nueva a la más
