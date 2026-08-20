@@ -120,6 +120,16 @@ pero la galería lo aplana en una sola tira, de la noche más nueva a la más
 vieja y, dentro de cada noche, en el orden en que se sacaron. De qué fecha es
 cada foto se ve al abrirla en el visor.
 
+La página no dice en ningún lado cuántas fotos hay: no es un dato que le sirva
+a nadie. En su lugar va la invitación, `Buscate. Descargala en un click.
+Compartila :)`, que se edita en `gallery.js`.
+
+`GUARDAR`, dentro del visor, cumple esa promesa. La foto se pasa por un lienzo
+a JPG antes de entregarla, porque el teléfono lo guarda mejor que un WebP.
+Donde el navegador sabe compartir archivos se abre el panel nativo —ahí está
+"Guardar en Fotos"—; donde no, se descarga. Si el lienzo falla, se entrega el
+WebP tal cual.
+
 La sección no existe hasta que hay fotos. Con `docs/fotos.json` vacío no
 aparece, no ocupa lugar y no se pide ni un byte de más: quien no baja hasta
 ahí solo carga `gallery.js`, y `gallery.css` se pide recién cuando hay algo

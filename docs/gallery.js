@@ -18,7 +18,7 @@
   "use strict";
 
   var MANIFEST_URL = "fotos.json?v=20260818-3";
-  var STYLES_URL = "gallery.css?v=20260818-3";
+  var STYLES_URL = "gallery.css?v=20260818-4";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -74,7 +74,7 @@
     var button = document.createElement("button");
     button.type = "button";
     button.className = "gallery-shot";
-    button.setAttribute("aria-label", "Abrir foto " + (index + 1) + " de " + photos.length + ", RANDOM " + label(photo));
+    button.setAttribute("aria-label", "Abrir foto de RANDOM " + label(photo));
 
     var img = document.createElement("img");
     img.src = photoUrl(photo, "s");
@@ -126,13 +126,15 @@
       '<button class="lightbox-nav lightbox-nav--prev" type="button" aria-label="Foto anterior">‹</button>' +
       '<figure class="lightbox-frame"><img alt="" decoding="async" /></figure>' +
       '<button class="lightbox-nav lightbox-nav--next" type="button" aria-label="Foto siguiente">›</button>' +
-      '<p class="lightbox-meta"><span data-lightbox-title></span><span data-lightbox-count></span></p>';
+      '<p class="lightbox-meta"><span data-lightbox-title></span>' +
+      '<button class="lightbox-save" type="button" data-lightbox-save>GUARDAR</button></p>';
 
     // Cuando la grande terminó de llegar, la miniatura de fondo ya no hace
     // falta: se saca para no tener dos imágenes ocupando memoria.
     var img = box.querySelector(".lightbox-frame img");
     img.addEventListener("load", function () { img.style.backgroundImage = ""; });
 
+    box.querySelector("[data-lightbox-save]").addEventListener("click", savePhoto);
     box.querySelector(".lightbox-close").addEventListener("click", closeLightbox);
     box.querySelector(".lightbox-nav--prev").addEventListener("click", function () { step(-1); });
     box.querySelector(".lightbox-nav--next").addEventListener("click", function () { step(1); });
@@ -193,8 +195,9 @@
     // La fecha no divide la grilla, pero acá sí importa: es la única forma de
     // saber de qué noche es la foto que se está mirando.
     lightbox.querySelector("[data-lightbox-title]").textContent = label(photo);
-    lightbox.querySelector("[data-lightbox-count]").textContent =
-      String(index + 1).padStart(2, "0") + " / " + String(photos.length).padStart(2, "0");
+    var save = lightbox.querySelector("[data-lightbox-save]");
+    save.textContent = "GUARDAR";
+    save.disabled = false;
 
     var single = photos.length < 2;
     lightbox.querySelector(".lightbox-nav--prev").hidden = single;
@@ -202,6 +205,68 @@
 
     preload(index + 1);
     preload(index - 1);
+  }
+
+  /* --- Guardar ------------------------------------------------------------
+     El teléfono guarda mejor un JPG que un WebP, así que la foto se pasa por
+     un lienzo antes de entregarla. Donde el navegador sabe compartir archivos
+     se abre el panel nativo —ahí está "Guardar en Fotos"—; donde no, se
+     descarga. Si el lienzo falla, se entrega el WebP tal cual. */
+  function aJpg(blob, nombre) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(blob);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var lienzo = document.createElement("canvas");
+          lienzo.width = img.naturalWidth;
+          lienzo.height = img.naturalHeight;
+          lienzo.getContext("2d").drawImage(img, 0, 0);
+          lienzo.toBlob(function (jpg) {
+            URL.revokeObjectURL(url);
+            resolve(jpg ? new File([jpg], nombre + ".jpg", { type: "image/jpeg" })
+                        : new File([blob], nombre + ".webp", { type: "image/webp" }));
+          }, "image/jpeg", 0.92);
+        } catch (error) {
+          URL.revokeObjectURL(url);
+          resolve(new File([blob], nombre + ".webp", { type: "image/webp" }));
+        }
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        resolve(new File([blob], nombre + ".webp", { type: "image/webp" }));
+      };
+      img.src = url;
+    });
+  }
+
+  function savePhoto() {
+    if (lightboxIndex < 0) return;
+    var photo = photos[lightboxIndex];
+    var boton = lightbox.querySelector("[data-lightbox-save]");
+    boton.disabled = true;
+    boton.textContent = "PREPARANDO";
+
+    fetch(photoUrl(photo))
+      .then(function (r) { return r.blob(); })
+      .then(function (blob) { return aJpg(blob, "random-" + photo.id); })
+      .then(function (archivo) {
+        if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+          return navigator.share({ files: [archivo] }).then(function () { boton.textContent = "GUARDAR"; });
+        }
+        var url = URL.createObjectURL(archivo);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = archivo.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        boton.textContent = "GUARDADA";
+        setTimeout(function () { boton.textContent = "GUARDAR"; }, 2000);
+      })
+      .catch(function () { boton.textContent = "GUARDAR"; })
+      .then(function () { boton.disabled = false; });
   }
 
   function step(delta) {
@@ -300,8 +365,17 @@
 
     var note = document.createElement("p");
     note.className = "gallery-note";
+    var invitacion = document.createElement("span");
+    invitacion.className = "gallery-invite";
+    invitacion.textContent = "Buscate. Descargala en un click. Compartila :)";
+    note.appendChild(invitacion);
     var quienes = credits();
-    note.textContent = photos.length + " FOTOS" + (quienes.length ? " · FOTOS: " + quienes.join(" · ") : "");
+    if (quienes.length) {
+      var firma = document.createElement("span");
+      firma.className = "gallery-credit";
+      firma.textContent = "FOTOS: " + quienes.join(" · ");
+      note.appendChild(firma);
+    }
     body.appendChild(note);
 
     var list = document.createElement("ul");
@@ -314,9 +388,6 @@
     sentinel.setAttribute("data-gallery-sentinel", "");
     sentinel.setAttribute("aria-hidden", "true");
     body.appendChild(sentinel);
-
-    var count = section.querySelector("[data-gallery-count]");
-    if (count) count.textContent = "GALERÍA · " + photos.length + " FOTOS";
 
     var navLink = document.querySelector("[data-gallery-nav]");
     if (navLink) navLink.hidden = false;

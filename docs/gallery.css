@@ -12,8 +12,27 @@
   margin: 0 auto;
 }
 
+/* La invitación y la firma en una línea: a la izquierda lo que se puede
+   hacer, a la derecha quién sacó las fotos. En pantalla chica se apilan. */
 .gallery-note {
+  display: flex;
   margin: 0 0 clamp(18px, 2vw, 26px);
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 20px;
+}
+
+/* Esta línea no es una etiqueta: es alguien hablándole al que llegó hasta
+   acá, así que va en la tipografía del texto y no en la de los datos. */
+.gallery-invite {
+  color: #c8c3bd;
+  font-size: clamp(15px, 1.6vw, 19px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.gallery-credit {
   color: #6d6965;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -163,6 +182,38 @@
   background-size: cover;
 }
 
+/* El botón de guardar vive en la misma línea que el nombre de la fecha. */
+.lightbox-save {
+  padding: 8px 14px;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--paper);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.lightbox-save[disabled] {
+  color: #6d6965;
+  cursor: default;
+}
+
+.lightbox-save:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .lightbox-save:not([disabled]):hover {
+    border-color: var(--paper);
+    background: var(--paper);
+    color: var(--ink);
+  }
+}
+
 .lightbox-meta {
   position: absolute;
   right: clamp(14px, 3vw, 34px);
@@ -170,6 +221,7 @@
   left: clamp(14px, 3vw, 34px);
   display: flex;
   margin: 0;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   color: #8d8883;
@@ -201,7 +253,39 @@
     right: clamp(14px, 3vw, 34px);
   }
 
-  .lightbox-meta {
+  /* El botón de guardar vive en la misma línea que el nombre de la fecha. */
+.lightbox-save {
+  padding: 8px 14px;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--paper);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.lightbox-save[disabled] {
+  color: #6d6965;
+  cursor: default;
+}
+
+.lightbox-save:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .lightbox-save:not([disabled]):hover {
+    border-color: var(--paper);
+    background: var(--paper);
+    color: var(--ink);
+  }
+}
+
+.lightbox-meta {
     bottom: 12px;
     justify-content: center;
   }
