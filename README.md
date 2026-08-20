@@ -111,9 +111,14 @@ Es un solo bloque a lo ancho de la sección, con la misma lógica visual que el 
 
 ## Galería de fotos
 
-Debajo del archivo, `LAS NOCHES` muestra las fotos de cada edición: una tira
-para elegir la fecha, una grilla de miniaturas cuadradas y un visor a pantalla
+Debajo del archivo, `LAS NOCHES` muestra todas las fotos juntas: una sola
+grilla de miniaturas cuadradas, sin dividir por fecha, y un visor a pantalla
 completa que se pasa con el dedo, con las flechas o con el teclado.
+
+El manifiesto sigue agrupado por edición porque así se guardan los archivos,
+pero la galería lo aplana en una sola tira, de la noche más nueva a la más
+vieja y, dentro de cada noche, en el orden en que se sacaron. De qué fecha es
+cada foto se ve al abrirla en el visor.
 
 La sección no existe hasta que hay fotos. Con `docs/fotos.json` vacío no
 aparece, no ocupa lugar y no se pide ni un byte de más: quien no baja hasta

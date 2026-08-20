@@ -1,6 +1,10 @@
 /*
  * Galería de fotos de RANDOM.
  *
+ * Una sola tira, todas las noches mezcladas en orden, de la más nueva a la más
+ * vieja. No se divide por fecha: la fecha de cada foto aparece en el visor,
+ * cuando se la abre.
+ *
  * La página no baja ni una foto hasta que alguien se acerca a la sección:
  * recién ahí pide fotos.json y, de ahí en más, solo bajan las miniaturas que
  * están a la vista. Las fotos grandes se piden de a una, cuando se abre el
@@ -13,8 +17,8 @@
 (function () {
   "use strict";
 
-  var MANIFEST_URL = "fotos.json?v=20260818-1";
-  var STYLES_URL = "gallery.css?v=20260818-1";
+  var MANIFEST_URL = "fotos.json?v=20260818-2";
+  var STYLES_URL = "gallery.css?v=20260818-2";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -24,8 +28,8 @@
   if (!section || !window.fetch) return;
 
   var data = null;
-  var current = null; // edición que se está mirando
-  var shown = 0; // miniaturas ya montadas de esa edición
+  var photos = []; // todas las fotos, de todas las noches, en una sola lista
+  var shown = 0;
   var lightbox = null;
   var lightboxIndex = -1;
   var lastFocused = null; // a qué miniatura volver cuando se cierra el visor
@@ -42,16 +46,12 @@
     document.head.appendChild(link);
   }
 
-  function photoUrl(edition, photo, size) {
-    return data.base + edition.edition + "/" + photo.id + (size ? "-" + size : "") + ".webp";
+  function photoUrl(photo, size) {
+    return data.base + photo.edition + "/" + photo.id + (size ? "-" + size : "") + ".webp";
   }
 
-  function editionLabel(edition) {
-    return "#" + edition.edition + (edition.name ? " · " + edition.name : "");
-  }
-
-  function totalPhotos() {
-    return data.editions.reduce(function (sum, edition) { return sum + edition.photos.length; }, 0);
+  function label(photo) {
+    return "#" + photo.edition + (photo.name ? " · " + photo.name : "");
   }
 
   /* --- Miniaturas ---------------------------------------------------------
@@ -59,18 +59,18 @@
      ocupa cada una antes de bajarla, así la grilla no salta. El color de
      fondo es el color promedio de la foto, así el hueco no es un rectángulo
      gris mientras carga. */
-  function thumb(edition, photo, index) {
+  function thumb(photo, index) {
     var item = document.createElement("li");
     item.className = "gallery-item";
 
     var button = document.createElement("button");
     button.type = "button";
     button.className = "gallery-shot";
-    button.setAttribute("aria-label", "Abrir foto " + (index + 1) + " de RANDOM " + editionLabel(edition));
+    button.setAttribute("aria-label", "Abrir foto " + (index + 1) + " de " + photos.length + ", RANDOM " + label(photo));
 
     var img = document.createElement("img");
-    img.src = photoUrl(edition, photo, "s");
-    img.srcset = photoUrl(edition, photo, "s") + " 320w, " + photoUrl(edition, photo, "m") + " 640w";
+    img.src = photoUrl(photo, "s");
+    img.srcset = photoUrl(photo, "s") + " 320w, " + photoUrl(photo, "m") + " 640w";
     img.sizes = "(max-width: 700px) 33vw, (max-width: 1200px) 22vw, 230px";
     img.width = 320;
     img.height = 320;
@@ -89,59 +89,18 @@
     return section.querySelector("[data-gallery-grid]");
   }
 
-  // El resto de las fotos se monta de a tandas al bajar. Con 200 fotos en una
-  // edición, meter los 200 nodos de una traba el scroll aunque las imágenes
-  // sean livianas.
+  // El resto de las fotos se monta de a tandas al bajar. Con cientos de fotos,
+  // meter todos los nodos de una traba el scroll aunque las imágenes sean
+  // livianas.
   function showMore() {
-    if (!current || shown >= current.photos.length) return;
+    if (shown >= photos.length) return;
     var target = grid();
     var fragment = document.createDocumentFragment();
-    var limit = Math.min(shown + BATCH, current.photos.length);
-    for (var i = shown; i < limit; i++) fragment.appendChild(thumb(current, current.photos[i], i));
+    var limit = Math.min(shown + BATCH, photos.length);
+    for (var i = shown; i < limit; i++) fragment.appendChild(thumb(photos[i], i));
     target.appendChild(fragment);
     shown = limit;
-    section.querySelector("[data-gallery-sentinel]").hidden = shown >= current.photos.length;
-  }
-
-  function selectEdition(edition) {
-    current = edition;
-    shown = 0;
-    grid().textContent = "";
-    section.querySelector("[data-gallery-sentinel]").hidden = false;
-
-    Array.prototype.forEach.call(section.querySelectorAll("[data-gallery-chip]"), function (chip) {
-      var active = +chip.getAttribute("data-gallery-chip") === edition.edition;
-      chip.classList.toggle("is-active", active);
-      chip.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-
-    var note = section.querySelector("[data-gallery-note]");
-    var pieces = [edition.photos.length + (edition.photos.length === 1 ? " FOTO" : " FOTOS")];
-    if (edition.venue) pieces.push(edition.venue);
-    if (edition.credit) pieces.push("FOTOS: " + edition.credit);
-    note.textContent = pieces.join(" · ");
-
-    showMore();
-  }
-
-  function chips() {
-    var strip = document.createElement("div");
-    strip.className = "gallery-chips";
-    strip.setAttribute("role", "group");
-    strip.setAttribute("aria-label", "Elegir edición");
-
-    data.editions.forEach(function (edition) {
-      var chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "gallery-chip";
-      chip.setAttribute("data-gallery-chip", edition.edition);
-      chip.setAttribute("aria-pressed", "false");
-      chip.textContent = editionLabel(edition);
-      chip.addEventListener("click", function () { selectEdition(edition); });
-      strip.appendChild(chip);
-    });
-
-    return strip;
+    section.querySelector("[data-gallery-sentinel]").hidden = shown >= photos.length;
   }
 
   /* --- Visor --------------------------------------------------------------
@@ -199,14 +158,14 @@
   }
 
   function preload(index) {
-    if (!current || index < 0 || index >= current.photos.length) return;
+    if (index < 0 || index >= photos.length) return;
     var image = new Image();
     image.decoding = "async";
-    image.src = photoUrl(current, current.photos[index]);
+    image.src = photoUrl(photos[index]);
   }
 
   function showPhoto(index) {
-    var photo = current.photos[index];
+    var photo = photos[index];
     lightboxIndex = index;
 
     var img = lightbox.querySelector(".lightbox-frame img");
@@ -218,16 +177,18 @@
       img.height = photo.h;
     }
     img.style.backgroundColor = photo.color || "#111";
-    img.style.backgroundImage = 'url("' + photoUrl(current, photo, "m") + '")';
-    img.src = photoUrl(current, photo);
-    img.alt = "Foto de RANDOM " + editionLabel(current);
+    img.style.backgroundImage = 'url("' + photoUrl(photo, "m") + '")';
+    img.src = photoUrl(photo);
+    img.alt = "Foto de RANDOM " + label(photo);
     if (img.complete) img.style.backgroundImage = "";
 
-    lightbox.querySelector("[data-lightbox-title]").textContent = editionLabel(current);
+    // La fecha no divide la grilla, pero acá sí importa: es la única forma de
+    // saber de qué noche es la foto que se está mirando.
+    lightbox.querySelector("[data-lightbox-title]").textContent = label(photo);
     lightbox.querySelector("[data-lightbox-count]").textContent =
-      String(index + 1).padStart(2, "0") + " / " + String(current.photos.length).padStart(2, "0");
+      String(index + 1).padStart(2, "0") + " / " + String(photos.length).padStart(2, "0");
 
-    var single = current.photos.length < 2;
+    var single = photos.length < 2;
     lightbox.querySelector(".lightbox-nav--prev").hidden = single;
     lightbox.querySelector(".lightbox-nav--next").hidden = single;
 
@@ -236,8 +197,8 @@
   }
 
   function step(delta) {
-    if (!current || lightboxIndex < 0) return;
-    var next = (lightboxIndex + delta + current.photos.length) % current.photos.length;
+    if (lightboxIndex < 0) return;
+    var next = (lightboxIndex + delta + photos.length) % photos.length;
     // Si todavía no estaba montada, que quede montada al cerrar: se vuelve al
     // mismo lugar de la grilla.
     while (shown <= next) showMore();
@@ -298,15 +259,39 @@
 
   window.addEventListener("popstate", function () { hideLightbox(); });
 
+  // El manifiesto viene agrupado por edición porque así se guardan los
+  // archivos, pero la galería lo aplana: una sola lista, de la noche más nueva
+  // a la más vieja, y adentro de cada noche en el orden en que se sacaron.
+  function flatten() {
+    var lista = [];
+    data.editions.forEach(function (edition) {
+      edition.photos.forEach(function (photo) {
+        lista.push({
+          id: photo.id, w: photo.w, h: photo.h, color: photo.color,
+          edition: edition.edition, name: edition.name, credit: edition.credit
+        });
+      });
+    });
+    return lista;
+  }
+
+  function credits() {
+    var vistos = [];
+    photos.forEach(function (photo) {
+      if (photo.credit && vistos.indexOf(photo.credit) === -1) vistos.push(photo.credit);
+    });
+    return vistos;
+  }
+
   function build() {
     loadStyles();
 
     var body = section.querySelector("[data-gallery-body]");
-    body.appendChild(chips());
 
     var note = document.createElement("p");
     note.className = "gallery-note";
-    note.setAttribute("data-gallery-note", "");
+    var quienes = credits();
+    note.textContent = photos.length + " FOTOS" + (quienes.length ? " · FOTOS: " + quienes.join(" · ") : "");
     body.appendChild(note);
 
     var list = document.createElement("ul");
@@ -321,13 +306,13 @@
     body.appendChild(sentinel);
 
     var count = section.querySelector("[data-gallery-count]");
-    if (count) count.textContent = "GALERÍA · " + totalPhotos() + " FOTOS";
+    if (count) count.textContent = "GALERÍA · " + photos.length + " FOTOS";
 
     var navLink = document.querySelector("[data-gallery-nav]");
     if (navLink) navLink.hidden = false;
 
     section.hidden = false;
-    selectEdition(data.editions[0]);
+    showMore();
 
     if (window.IntersectionObserver) {
       new IntersectionObserver(function (entries) {
@@ -335,7 +320,7 @@
       }, { rootMargin: "400px" }).observe(sentinel);
     } else {
       // Sin IntersectionObserver no hay tandas: se muestran todas de una.
-      while (shown < current.photos.length) showMore();
+      while (shown < photos.length) showMore();
     }
   }
 
@@ -347,7 +332,8 @@
         data = manifest;
         data.base = data.base || "assets/fotos/";
         data.editions = data.editions.filter(function (edition) { return edition.photos && edition.photos.length; });
-        if (!data.editions.length) return;
+        photos = flatten();
+        if (!photos.length) return;
         build();
       })
       .catch(function () { /* Sin fotos la sección simplemente no aparece. */ });
