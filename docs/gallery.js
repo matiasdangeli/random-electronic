@@ -17,8 +17,8 @@
 (function () {
   "use strict";
 
-  var MANIFEST_URL = "fotos.json?v=20260818-2";
-  var STYLES_URL = "gallery.css?v=20260818-2";
+  var MANIFEST_URL = "fotos.json?v=20260818-3";
+  var STYLES_URL = "gallery.css?v=20260818-3";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -46,12 +46,20 @@
     document.head.appendChild(link);
   }
 
+  var MESES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+               "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+
   function photoUrl(photo, size) {
-    return data.base + photo.edition + "/" + photo.id + (size ? "-" + size : "") + ".webp";
+    return data.base + photo.dir + "/" + photo.id + (size ? "-" + size : "") + ".webp";
   }
 
+  // Las noches que ya tienen ficha en el sitio se nombran por su edición. Las
+  // que todavía no, por su fecha: es preferible a inventarles un número.
   function label(photo) {
-    return "#" + photo.edition + (photo.name ? " · " + photo.name : "");
+    if (photo.edition) return "#" + photo.edition + (photo.name ? " · " + photo.name : "");
+    var partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(photo.date || "");
+    if (partes) return +partes[3] + " " + MESES[+partes[2] - 1] + " " + partes[1];
+    return "RANDOM";
   }
 
   /* --- Miniaturas ---------------------------------------------------------
@@ -268,7 +276,9 @@
       edition.photos.forEach(function (photo) {
         lista.push({
           id: photo.id, w: photo.w, h: photo.h, color: photo.color,
-          edition: edition.edition, name: edition.name, credit: edition.credit
+          dir: edition.dir || String(edition.edition),
+          edition: edition.edition, name: edition.name,
+          date: edition.date, credit: edition.credit
         });
       });
     });

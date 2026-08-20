@@ -128,7 +128,10 @@ para mostrar.
 ### Cargar las fotos de una fecha
 
 1. Poner los originales en `fotos/NN/`, donde `NN` es el número de edición.
-   Esa carpeta no se publica ni se sube al repositorio.
+   Esa carpeta no se publica ni se sube al repositorio. Si la noche todavía no
+   tiene ficha en `index.html`, la carpeta se llama con su fecha
+   (`fotos/2025-08-09/`) y la galería la muestra por fecha en vez de por
+   número: es preferible a inventarle una edición.
 2. Opcional: `fotos/NN/credito.txt` con el nombre del fotógrafo, tal como
    tiene que aparecer en el visor (`@nombre`).
 3. Correr el script y subir el resultado:

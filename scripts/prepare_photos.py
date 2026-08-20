@@ -147,7 +147,7 @@ def folder_weight(folder: Path) -> int:
     return sum(file.stat().st_size for file in folder.glob("*.webp"))
 
 
-def build_edition(source_folder: Path, number: int, meta: dict[str, str], force: bool) -> dict | None:
+def build_edition(source_folder: Path, number: int | str, meta: dict[str, str], force: bool) -> dict | None:
     originals = sorted(
         (file for file in source_folder.iterdir() if file.is_file() and file.suffix.lower() in SOURCE_SUFFIXES),
         key=natural_key,
@@ -191,7 +191,10 @@ def build_edition(source_folder: Path, number: int, meta: dict[str, str], force:
     credit = credit_file.read_text(encoding="utf-8").strip() if credit_file.exists() else ""
 
     return {
-        "edition": number,
+        # "dir" es la carpeta donde viven los archivos; "edition" solo existe
+        # cuando la noche tiene ficha en el sitio.
+        "dir": str(number),
+        "edition": number if isinstance(number, int) else None,
         "name": meta.get("name", ""),
         "date": meta.get("date", ""),
         "venue": meta.get("venue", ""),
@@ -222,15 +225,21 @@ def main() -> None:
     for folder in sorted(source_root.iterdir(), key=natural_key):
         if not folder.is_dir() or folder.name.startswith("."):
             continue
-        match = re.match(r"(\d+)", folder.name)
-        if not match:
-            print(f"  {folder.name}: la carpeta tiene que empezar con el número de edición, se saltea")
-            continue
-        number = int(match.group(1))
-        edition = build_edition(folder, number, meta.get(number, {}), arguments.force)
+        # Dos formas de nombrar la carpeta: el número de edición cuando la fecha
+        # ya está cargada en index.html, o la fecha de la noche (AAAA-MM-DD)
+        # cuando todavía no tiene ficha. Así no hay que inventar números.
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", folder.name):
+            edition = build_edition(folder, folder.name, {"date": folder.name}, arguments.force)
+        else:
+            match = re.match(r"(\d+)", folder.name)
+            if not match:
+                print(f"  {folder.name}: la carpeta tiene que llamarse como el número de edición o como la fecha, se saltea")
+                continue
+            number = int(match.group(1))
+            edition = build_edition(folder, number, meta.get(number, {}), arguments.force)
         if edition:
             editions.append(edition)
-            published.add(str(number))
+            published.add(folder.name)
 
     # Ediciones cuyas fotos ya no están en el origen: se van también del sitio.
     if OUTPUT_DIR.exists():
@@ -239,7 +248,7 @@ def main() -> None:
                 shutil.rmtree(folder)
                 print(f"  #{folder.name}: ya no está en el origen, se borró del sitio")
 
-    editions.sort(key=lambda item: (item.get("date", ""), item["edition"]), reverse=True)
+    editions.sort(key=lambda item: (item.get("date", ""), item["dir"]), reverse=True)
     MANIFEST.write_text(
         json.dumps({"version": 1, "base": BASE_URL, "editions": editions}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
