@@ -281,6 +281,21 @@ pedirlos en la nota, para que el comprador los mande al escribir.
 
 El sitio es estático y vive en `docs/`. No tiene build ni dependencias.
 
+Lo sirve un Worker de Cloudflare llamado `random-electronic`, con los archivos
+de `docs/` adentro, atado a randomelectronic.com como dominio propio. El deploy
+es a mano:
+
+```bash
+npx wrangler deploy
+```
+
+`wrangler.jsonc` guarda esa configuración. Importa una línea en particular:
+`not_found_handling: "404-page"`, que es lo que hace que una dirección
+inexistente muestre `docs/404.html` en vez de una página vacía.
+
+El workflow de GitHub Pages sigue corriendo en cada push, pero el dominio ya no
+mira ahí.
+
 - `index.html`: contenido de las ediciones.
 - `styles.css`: estilos generales.
 - `agenda.js`: agenda, countdown, LIVE, zonas horarias y calendario.

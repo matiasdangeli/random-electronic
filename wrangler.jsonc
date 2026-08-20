@@ -1,0 +1,19 @@
+// Cómo se publica randomelectronic.com.
+//
+// El sitio no lo sirve GitHub Pages: lo sirve este Worker de Cloudflare, con
+// los archivos de docs/ adentro. Hasta ahora la configuración vivía solo en la
+// línea de comandos de quien hacía el deploy, así que no quedaba registro de
+// ella en ningún lado.
+//
+// "not_found_handling": "404-page" es lo que faltaba. Sin eso, una dirección
+// que no existe devuelve un 404 vacío y docs/404.html no se muestra nunca,
+// aunque esté publicada.
+{
+  "name": "random-electronic",
+  "compatibility_date": "2026-08-15",
+  "assets": {
+    "directory": "./docs/",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
