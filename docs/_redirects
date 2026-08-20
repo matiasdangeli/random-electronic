@@ -1,0 +1,5 @@
+# Cloudflare sirve el Worker con los archivos adentro, y para una dirección que
+# no existe devuelve un 404 vacío. Esta regla le dice cuál es la página de
+# error: los archivos que sí existen se sirven antes de mirar esta lista, así
+# que solo alcanza a lo que no es ningún archivo.
+/*    /404.html    404
