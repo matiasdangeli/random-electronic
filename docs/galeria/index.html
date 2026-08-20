@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070707" />
+    <meta name="description" content="Las fotos de las noches de RANDOM. Buscate, descargá la tuya y compartila." />
+    <link rel="canonical" href="https://randomelectronic.com/galeria/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://randomelectronic.com/galeria/" />
+    <meta property="og:site_name" content="RANDOM" />
+    <meta property="og:title" content="Galería — RANDOM" />
+    <meta property="og:description" content="Las fotos de las noches de RANDOM. Buscate, descargá la tuya y compartila." />
+    <meta property="og:image" content="https://randomelectronic.com/assets/hero.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260815-2" />
+    <title>Galería — RANDOM</title>
+  </head>
+  <body>
+    <main>
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="RANDOM, inicio"><img src="/assets/random-wordmark-tight.png" alt="RANDOM" /></a>
+        <nav aria-label="Navegación principal">
+          <a href="/#fechas">FECHAS</a>
+          <a href="/galeria/" aria-current="page">FOTOS</a>
+          <a href="/#concepto">CONCEPTO</a>
+          <a href="https://www.instagram.com/random.electronic/" target="_blank" rel="noreferrer">INSTAGRAM ↗</a>
+        </nav>
+      </header>
+
+      <!-- La misma galería de la home. gallery.js la arma leyendo /fotos.json,
+           así que las fotos se cargan una sola vez y se muestran en los dos
+           lados sin duplicar nada. Acá la línea de aviso queda arriba de todo:
+           la galería es la página, no hay que bajar para encontrarla. -->
+      <div class="gallery-anchor" data-gallery-anchor aria-hidden="true"></div>
+
+      <section class="gallery" id="fotos" data-gallery hidden>
+        <div class="section-heading">
+          <p class="eyebrow" data-gallery-count>GALERÍA</p>
+          <h2>LAS NOCHES</h2>
+        </div>
+        <div data-gallery-body></div>
+      </section>
+
+      <footer>
+        <img src="/assets/random-symbol.png" alt="Símbolo RANDOM" />
+        <p>RANDOM · DESDE 2018</p>
+        <a href="/">VOLVER AL INICIO ↑</a>
+      </footer>
+    </main>
+
+    <script src="/gallery.js?v=20260820-1" defer></script>
+  </body>
+</html>

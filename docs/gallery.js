@@ -17,8 +17,10 @@
 (function () {
   "use strict";
 
-  var MANIFEST_URL = "fotos.json?v=20260818-3";
-  var STYLES_URL = "gallery.css?v=20260818-6";
+  // Las rutas arrancan con / porque esta galería se usa desde la home y desde
+  // /galeria/: una ruta relativa se rompería en la segunda.
+  var MANIFEST_URL = "/fotos.json?v=20260820-1";
+  var STYLES_URL = "/gallery.css?v=20260820-1";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -411,7 +413,7 @@
       .then(function (manifest) {
         if (!manifest || !manifest.editions || !manifest.editions.length) return;
         data = manifest;
-        data.base = data.base || "assets/fotos/";
+        data.base = data.base || "/assets/fotos/";
         data.editions = data.editions.filter(function (edition) { return edition.photos && edition.photos.length; });
         photos = flatten();
         if (!photos.length) return;

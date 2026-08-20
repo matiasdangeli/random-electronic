@@ -42,7 +42,7 @@ DOCS = ROOT / "docs"
 INDEX = DOCS / "index.html"
 MANIFEST = DOCS / "fotos.json"
 OUTPUT_DIR = DOCS / "assets" / "fotos"
-BASE_URL = "assets/fotos/"
+BASE_URL = "/assets/fotos/"
 
 FULL_EDGE = 1400
 FULL_QUALITY = 78

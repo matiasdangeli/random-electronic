@@ -315,7 +315,7 @@ def write_pages(editions: list[Edition]) -> None:
 
 
 def write_sitemap(editions: list[Edition]) -> None:
-    urls = [f"{SITE_URL}/"] + [edition.url for edition in editions]
+    urls = [f"{SITE_URL}/", f"{SITE_URL}/galeria/"] + [edition.url for edition in editions]
     entries = "\n".join(f"  <url><loc>{html.escape(url)}</loc></url>" for url in urls)
     sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

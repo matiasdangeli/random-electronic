@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "base": "assets/fotos/",
+  "base": "/assets/fotos/",
   "editions": [
     {
       "dir": "54",
