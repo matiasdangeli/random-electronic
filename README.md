@@ -121,8 +121,8 @@ vieja y, dentro de cada noche, en el orden en que se sacaron. De qué fecha es
 cada foto se ve al abrirla en el visor.
 
 La página no dice en ningún lado cuántas fotos hay: no es un dato que le sirva
-a nadie. En su lugar va la invitación, `Buscate. Descargala en un click.
-Compartila :)`, que se edita en `gallery.js`.
+a nadie. En su lugar va la invitación, `Buscate. Descargá. Compartí :)`, que se edita
+en `gallery.js`.
 
 `GUARDAR`, dentro del visor, cumple esa promesa. La foto se pasa por un lienzo
 a JPG antes de entregarla, porque el teléfono lo guarda mejor que un WebP.

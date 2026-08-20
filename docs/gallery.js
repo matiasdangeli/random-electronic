@@ -18,7 +18,7 @@
   "use strict";
 
   var MANIFEST_URL = "fotos.json?v=20260818-3";
-  var STYLES_URL = "gallery.css?v=20260818-4";
+  var STYLES_URL = "gallery.css?v=20260818-5";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -367,7 +367,7 @@
     note.className = "gallery-note";
     var invitacion = document.createElement("span");
     invitacion.className = "gallery-invite";
-    invitacion.textContent = "Buscate. Descargala en un click. Compartila :)";
+    invitacion.textContent = "Buscate. Descargá. Compartí :)";
     note.appendChild(invitacion);
     var quienes = credits();
     if (quienes.length) {
