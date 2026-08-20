@@ -18,7 +18,7 @@
   "use strict";
 
   var MANIFEST_URL = "fotos.json?v=20260818-3";
-  var STYLES_URL = "gallery.css?v=20260818-5";
+  var STYLES_URL = "gallery.css?v=20260818-6";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -53,10 +53,10 @@
     return data.base + photo.dir + "/" + photo.id + (size ? "-" + size : "") + ".webp";
   }
 
-  // Las noches que ya tienen ficha en el sitio se nombran por su edición. Las
-  // que todavía no, por su fecha: es preferible a inventarles un número.
+  // Cada foto se nombra por la noche en que se sacó, no por el número de
+  // edición. Así todas dicen lo mismo, incluidas las noches que no tienen
+  // ficha en el sitio, y no hay que mantener dos formatos.
   function label(photo) {
-    if (photo.edition) return "#" + photo.edition + (photo.name ? " · " + photo.name : "");
     var partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(photo.date || "");
     if (partes) return +partes[3] + " " + MESES[+partes[2] - 1] + " " + partes[1];
     return "RANDOM";

@@ -118,7 +118,9 @@ completa que se pasa con el dedo, con las flechas o con el teclado.
 El manifiesto sigue agrupado por edición porque así se guardan los archivos,
 pero la galería lo aplana en una sola tira, de la noche más nueva a la más
 vieja y, dentro de cada noche, en el orden en que se sacaron. De qué fecha es
-cada foto se ve al abrirla en el visor.
+cada foto se ve al abrirla en el visor, siempre como fecha y nunca como número
+de edición: así todas dicen lo mismo, incluidas las noches que todavía no
+tienen ficha en el sitio.
 
 La página no dice en ningún lado cuántas fotos hay: no es un dato que le sirva
 a nadie. En su lugar va la invitación, `Buscate. Descargá. Compartí :)`, que se edita
