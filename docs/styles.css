@@ -1248,6 +1248,65 @@ svg {
   opacity: 0.65;
 }
 
+/* --- Sponsors ------------------------------------------------------------
+   Una firma pequeña antes del pie: están presentes sin competir con RANDOM. */
+.sponsors {
+  padding: 34px clamp(22px, 4vw, 70px);
+  border-top: 1px solid var(--line);
+  background: #090909;
+}
+
+.sponsors-inner {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.sponsors .eyebrow {
+  margin: 0;
+  color: #625e59;
+  font-weight: 400;
+}
+
+.sponsor-list {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 3.5vw, 48px);
+}
+
+.sponsor-logo {
+  display: flex;
+  height: 38px;
+  align-items: center;
+}
+
+.sponsor-logo img {
+  width: auto;
+  max-width: none;
+  height: auto;
+  max-height: 100%;
+  opacity: 0.68;
+  object-fit: contain;
+  transition: opacity 180ms ease;
+}
+
+.sponsor-logo--level img {
+  width: 132px;
+}
+
+.sponsor-logo--tresdinou img {
+  width: 138px;
+}
+
+@media (hover: hover) {
+  .sponsor-logo img:hover {
+    opacity: 0.9;
+  }
+}
+
 footer {
   display: grid;
   min-height: 150px;
@@ -1374,6 +1433,36 @@ footer a {
     padding-bottom: 70px;
   }
 
+  .sponsors {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .sponsors-inner {
+    gap: 20px;
+  }
+
+  .sponsors .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+  }
+
+  .sponsor-list {
+    gap: 18px;
+  }
+
+  .sponsor-logo {
+    height: 30px;
+  }
+
+  .sponsor-logo--level img {
+    width: 102px;
+  }
+
+  .sponsor-logo--tresdinou img {
+    width: 108px;
+  }
+
   .section-heading {
     margin-bottom: 42px;
   }
@@ -1441,6 +1530,19 @@ footer a {
 }
 
 @media (max-width: 360px) {
+  .sponsors-inner,
+  .sponsor-list {
+    gap: 12px;
+  }
+
+  .sponsor-logo--level img {
+    width: 88px;
+  }
+
+  .sponsor-logo--tresdinou img {
+    width: 94px;
+  }
+
   .site-header {
     gap: 9px;
     padding-right: 14px;

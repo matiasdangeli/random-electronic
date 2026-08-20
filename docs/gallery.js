@@ -364,10 +364,6 @@
     loadStyles();
 
     var body = section.querySelector("[data-gallery-body]");
-    var count = section.querySelector("[data-gallery-count]");
-    if (count) {
-      count.textContent = data.editions.length + " NOCHES · " + photos.length + " FOTOS";
-    }
 
     var note = document.createElement("p");
     note.className = "gallery-note";
