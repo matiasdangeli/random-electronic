@@ -226,3 +226,71 @@
     load();
   }
 })();
+
+/* FAQ: el contenido se mantiene centralizado acá para no tocar el diseño ni el
+   comportamiento nativo del acordeón. */
+(function () {
+  "use strict";
+
+  var FAQ = [
+    {
+      question: "¿RANDOM es gratis?",
+      answer: "Sí. RANDOM es un evento gratuito. Vení, disfrutá y sé parte de la experiencia."
+    },
+    {
+      question: "¿Dónde y cuándo es la próxima edición?",
+      answer: "Cada edición tiene su propia fecha, horario y ubicación. Encontrás toda la información actualizada en esta web y en nuestro Instagram."
+    },
+    {
+      question: "¿Qué música suena en RANDOM?",
+      answer: "Principalmente música electrónica, con distintos artistas y estilos en cada edición. La idea es que cada RANDOM tenga su propia identidad."
+    },
+    {
+      question: "¿Tengo que reservar o simplemente puedo ir?",
+      answer: "No necesitás comprar entrada. Si alguna edición requiere reserva o tiene una condición especial de acceso, lo vamos a informar previamente."
+    },
+    {
+      question: "¿Hay dress code o algún requisito para entrar?",
+      answer: "No hay dress code. Vení como quieras. Solo respetá las condiciones de acceso del lugar donde se realiza cada edición."
+    }
+  ];
+
+  var list = document.querySelector(".faq-list");
+  if (list) {
+    list.textContent = "";
+    FAQ.forEach(function (item) {
+      var details = document.createElement("details");
+      details.className = "faq-item";
+
+      var summary = document.createElement("summary");
+      summary.textContent = item.question;
+
+      var answer = document.createElement("p");
+      answer.textContent = item.answer;
+
+      details.appendChild(summary);
+      details.appendChild(answer);
+      list.appendChild(details);
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('script[type="application/ld+json"]'), function (script) {
+    try {
+      var data = JSON.parse(script.textContent);
+      if (data["@type"] !== "FAQPage") return;
+      data.mainEntity = FAQ.map(function (item) {
+        return {
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer
+          }
+        };
+      });
+      script.textContent = JSON.stringify(data);
+    } catch (error) {
+      // Si otro bloque JSON-LD no se puede parsear, no afecta la página.
+    }
+  });
+})();
