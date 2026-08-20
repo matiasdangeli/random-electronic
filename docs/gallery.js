@@ -20,7 +20,7 @@
   // Las rutas arrancan con / porque esta galería se usa desde la home y desde
   // /galeria/: una ruta relativa se rompería en la segunda.
   var MANIFEST_URL = "/fotos.json?v=20260820-1";
-  var STYLES_URL = "/gallery.css?v=20260820-1";
+  var STYLES_URL = "/gallery.css?v=20260820-2";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -364,6 +364,10 @@
     loadStyles();
 
     var body = section.querySelector("[data-gallery-body]");
+    var count = section.querySelector("[data-gallery-count]");
+    if (count) {
+      count.textContent = data.editions.length + " NOCHES · " + photos.length + " FOTOS";
+    }
 
     var note = document.createElement("p");
     note.className = "gallery-note";

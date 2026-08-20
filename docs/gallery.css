@@ -233,14 +233,41 @@
 /* En pantalla chica los botones tapan la foto: se pasa con el dedo y quedan
    abajo, fuera del camino. */
 @media (max-width: 700px) {
+  .gallery {
+    padding-top: 96px;
+    padding-bottom: 72px;
+  }
+
+  .gallery .section-heading {
+    margin-bottom: 30px;
+  }
+
+  .gallery-note {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
+  .gallery-credit {
+    font-size: 9px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .gallery-shot img {
+    opacity: 1;
+  }
+
   .lightbox {
     grid-template-columns: 1fr;
-    padding-bottom: 96px;
+    padding: max(58px, calc(12px + env(safe-area-inset-top))) 10px calc(124px + env(safe-area-inset-bottom));
   }
 
   .lightbox-nav {
     position: absolute;
-    bottom: 40px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
     width: 52px;
     height: 44px;
   }
@@ -253,41 +280,14 @@
     right: clamp(14px, 3vw, 34px);
   }
 
-  /* El botón de guardar vive en la misma línea que el nombre de la fecha. */
-.lightbox-save {
-  padding: 8px 14px;
-  appearance: none;
-  border: 1px solid var(--line);
-  background: none;
-  color: var(--paper);
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
-}
-
-.lightbox-save[disabled] {
-  color: #6d6965;
-  cursor: default;
-}
-
-.lightbox-save:focus-visible {
-  outline: 2px solid var(--paper);
-  outline-offset: 3px;
-}
-
-@media (hover: hover) {
-  .lightbox-save:not([disabled]):hover {
-    border-color: var(--paper);
-    background: var(--paper);
-    color: var(--ink);
-  }
-}
-
-.lightbox-meta {
-    bottom: 12px;
+  .lightbox-meta {
+    right: 70px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 70px;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 8px 12px;
+    text-align: center;
   }
 }
 
