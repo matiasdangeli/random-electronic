@@ -20,7 +20,7 @@
   // Las rutas arrancan con / porque esta galería se usa desde la home y desde
   // /galeria/: una ruta relativa se rompería en la segunda.
   var MANIFEST_URL = "/fotos.json?v=20260820-1";
-  var STYLES_URL = "/gallery.css?v=20260820-2";
+  var STYLES_URL = "/gallery.css?v=20260821-1";
   var BATCH = 18; // miniaturas por tanda: alcanza para llenar la pantalla más grande
   var NEAR = "800px"; // cuánto antes de llegar a la sección se empieza a preparar todo
 
@@ -35,6 +35,10 @@
   var lightbox = null;
   var lightboxIndex = -1;
   var lastFocused = null; // a qué miniatura volver cuando se cierra el visor
+  var pointerState = null;
+  var activeTransition = null;
+  var queuedDelta = null;
+  var suppressFrameClick = false;
 
   // Los estilos de la galería viajan aparte y se piden recién cuando hay algo
   // que mostrar: mientras no haya fotos, la sección no le cuesta nada a la
@@ -126,73 +130,80 @@
     box.innerHTML =
       '<button class="lightbox-close" type="button" aria-label="Cerrar">✕</button>' +
       '<button class="lightbox-nav lightbox-nav--prev" type="button" aria-label="Foto anterior">‹</button>' +
-      '<figure class="lightbox-frame"><img alt="" decoding="async" /></figure>' +
+      '<figure class="lightbox-frame"></figure>' +
       '<button class="lightbox-nav lightbox-nav--next" type="button" aria-label="Foto siguiente">›</button>' +
       '<p class="lightbox-meta"><span data-lightbox-title></span>' +
       '<button class="lightbox-save" type="button" data-lightbox-save>GUARDAR</button></p>';
-
-    // Cuando la grande terminó de llegar, la miniatura de fondo ya no hace
-    // falta: se saca para no tener dos imágenes ocupando memoria.
-    var img = box.querySelector(".lightbox-frame img");
-    img.addEventListener("load", function () { img.style.backgroundImage = ""; });
 
     box.querySelector("[data-lightbox-save]").addEventListener("click", savePhoto);
     box.querySelector(".lightbox-close").addEventListener("click", closeLightbox);
     box.querySelector(".lightbox-nav--prev").addEventListener("click", function () { step(-1); });
     box.querySelector(".lightbox-nav--next").addEventListener("click", function () { step(1); });
     // Tocar el fondo cierra; tocar la foto o los botones, no.
-    box.addEventListener("click", function (e) { if (e.target === box || e.target.className === "lightbox-frame") closeLightbox(); });
+    box.addEventListener("click", function (e) {
+      if (suppressFrameClick) {
+        suppressFrameClick = false;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if (e.target === box || (e.target.classList && e.target.classList.contains("lightbox-frame"))) closeLightbox();
+    });
 
     // Sin esto, arrastrar la foto dispara el drag nativo y te llevás la imagen.
     box.addEventListener("dragstart", function (e) { e.preventDefault(); });
 
-    setupSwipe(box);
+    setupSwipe(box.querySelector(".lightbox-frame"));
     document.body.appendChild(box);
     return box;
   }
 
-  function setupSwipe(box) {
-    var start = null;
-    box.addEventListener("pointerdown", function (e) {
-      if (e.button !== undefined && e.button !== 0) return;
-      start = { x: e.clientX, y: e.clientY };
-    });
-    box.addEventListener("pointerup", function (e) {
-      if (!start) return;
-      var dx = e.clientX - start.x;
-      var dy = e.clientY - start.y;
-      start = null;
-      // Solo si el gesto fue claramente horizontal: si no, un scroll torcido
-      // cambiaría de foto sin querer.
-      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
-    });
-    box.addEventListener("pointercancel", function () { start = null; });
+  function normalizedIndex(index) {
+    return (index + photos.length) % photos.length;
   }
 
-  function preload(index) {
-    if (index < 0 || index >= photos.length) return;
-    var image = new Image();
-    image.decoding = "async";
-    image.src = photoUrl(photos[index]);
+  function normalizeImage(img) {
+    if (!img) return;
+    img.style.transform = "";
+    img.style.opacity = "";
   }
 
-  function showPhoto(index) {
+  function configureImage(img, index) {
     var photo = photos[index];
-    lightboxIndex = index;
-
-    var img = lightbox.querySelector(".lightbox-frame img");
+    img.className = "lightbox-image";
+    img.setAttribute("data-photo-index", String(index));
+    img.decoding = "async";
 
     // Las medidas van como atributos, no como estilos: así la foto ocupa su
     // lugar exacto desde antes de bajarla y el visor no salta al terminar.
     if (photo.w && photo.h) {
       img.width = photo.w;
       img.height = photo.h;
+    } else {
+      img.removeAttribute("width");
+      img.removeAttribute("height");
     }
     img.style.backgroundColor = photo.color || "#111";
     img.style.backgroundImage = 'url("' + photoUrl(photo, "m") + '")';
     img.src = photoUrl(photo);
     img.alt = "Foto de RANDOM " + label(photo);
     if (img.complete) img.style.backgroundImage = "";
+    return img;
+  }
+
+  function createImage(index) {
+    var img = document.createElement("img");
+    img.addEventListener("load", function () { img.style.backgroundImage = ""; });
+    return configureImage(img, index);
+  }
+
+  function currentImage() {
+    return lightbox && lightbox.querySelector(".lightbox-image.is-current");
+  }
+
+  function updatePhotoState(index) {
+    var photo = photos[index];
+    lightboxIndex = index;
 
     // La fecha no divide la grilla, pero acá sí importa: es la única forma de
     // saber de qué noche es la foto que se está mirando.
@@ -207,6 +218,209 @@
 
     preload(index + 1);
     preload(index - 1);
+  }
+
+  function mountPreview(state, direction) {
+    if (state.direction === direction && state.incoming && state.incoming.parentNode) return state.incoming;
+    if (state.incoming && state.incoming.parentNode) state.incoming.parentNode.removeChild(state.incoming);
+    state.direction = direction;
+    state.nextIndex = normalizedIndex(lightboxIndex + direction);
+    state.incoming = createImage(state.nextIndex);
+    state.frame.appendChild(state.incoming);
+    return state.incoming;
+  }
+
+  function drawDrag(state) {
+    var width = state.width;
+    var dx = state.dx;
+    var direction = dx < 0 ? 1 : -1;
+    var incoming = mountPreview(state, direction);
+    var progress = Math.min(Math.abs(dx) / width, 1);
+    var currentOpacity = 1 - 0.35 * progress;
+    var incomingOpacity = 0.35 + 0.65 * progress;
+
+    state.frame.classList.add("is-moving");
+    if (REDUCED) {
+      state.current.style.transform = "";
+      incoming.style.transform = "";
+    } else {
+      state.current.style.transform = "translate3d(" + dx + "px, 0, 0) scale(" + (1 - 0.015 * progress) + ")";
+      incoming.style.transform = "translate3d(" + (dx + direction * width) + "px, 0, 0) scale(" + (0.985 + 0.015 * progress) + ")";
+    }
+    state.current.style.opacity = String(currentOpacity);
+    incoming.style.opacity = String(incomingOpacity);
+  }
+
+  function releasePointer(state) {
+    if (!state || !state.frame || state.pointerId === null) return;
+    if (state.frame.hasPointerCapture && state.frame.hasPointerCapture(state.pointerId)) {
+      state.frame.releasePointerCapture(state.pointerId);
+    }
+  }
+
+  function suppressDragClick() {
+    suppressFrameClick = true;
+    window.setTimeout(function () { suppressFrameClick = false; }, 0);
+  }
+
+  function settleCancelledDrag(state) {
+    if (!state) return;
+    var incoming = state.incoming;
+    if (!incoming) {
+      normalizeImage(state.current);
+      state.frame.classList.remove("is-moving");
+      return;
+    }
+    if (REDUCED || !window.Element || !Element.prototype.animate) {
+      if (incoming.parentNode) incoming.parentNode.removeChild(incoming);
+      normalizeImage(state.current);
+      state.frame.classList.remove("is-moving");
+      return;
+    }
+
+    var direction = state.direction || (state.dx < 0 ? 1 : -1);
+    var outgoingAnimation = state.current.animate([
+      { transform: state.current.style.transform, opacity: state.current.style.opacity },
+      { transform: "translate3d(0, 0, 0) scale(1)", opacity: 1 }
+    ], { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "both" });
+    var incomingAnimation = incoming.animate([
+      { transform: incoming.style.transform, opacity: incoming.style.opacity },
+      { transform: "translate3d(" + (direction * state.width) + "px, 0, 0) scale(0.985)", opacity: 0.35 }
+    ], { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "both" });
+
+    var settle = {
+      frame: state.frame,
+      outgoing: state.current,
+      incoming: incoming,
+      animations: [outgoingAnimation, incomingAnimation],
+      cancelled: false,
+      commits: false
+    };
+    activeTransition = settle;
+    Promise.all([
+      outgoingAnimation.finished.catch(function () {}),
+      incomingAnimation.finished.catch(function () {})
+    ]).then(function () {
+      if (activeTransition !== settle || settle.cancelled) return;
+      outgoingAnimation.cancel();
+      incomingAnimation.cancel();
+      if (incoming.parentNode) incoming.parentNode.removeChild(incoming);
+      normalizeImage(state.current);
+      state.current.classList.add("is-current");
+      state.frame.classList.remove("is-moving");
+      activeTransition = null;
+      var nextDelta = queuedDelta;
+      queuedDelta = null;
+      if (nextDelta !== null && !lightbox.hidden) animateNavigation(nextDelta);
+    });
+  }
+
+  function setupSwipe(frame) {
+    frame.addEventListener("pointerdown", function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      if (e.isPrimary === false || activeTransition || lightboxIndex < 0 || photos.length < 2) return;
+      var now = performance.now();
+      pointerState = {
+        frame: frame,
+        current: currentImage(),
+        incoming: null,
+        nextIndex: -1,
+        direction: 0,
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        lastX: e.clientX,
+        lastTime: now,
+        dx: 0,
+        dy: 0,
+        velocity: 0,
+        axis: null,
+        width: Math.max(frame.getBoundingClientRect().width, 1)
+      };
+      if (frame.setPointerCapture) frame.setPointerCapture(e.pointerId);
+    });
+
+    frame.addEventListener("pointermove", function (e) {
+      var state = pointerState;
+      if (!state || e.pointerId !== state.pointerId) return;
+      var now = performance.now();
+      var elapsed = now - state.lastTime;
+      if (elapsed > 0) {
+        var sampleVelocity = (e.clientX - state.lastX) / elapsed;
+        state.velocity = state.velocity * 0.65 + sampleVelocity * 0.35;
+      }
+      state.lastX = e.clientX;
+      state.lastTime = now;
+      state.dx = e.clientX - state.startX;
+      state.dy = e.clientY - state.startY;
+
+      if (!state.axis && Math.max(Math.abs(state.dx), Math.abs(state.dy)) > 8) {
+        state.axis = Math.abs(state.dx) > Math.abs(state.dy) * 1.25 ? "horizontal" : "vertical";
+      }
+      if (state.axis !== "horizontal") return;
+      e.preventDefault();
+      drawDrag(state);
+    });
+
+    function finishPointer(e, cancelled) {
+      var state = pointerState;
+      if (!state || e.pointerId !== state.pointerId) return;
+      pointerState = null;
+      releasePointer(state);
+      if (state.axis !== "horizontal") {
+        if (state.axis === "vertical") suppressDragClick();
+        return;
+      }
+
+      suppressDragClick();
+      if (cancelled) {
+        settleCancelledDrag(state);
+        return;
+      }
+
+      var threshold = Math.min(96, state.width * 0.18);
+      var commits = Math.abs(state.dx) > threshold || Math.abs(state.velocity) > 0.45;
+      if (!commits) {
+        settleCancelledDrag(state);
+        return;
+      }
+
+      var intent = state.dx || state.velocity;
+      var direction = intent < 0 ? 1 : -1;
+      mountPreview(state, direction);
+      animateNavigation(direction, state);
+    }
+
+    frame.addEventListener("pointerup", function (e) { finishPointer(e, false); });
+    frame.addEventListener("pointercancel", function (e) { finishPointer(e, true); });
+    frame.addEventListener("lostpointercapture", function (e) {
+      if (pointerState && e.pointerId === pointerState.pointerId) finishPointer(e, true);
+    });
+  }
+
+  function preload(index) {
+    if (index < 0 || index >= photos.length) return;
+    var image = new Image();
+    image.decoding = "async";
+    image.src = photoUrl(photos[index]);
+  }
+
+  function showPhoto(index) {
+    var frame = lightbox.querySelector(".lightbox-frame");
+    var img = currentImage();
+    Array.prototype.forEach.call(frame.querySelectorAll(".lightbox-image"), function (node) {
+      if (node !== img) node.parentNode.removeChild(node);
+    });
+    if (!img) {
+      img = createImage(index);
+      frame.appendChild(img);
+    } else {
+      configureImage(img, index);
+    }
+    normalizeImage(img);
+    img.classList.add("is-current");
+    frame.classList.remove("is-moving");
+    updatePhotoState(index);
   }
 
   /* --- Guardar ------------------------------------------------------------
@@ -271,13 +485,107 @@
       .then(function () { boton.disabled = false; });
   }
 
-  function step(delta) {
-    if (lightboxIndex < 0) return;
-    var next = (lightboxIndex + delta + photos.length) % photos.length;
+  function finishTransition(state) {
+    if (activeTransition !== state || state.cancelled) return;
+    state.animations.forEach(function (animation) { animation.cancel(); });
+    if (state.outgoing.parentNode) state.outgoing.parentNode.removeChild(state.outgoing);
+    normalizeImage(state.incoming);
+    state.incoming.classList.add("is-current");
+    state.frame.classList.remove("is-moving");
+    activeTransition = null;
+    updatePhotoState(state.nextIndex);
+
+    var nextDelta = queuedDelta;
+    queuedDelta = null;
+    if (nextDelta !== null && !lightbox.hidden) animateNavigation(nextDelta);
+  }
+
+  function animateNavigation(delta, dragState) {
+    if (lightboxIndex < 0 || photos.length < 2) return;
+    delta = delta < 0 ? -1 : 1;
+    if (activeTransition) {
+      queuedDelta = delta;
+      return;
+    }
+
+    var frame = lightbox.querySelector(".lightbox-frame");
+    var outgoing = currentImage();
+    var next = normalizedIndex(lightboxIndex + delta);
     // Si todavía no estaba montada, que quede montada al cerrar: se vuelve al
     // mismo lugar de la grilla.
     while (shown <= next) showMore();
-    showPhoto(next);
+
+    var incoming = dragState && dragState.incoming && dragState.nextIndex === next
+      ? dragState.incoming
+      : createImage(next);
+    Array.prototype.forEach.call(frame.querySelectorAll(".lightbox-image"), function (node) {
+      if (node !== outgoing && node !== incoming) node.parentNode.removeChild(node);
+    });
+    if (!incoming.parentNode) frame.appendChild(incoming);
+    frame.classList.add("is-moving");
+
+    // Element.animate() keeps the two image nodes interruptible and avoids
+    // layout work: only transform and opacity move.
+    if (!window.Element || !Element.prototype.animate) {
+      showPhoto(next);
+      return;
+    }
+
+    var width = dragState ? dragState.width : Math.max(frame.getBoundingClientRect().width, 1);
+    var velocity = dragState ? dragState.velocity : 0;
+    var duration = 280;
+    var easing = "cubic-bezier(0.32, 0.72, 0, 1)";
+    var outgoingFrames;
+    var incomingFrames;
+
+    if (REDUCED) {
+      duration = 160;
+      easing = "cubic-bezier(0.23, 1, 0.32, 1)";
+      normalizeImage(outgoing);
+      normalizeImage(incoming);
+      outgoingFrames = [{ opacity: 1 }, { opacity: 0 }];
+      incomingFrames = [{ opacity: 0 }, { opacity: 1 }];
+    } else {
+      if (dragState) {
+        var remainingDistance = Math.max(width - Math.min(Math.abs(dragState.dx), width), 0);
+        duration = Math.max(180, Math.min(remainingDistance / Math.max(Math.abs(velocity), 1.8), 280));
+      } else {
+        outgoing.style.transform = "translate3d(0, 0, 0) scale(1)";
+        outgoing.style.opacity = "1";
+        incoming.style.transform = "translate3d(" + (delta * width) + "px, 0, 0) scale(0.985)";
+        incoming.style.opacity = "0.35";
+      }
+      outgoingFrames = [
+        { transform: outgoing.style.transform, opacity: outgoing.style.opacity },
+        { transform: "translate3d(" + (-delta * width) + "px, 0, 0) scale(0.985)", opacity: 0.35 }
+      ];
+      incomingFrames = [
+        { transform: incoming.style.transform, opacity: incoming.style.opacity },
+        { transform: "translate3d(0, 0, 0) scale(1)", opacity: 1 }
+      ];
+    }
+
+    outgoing.classList.remove("is-current");
+    var outgoingAnimation = outgoing.animate(outgoingFrames, { duration: duration, easing: easing, fill: "both" });
+    var incomingAnimation = incoming.animate(incomingFrames, { duration: duration, easing: easing, fill: "both" });
+    var state = {
+      frame: frame,
+      outgoing: outgoing,
+      incoming: incoming,
+      nextIndex: next,
+      animations: [outgoingAnimation, incomingAnimation],
+      cancelled: false,
+      commits: true
+    };
+    activeTransition = state;
+    Promise.all([
+      outgoingAnimation.finished.catch(function () {}),
+      incomingAnimation.finished.catch(function () {})
+    ]).then(function () { finishTransition(state); });
+  }
+
+  function step(delta) {
+    animateNavigation(delta);
   }
 
   function onKey(e) {
@@ -314,8 +622,48 @@
     if (!history.state || !history.state.randomFoto) history.pushState({ randomFoto: true }, "");
   }
 
+  function resetMotion() {
+    queuedDelta = null;
+    suppressFrameClick = false;
+    var frame = lightbox && lightbox.querySelector(".lightbox-frame");
+    var keep = currentImage();
+
+    if (pointerState) {
+      var pointer = pointerState;
+      pointerState = null;
+      releasePointer(pointer);
+      if (pointer.incoming && pointer.incoming.parentNode) {
+        pointer.incoming.parentNode.removeChild(pointer.incoming);
+      }
+      keep = pointer.current || keep;
+    }
+
+    if (activeTransition) {
+      activeTransition.cancelled = true;
+      activeTransition.animations.forEach(function (animation) { animation.cancel(); });
+      if (activeTransition.incoming.parentNode) activeTransition.incoming.parentNode.removeChild(activeTransition.incoming);
+      keep = activeTransition.outgoing || keep;
+      activeTransition = null;
+    }
+
+    if (!frame) return;
+    if (!keep && lightboxIndex >= 0) {
+      keep = createImage(lightboxIndex);
+      frame.appendChild(keep);
+    }
+    Array.prototype.forEach.call(frame.querySelectorAll(".lightbox-image"), function (node) {
+      if (node !== keep) node.parentNode.removeChild(node);
+    });
+    if (keep) {
+      normalizeImage(keep);
+      keep.classList.add("is-current");
+    }
+    frame.classList.remove("is-moving");
+  }
+
   function hideLightbox() {
     if (!lightbox || lightbox.hidden) return false;
+    resetMotion();
     lightbox.hidden = true;
     lightboxIndex = -1;
     document.documentElement.classList.remove("has-lightbox");
