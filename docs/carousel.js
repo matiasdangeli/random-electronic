@@ -21,6 +21,7 @@
   // lee como un movimiento y no como un corte.
   var MAGNET = 2.6;
   var SEEK_DAMP = 0.055; // qué tan rápido acomoda al soltar o al tocar un punto
+  var VELOCITY_PROJECTION_MS = 180;
   var GAP = 36; // separación entre flyer centrado y el de al lado
   var PEEK = -55; // cuánto se esconde el flyer al llegar al borde
   var DEPTH = 1350; // debe coincidir con el perspective del CSS
@@ -355,6 +356,9 @@
         x: e.clientX,
         from: progress,
         moved: false,
+        velocity: 0,
+        lastX: e.clientX,
+        lastTime: performance.now(),
         // Si apretaron sobre el flyer del frente, un toque sin arrastre lo da
         // vuelta en vez de mover la fila.
         onCard: !!(e.target.closest && e.target.closest(".flyer3d.is-front")),
@@ -367,6 +371,14 @@
     stage.addEventListener("pointermove", function (e) {
       if (!drag) return;
       if (Math.abs(e.clientX - drag.x) > 6) drag.moved = true;
+      var now = performance.now();
+      var elapsed = now - drag.lastTime;
+      if (elapsed > 0) {
+        var sampleVelocity = (e.clientX - drag.lastX) / elapsed;
+        drag.velocity = drag.velocity * 0.65 + sampleVelocity * 0.35;
+      }
+      drag.lastX = e.clientX;
+      drag.lastTime = now;
       // Arrastrar hacia la izquierda adelanta, como empujar la fila con el dedo.
       progress = drag.from + (drag.x - e.clientX) / (cardW + GAP);
     });
@@ -374,6 +386,7 @@
     function endDrag(e) {
       if (!drag) return;
       var wasTapOnCard = !drag.moved && drag.onCard;
+      var releaseVelocity = drag.velocity;
       drag = null;
       stage.classList.remove("is-dragging");
       if (e && e.pointerId !== undefined && stage.hasPointerCapture(e.pointerId)) {
@@ -383,7 +396,15 @@
         toggleFlip(activeIndex);
         return;
       }
-      seekTo(((Math.round(progress) % count) + count) % count);
+      var nearest = Math.round(progress);
+      var velocityProjection = clamp(
+        -releaseVelocity * VELOCITY_PROJECTION_MS / (cardW + GAP),
+        -1,
+        1
+      );
+      var projected = progress + velocityProjection;
+      var target = clamp(Math.round(projected), nearest - 1, nearest + 1);
+      seekTo(((target % count) + count) % count);
     }
 
     stage.addEventListener("pointerup", endDrag);
