@@ -113,8 +113,8 @@ body.share-preview-open { overflow:hidden; }
 .share-preview-action:hover,.share-preview-action:focus-visible { filter:brightness(1.07); }
 .share-preview-action[aria-busy="true"],.share-preview-action:disabled { opacity:.58; cursor:wait; transform:none; }
 .share-preview-status { min-height:13px; margin:11px 0 0; color:#8e8a86; font-size:11px; letter-spacing:.09em; }
-.schedule-row { transition:background 220ms ease,padding 220ms ease; }
-.schedule-row.is-live { padding-right:12px; padding-left:12px; background:color-mix(in srgb,var(--accent) 9%,transparent); }
+.schedule-row { transition: background 180ms var(--ease-out); }
+.schedule-row.is-live { padding-right: 15px; padding-left: 15px; background:color-mix(in srgb,var(--accent) 9%,transparent); }
 .schedule-row.is-live strong::after { margin-left:10px; color:#ff453a; content:"●"; font-family:var(--font-mono); font-size:8px; vertical-align:middle; }
 @keyframes random-live-pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
 @media (max-width:600px){
