@@ -260,7 +260,7 @@
 
   function suppressDragClick() {
     suppressFrameClick = true;
-    window.setTimeout(function () { suppressFrameClick = false; }, 0);
+    window.setTimeout(function () { suppressFrameClick = false; }, 450);
   }
 
   function settleCancelledDrag(state) {
@@ -385,7 +385,7 @@
         return;
       }
 
-      var intent = state.dx || state.velocity;
+      var intent = Math.abs(state.dx) > threshold ? state.dx : state.velocity;
       var direction = intent < 0 ? 1 : -1;
       mountPreview(state, direction);
       animateNavigation(direction, state);
