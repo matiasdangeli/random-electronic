@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     />
-    <link rel="stylesheet" href="/styles.css?v=20260815-2" />
+    <link rel="stylesheet" href="/styles.css?v=20260820-2" />
     <title>Galería — RANDOM</title>
   </head>
   <body>
@@ -36,18 +36,45 @@
         </nav>
       </header>
 
-      <!-- La misma galería de la home. gallery.js la arma leyendo /fotos.json,
-           así que las fotos se cargan una sola vez y se muestran en los dos
-           lados sin duplicar nada. Acá la línea de aviso queda arriba de todo:
-           la galería es la página, no hay que bajar para encontrarla. -->
+      <!-- gallery.js arma la página leyendo /fotos.json. La línea de aviso queda
+           arriba de todo porque la galería es la página: no hay que bajar para
+           encontrarla. -->
       <div class="gallery-anchor" data-gallery-anchor aria-hidden="true"></div>
 
       <section class="gallery" id="fotos" data-gallery hidden>
         <div class="section-heading">
-          <p class="eyebrow" data-gallery-count>GALERÍA</p>
+          <p class="eyebrow">GALERÍA</p>
           <h2>LAS NOCHES</h2>
         </div>
-        <div data-gallery-body></div>
+        <div class="gallery-body" data-gallery-body></div>
+      </section>
+
+      <section class="sponsors" aria-labelledby="sponsors-title">
+        <div class="sponsors-inner">
+          <h2 class="eyebrow" id="sponsors-title">SPONSORS</h2>
+          <div class="sponsor-list">
+            <div class="sponsor-logo sponsor-logo--level">
+              <img
+                src="/assets/sponsor-level-andorra.png"
+                alt="Level Andorra"
+                width="1080"
+                height="309"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="sponsor-logo sponsor-logo--tresdinou">
+              <img
+                src="/assets/sponsor-tresdinou-comunicacio.png"
+                alt="Tresdinou Comunicació"
+                width="1078"
+                height="290"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </div>
       </section>
 
       <footer>
@@ -57,6 +84,6 @@
       </footer>
     </main>
 
-    <script src="/gallery.js?v=20260820-1" defer></script>
+    <script src="/gallery.js?v=20260820-3" defer></script>
   </body>
 </html>

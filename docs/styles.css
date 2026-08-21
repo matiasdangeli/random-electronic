@@ -110,8 +110,23 @@ svg {
 }
 
 .site-header nav a {
+  position: relative;
   opacity: 0.68;
   transition: opacity 180ms ease;
+}
+
+.site-header nav a[aria-current="page"] {
+  opacity: 1;
+}
+
+.site-header nav a[aria-current="page"]::after {
+  position: absolute;
+  right: 0.14em;
+  bottom: -9px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  content: "";
 }
 
 .site-header nav a:hover,
@@ -1233,6 +1248,65 @@ svg {
   opacity: 0.65;
 }
 
+/* --- Sponsors ------------------------------------------------------------
+   Una firma pequeña antes del pie: están presentes sin competir con RANDOM. */
+.sponsors {
+  padding: 34px clamp(22px, 4vw, 70px);
+  border-top: 1px solid var(--line);
+  background: #090909;
+}
+
+.sponsors-inner {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.sponsors .eyebrow {
+  margin: 0;
+  color: #625e59;
+  font-weight: 400;
+}
+
+.sponsor-list {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 3.5vw, 48px);
+}
+
+.sponsor-logo {
+  display: flex;
+  height: 38px;
+  align-items: center;
+}
+
+.sponsor-logo img {
+  width: auto;
+  max-width: none;
+  height: auto;
+  max-height: 100%;
+  opacity: 0.68;
+  object-fit: contain;
+  transition: opacity 180ms ease;
+}
+
+.sponsor-logo--level img {
+  width: 132px;
+}
+
+.sponsor-logo--tresdinou img {
+  width: 138px;
+}
+
+@media (hover: hover) {
+  .sponsor-logo img:hover {
+    opacity: 0.9;
+  }
+}
+
 footer {
   display: grid;
   min-height: 150px;
@@ -1268,8 +1342,8 @@ footer a {
 }
 
 @media (max-width: 900px) {
-  .site-header nav a:nth-child(2) {
-    display: none;
+  .site-header nav {
+    gap: clamp(10px, 2.4vw, 22px);
   }
 
   .hero-wordmark {
@@ -1310,13 +1384,29 @@ footer a {
 
 @media (max-width: 600px) {
   .site-header {
+    gap: 14px;
+    padding-right: 18px;
     padding-top: 14px;
+    padding-left: 18px;
     padding-bottom: 14px;
   }
 
   .brand img {
     width: 52px;
     height: 22px;
+  }
+
+  .site-header nav {
+    min-width: 0;
+    justify-content: flex-end;
+    gap: clamp(8px, 2.5vw, 12px);
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    white-space: nowrap;
+  }
+
+  .site-header nav a[aria-current="page"]::after {
+    bottom: -7px;
   }
 
   .hero-content {
@@ -1341,6 +1431,36 @@ footer a {
   .events {
     padding-top: 90px;
     padding-bottom: 70px;
+  }
+
+  .sponsors {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .sponsors-inner {
+    gap: 20px;
+  }
+
+  .sponsors .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+  }
+
+  .sponsor-list {
+    gap: 18px;
+  }
+
+  .sponsor-logo {
+    height: 30px;
+  }
+
+  .sponsor-logo--level img {
+    width: 102px;
+  }
+
+  .sponsor-logo--tresdinou img {
+    width: 108px;
   }
 
   .section-heading {
@@ -1406,6 +1526,38 @@ footer a {
 
   footer a {
     display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .sponsors-inner,
+  .sponsor-list {
+    gap: 12px;
+  }
+
+  .sponsor-logo--level img {
+    width: 88px;
+  }
+
+  .sponsor-logo--tresdinou img {
+    width: 94px;
+  }
+
+  .site-header {
+    gap: 9px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .brand img {
+    width: 48px;
+    height: 20px;
+  }
+
+  .site-header nav {
+    gap: 6px;
+    font-size: 9px;
+    letter-spacing: 0.055em;
   }
 }
 
