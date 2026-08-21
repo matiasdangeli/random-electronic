@@ -7,22 +7,15 @@
 | 003 | Hacer explícito el modo de movimiento reducido | MEDIUM | DONE |
 | 004 | Aligerar el hover del archivo y la galería | MEDIUM | DONE |
 | 005 | Evitar el relayout del set activo | MEDIUM | DONE |
+| 006 | Dar continuidad física al swipe del lightbox | HIGH | DONE |
 
 ## Recommended execution order
 
-1. **001** — establishes the shared `--ease-out` token and tightens the most
-   visible repeated state change.
-2. **003** — closes the accessibility gap without changing normal-motion output.
-3. **002** — improves the primary tactile interaction; verify on a real touch
-   device or pointer emulation.
-4. **004** — reduces frequent image-hover paint work after the shared token exists.
-5. **005** — removes layout animation from the live schedule.
-
-Plans 004 and 005 depend on the `--ease-out` token introduced by 001. Plan 002
-is behaviorally independent but should be feel-checked after 001 so the card and
-panel transitions are judged together.
+Plans 001–005 are complete. Execute **006** next; it is behaviorally independent
+and reuses the easing and reduced-motion conventions already introduced by the
+completed plans.
 
 ## Scope
 
-These plans cover the five selected corrective findings from the motion audit.
-They do not yet implement the additive lightbox and FAQ reveal opportunities.
+Plan 006 implements the previously deferred lightbox motion opportunity. The FAQ
+reveal opportunity remains intentionally out of scope.
