@@ -33,11 +33,16 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --font-sans: "Host Grotesk", "Host Grotesk Fallback", "Helvetica Neue", Arial, sans-serif;
 
-  /* El rol de etiqueta: mayúscula chica y espaciada. A 11px Host Grotesk queda
-     más flaca que la mono que reemplaza —su altura de x es menor— así que sube
-     un punto de tamaño y un peso. */
+  /* El rol de etiqueta: mayúscula chica y espaciada, a 12px porque a 11px Host
+     Grotesk queda más flaca que la mono que reemplaza.
+     500 es el peso de fondo: metadatos, horarios, pie, cosas que acompañan.
+     Las etiquetas que se tocan o que llevan el color de la fecha suben a 700
+     en su propia regla. Esos dos escalones son los que hacen que una tanda de
+     mayúsculas no se lea toda igual.
+     La familia es duplexada —el mismo texto ocupa lo mismo de 300 a 800— así
+     que cambiar de peso no corre nada de lugar. */
   --label-size: 12px;
-  --label-weight: 600;
+  --label-weight: 500;
   --ink: #070707;
   --paper: #f2ede6;
   --muted: #a6a09b;
@@ -169,8 +174,11 @@ svg {
   transition: opacity 180ms ease;
 }
 
+/* La página en la que estás, además de la línea abajo, va dos pesos más
+   arriba que el resto. No corre el menú: la familia es duplexada. */
 .site-header nav a[aria-current="page"] {
   opacity: 1;
+  font-weight: 700;
 }
 
 .site-header nav a[aria-current="page"]::after {
@@ -451,7 +459,9 @@ svg {
   align-items: center;
   cursor: pointer;
   font-size: clamp(18px, 2vw, 25px);
-  font-weight: 600;
+  /* La respuesta va en 400: tres escalones de diferencia hacen que se vea cuál
+     es la pregunta sin necesidad de leerla. */
+  font-weight: 700;
   letter-spacing: -0.02em;
   list-style: none;
   transition: color 220ms ease;
@@ -649,6 +659,7 @@ svg {
 
 .archive-item.is-selected .archive-label {
   color: var(--paper);
+  font-weight: 700;
 }
 
 .archive-item--more {
@@ -671,7 +682,7 @@ svg {
 
 .archive-more strong {
   font-size: clamp(11px, 0.9vw, 13px);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.45;
   letter-spacing: 0.1em;
 }
@@ -843,6 +854,13 @@ svg {
    sobra y los nombres van solos. */
 .schedule--lineup .schedule-row {
   grid-template-columns: 1fr;
+}
+
+/* La chapa de la edición lleva el color de la fecha y es lo primero que se
+   lee del panel: sube a 700 mientras el resto de las etiquetas se queda en
+   500. */
+.event-panel .eyebrow {
+  font-weight: 700;
 }
 
 .event-panel .eyebrow,
@@ -1198,6 +1216,11 @@ svg {
   max-width: 620px;
   color: #4d4a47;
   font-size: clamp(17px, 1.6vw, 22px);
+  /* El peso más liviano de la familia, justo abajo del titular más pesado.
+     Sobre el papel claro y a este tamaño se lee cómodo, y es el contraste de
+     grosor más grande del sitio. En las secciones oscuras el texto se queda en
+     400: sobre negro, el Light se afina de más. */
+  font-weight: 300;
   line-height: 1.6;
   text-wrap: pretty;
 }
@@ -1235,9 +1258,11 @@ svg {
 }
 
 /* Ocho años contados en negrita: sin la mono estos números pueden ir al peso
-   del resto de los titulares y la banda pasa a leerse como parte del cartel y
-   no como la salida de una terminal. El aire de la mono ya no hace falta, así
-   que el tracking se va casi a cero. */
+   de los titulares y la banda pasa a leerse como parte del cartel y no como la
+   salida de una terminal. El aire de la mono ya no hace falta, así que el
+   tracking se va casi a cero.
+   Los números van en 800 y los puntos que los separan en 400: son puntuación,
+   no dato. */
 .manifesto-counter strong,
 .manifesto-counter i {
   /* El tracking se agrega también después de la última letra y correría el
@@ -1245,7 +1270,7 @@ svg {
      la tinta. Van juntos en una variable para que no se separen nunca. */
   --tracking: 0.005em;
   font-size: 1em;
-  font-weight: 700;
+  font-weight: 800;
   font-style: normal;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -1255,13 +1280,14 @@ svg {
 
 .manifesto-counter i {
   color: #68625d;
+  font-weight: 400;
 }
 
 .manifesto-counter span {
   --tracking: 0.16em;
   margin-right: calc(-1 * var(--tracking));
   font-size: max(9px, 0.22em);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: var(--tracking);
   line-height: 1;
   color: #68625d;
@@ -1331,7 +1357,8 @@ svg {
   padding: 20px 0;
   border-bottom: 1px solid currentColor;
   font-size: var(--label-size);
-  font-weight: var(--label-weight);
+  /* Un escalón arriba de las etiquetas de contexto: acá se hace clic. */
+  font-weight: 600;
   letter-spacing: 0.12em;
   /* El href lleva el mail tal cual; la mayúscula es solo presentación. */
   text-transform: uppercase;
@@ -1364,7 +1391,6 @@ svg {
   margin: 0;
   /* El más apagado de todos: 3,1:1 era ilegible aun siendo una firma. */
   color: #7d7974;
-  font-weight: 500;
 }
 
 .sponsor-list {

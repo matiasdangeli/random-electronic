@@ -197,7 +197,7 @@
   color: var(--paper);
   cursor: pointer;
   font-size: var(--label-size);
-  font-weight: var(--label-weight);
+  font-weight: 600;
   letter-spacing: 0.14em;
   transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
 }

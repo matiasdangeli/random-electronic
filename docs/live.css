@@ -1,6 +1,6 @@
 /* Estado dinámico de la próxima edición: countdown, LIVE y calendario. */
 .event-status { width:min(760px,100%); margin:54px auto 0; text-align:center; }
-.event-status-label { margin:0 0 9px; color:color-mix(in srgb,var(--edition-accent) 72%,var(--paper)); font-size:var(--label-size); font-weight:var(--label-weight); letter-spacing:.18em; text-transform:uppercase; }
+.event-status-label { margin:0 0 9px; color:color-mix(in srgb,var(--edition-accent) 72%,var(--paper)); font-size:var(--label-size); font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
 /* La cuenta regresiva es el único número que se mueve solo en toda la página:
    sin la mono puede ir más grande y más pesada, y pasa de parecer la salida de
    una consola a ser lo que uno mira. No baila al cambiar de segundo porque los

@@ -97,7 +97,7 @@ img { display: block; max-width: 100%; height: auto; }
 .edition-entry {
   margin: 0;
   color: var(--muted);
-  font: 600 12px/1.5 var(--font-sans);
+  font: 500 12px/1.5 var(--font-sans);
   letter-spacing: 0.16em;
 }
 
@@ -121,11 +121,13 @@ img { display: block; max-width: 100%; height: auto; }
   letter-spacing: -0.03em;
 }
 
+/* En 400, como todo el texto corrido sobre fondo oscuro. */
 .edition-meta {
   max-width: 56ch;
   margin: 14px 0 0;
   color: var(--muted);
   font-size: 15px;
+  font-weight: 400;
   line-height: 1.65;
   text-wrap: pretty;
 }
@@ -135,7 +137,7 @@ img { display: block; max-width: 100%; height: auto; }
 .edition-schedule h2 {
   margin: 0 0 16px;
   color: var(--muted);
-  font: 600 12px/1 var(--font-sans);
+  font: 500 12px/1 var(--font-sans);
   letter-spacing: 0.16em;
 }
 
@@ -152,7 +154,7 @@ img { display: block; max-width: 100%; height: auto; }
 
 .edition-schedule li span {
   color: var(--muted);
-  font: 600 13px/1.4 var(--font-sans);
+  font: 500 13px/1.4 var(--font-sans);
   letter-spacing: 0.03em;
   font-variant-numeric: tabular-nums;
 }
@@ -188,7 +190,7 @@ footer {
   justify-content: space-between;
   border-top: 1px solid var(--line);
   color: #7d7873;
-  font: 600 11px/1 var(--font-sans);
+  font: 500 11px/1 var(--font-sans);
   letter-spacing: 0.12em;
 }
 

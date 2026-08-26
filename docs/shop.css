@@ -151,7 +151,7 @@
 .pay-value {
   flex: 1 1 auto;
   font-size: clamp(15px, 1.5vw, 18px);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
   overflow-wrap: anywhere;
 }
@@ -165,7 +165,7 @@
   color: #a6a09b;
   cursor: pointer;
   font-size: var(--label-size);
-  font-weight: var(--label-weight);
+  font-weight: 600;
   letter-spacing: 0.14em;
   transition: color 200ms ease, border-color 200ms ease, background 200ms ease;
 }
