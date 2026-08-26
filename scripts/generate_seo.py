@@ -275,8 +275,8 @@ def render_page(edition: Edition) -> str:
     <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
-    <link rel="stylesheet" href="/edition.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&display=swap" />
+    <link rel="stylesheet" href="/edition.css?v=20260826-2" />
     <script type="application/ld+json">{schema_json}</script>
     <title>{html.escape(page_title)}</title>
   </head>

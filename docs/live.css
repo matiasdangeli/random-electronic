@@ -1,10 +1,14 @@
 /* Estado dinámico de la próxima edición: countdown, LIVE y calendario. */
 .event-status { width:min(760px,100%); margin:54px auto 0; text-align:center; }
-.event-status-label { margin:0 0 9px; color:color-mix(in srgb,var(--edition-accent) 72%,var(--paper)); font-family:var(--font-mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; }
-.event-countdown { margin:0; color:var(--paper); font-family:var(--font-mono); font-size:clamp(18px,2.35vw,32px); font-weight:500; letter-spacing:.08em; text-transform:uppercase; font-variant-numeric:tabular-nums; text-shadow:0 0 24px var(--edition-glow); }
+.event-status-label { margin:0 0 9px; color:color-mix(in srgb,var(--edition-accent) 72%,var(--paper)); font-size:var(--label-size); font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+/* La cuenta regresiva es el único número que se mueve solo en toda la página:
+   sin la mono puede ir más grande y más pesada, y pasa de parecer la salida de
+   una consola a ser lo que uno mira. No baila al cambiar de segundo porque los
+   diez dígitos de Host Grotesk miden lo mismo. */
+.event-countdown { margin:0; color:var(--paper); font-size:clamp(20px,2.7vw,36px); font-weight:700; letter-spacing:.005em; text-transform:uppercase; font-variant-numeric:tabular-nums; text-shadow:0 0 24px var(--edition-glow); }
 .event-live { display:flex; align-items:center; justify-content:center; gap:14px; min-height:38px; }
-.event-live-badge { color:#ff453a; font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:.12em; white-space:nowrap; animation:random-live-pulse 1.6s ease-in-out infinite; }
-.event-live strong { color:var(--paper); font-size:clamp(18px,2.5vw,32px); letter-spacing:-.035em; }
+.event-live-badge { color:#ff453a; font-size:var(--label-size); font-weight:700; letter-spacing:.12em; white-space:nowrap; animation:random-live-pulse 1.6s ease-in-out infinite; }
+.event-live strong { color:var(--paper); font-size:clamp(19px,2.6vw,34px); font-weight:700; letter-spacing:-.03em; }
 .hero .event-status + .hero-actions { margin-top:44px; }
 .event-actions { flex-wrap:wrap; }
 .button--calendar { border-color:color-mix(in srgb,var(--accent) 48%,transparent); background:transparent; color:var(--accent); cursor:pointer; }
@@ -89,17 +93,16 @@ body.share-preview-open { overflow:hidden; }
   background:rgba(0,0,0,.68);
   color:#fff;
   content:"HQ";
-  font-family:var(--font-mono);
   font-size:11px;
   font-weight:700;
   letter-spacing:.12em;
   pointer-events:none;
 }
 .share-preview-copy { text-align:center; }
-.share-preview-kicker,.share-preview-face,.share-preview-status { font-family:var(--font-mono); text-transform:uppercase; }
-.share-preview-kicker { margin:0 0 6px; color:var(--share-accent,#efe8df); font-size:11px; font-weight:700; letter-spacing:.18em; }
-.share-preview-copy h2 { margin:0; color:#fff; font-size:clamp(28px,8vw,40px); letter-spacing:-.045em; line-height:1; }
-.share-preview-face { margin:8px 0 18px; color:#85817d; font-size:11px; letter-spacing:.14em; }
+.share-preview-kicker,.share-preview-face,.share-preview-status { font-weight:var(--label-weight); text-transform:uppercase; }
+.share-preview-kicker { margin:0 0 6px; color:var(--share-accent,#efe8df); font-size:var(--label-size); font-weight:700; letter-spacing:.18em; }
+.share-preview-copy h2 { margin:0; color:#fff; font-size:clamp(30px,8.4vw,42px); font-weight:800; letter-spacing:-.035em; line-height:1; }
+.share-preview-face { margin:8px 0 18px; color:#85817d; font-size:var(--label-size); letter-spacing:.14em; }
 .share-preview-action {
   width:100%;
   min-height:56px;
@@ -112,17 +115,17 @@ body.share-preview-open { overflow:hidden; }
 }
 .share-preview-action:hover,.share-preview-action:focus-visible { filter:brightness(1.07); }
 .share-preview-action[aria-busy="true"],.share-preview-action:disabled { opacity:.58; cursor:wait; transform:none; }
-.share-preview-status { min-height:13px; margin:11px 0 0; color:#8e8a86; font-size:11px; letter-spacing:.09em; }
+.share-preview-status { min-height:14px; margin:11px 0 0; color:#8e8a86; font-size:var(--label-size); letter-spacing:.09em; }
 .schedule-row { transition: background 180ms var(--ease-out); }
 .schedule-row.is-live { padding-right: 15px; padding-left: 15px; background:color-mix(in srgb,var(--accent) 9%,transparent); }
-.schedule-row.is-live strong::after { margin-left:10px; color:#ff453a; content:"●"; font-family:var(--font-mono); font-size:8px; vertical-align:middle; }
+.schedule-row.is-live strong::after { margin-left:10px; color:#ff453a; content:"●"; font-size:8px; vertical-align:middle; }
 @keyframes random-live-pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
 @media (max-width:600px){
   .event-status{margin-top:40px}
-  .event-status-label{font-size:11px}
-  .event-countdown{font-size:17px;letter-spacing:.045em}
+  .event-status-label{letter-spacing:.14em}
+  .event-countdown{font-size:21px;letter-spacing:0}
   .event-live{flex-direction:column;gap:5px}
-  .event-live strong{font-size:21px}
+  .event-live strong{font-size:22px}
   .event-actions{
     display:grid;
     grid-template-columns:1.16fr 0.84fr;
@@ -137,7 +140,7 @@ body.share-preview-open { overflow:hidden; }
        fila: se le recorta el aire lateral y algo de tracking para que no se
        parta. Abajo de 400px ya no hay ancho posible y baja a dos líneas. */
     padding:12px 6px;
-    letter-spacing:.1em;
+    letter-spacing:.07em;
     display:flex;
     align-items:center;
     justify-content:center;

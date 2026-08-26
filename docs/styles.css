@@ -1,9 +1,48 @@
-/* Tipografía. Sora es la gratuita más parecida a MADE Outer Sans: geométrica,
-   ancha y con las curvas medio cuadradas. */
+/* --- Tipografía -----------------------------------------------------------
+   Host Grotesk, una sola familia para todo el sitio. Es variable de 300 a 800,
+   así que los roles no se separan por familia sino por peso, caja y tracking:
+   800 para los titulares, 700 para nombres y números grandes, 600 para las
+   etiquetas en mayúscula, 400 para el texto corrido.
+
+   Antes había dos familias, y media página —botones, horarios, etiquetas,
+   cuenta regresiva— iba en una mono. La mono sirve para código y para datos
+   que se comparan en columna; acá estaba haciendo de disfraz técnico.
+
+   Lo único que la mono aportaba de verdad era que los números no bailaran al
+   cambiar, y eso se conserva: los diez dígitos de Host Grotesk miden todos
+   650/1000, en cualquier peso. La cuenta regresiva no se mueve.
+
+   De paso pesa menos: una variable de 20 kB en lugar de las seis fuentes
+   estáticas de antes (~56 kB solo en latino). */
+
+/* Mientras baja la webfont se usa la del sistema, ajustada para ocupar el
+   mismo lugar: cuando llega Host Grotesk no se mueve nada. Los números salen
+   de dividir sus métricas (x 496, asc 1015, desc 315 sobre 1000) por las de
+   Arial. Si no hay ninguna de estas instalada, el @font-face no resuelve y se
+   sigue de largo hasta el sans-serif del sistema. */
+@font-face {
+  font-family: "Host Grotesk Fallback";
+  src: local("Helvetica Neue"), local("Arial"), local("Liberation Sans"), local("Nimbus Sans");
+  size-adjust: 95.6%;
+  ascent-override: 106.2%;
+  descent-override: 33%;
+  line-gap-override: 0%;
+}
+
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --font-sans: Sora, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Host Grotesk", "Host Grotesk Fallback", "Helvetica Neue", Arial, sans-serif;
+
+  /* El rol de etiqueta: mayúscula chica y espaciada, a 12px porque a 11px Host
+     Grotesk queda más flaca que la mono que reemplaza.
+     500 es el peso de fondo: metadatos, horarios, pie, cosas que acompañan.
+     Las etiquetas que se tocan o que llevan el color de la fecha suben a 700
+     en su propia regla. Esos dos escalones son los que hacen que una tanda de
+     mayúsculas no se lea toda igual.
+     La familia es duplexada —el mismo texto ocupa lo mismo de 300 a 800— así
+     que cambiar de peso no corre nada de lugar. */
+  --label-size: 12px;
+  --label-weight: 500;
   --ink: #070707;
   --paper: #f2ede6;
   --muted: #a6a09b;
@@ -18,6 +57,17 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* Los controles del navegador no heredan la tipografía: si no se les dice,
+   los botones salen en la fuente del sistema. Antes cada uno la pedía por su
+   cuenta —y con una sola familia en todo el sitio, pedirla en cada regla es
+   repetirse— así que se resuelve de una vez acá. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 /* Varios bloques traen su propio display, así que sin esto el atributo hidden
@@ -58,6 +108,14 @@ body[data-edition-theme="69"] {
   --edition-glow: rgba(247, 201, 72, 0.2);
   --edition-glow-strong: rgba(217, 58, 38, 0.4);
   --edition-glow-warm: rgba(255, 176, 40, 0.36);
+}
+
+/* La selección también es tipografía: con el azul del navegador el texto se
+   vuelve ilegible sobre el negro. Toma el color de la edición que esté
+   puesta, así que cambia con la fiesta. */
+::selection {
+  background: var(--edition-accent);
+  color: #070707;
 }
 
 a {
@@ -105,8 +163,8 @@ svg {
 .site-header nav {
   display: flex;
   gap: clamp(18px, 3vw, 46px);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
 }
 
@@ -116,8 +174,11 @@ svg {
   transition: opacity 180ms ease;
 }
 
+/* La página en la que estás, además de la línea abajo, va dos pesos más
+   arriba que el resto. No corre el menú: la familia es duplexada. */
 .site-header nav a[aria-current="page"] {
   opacity: 1;
+  font-weight: 700;
 }
 
 .site-header nav a[aria-current="page"]::after {
@@ -192,9 +253,9 @@ svg {
 .hero-kicker,
 .eyebrow {
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -213,8 +274,14 @@ svg {
   margin: 0;
   font-size: clamp(38px, 6.3vw, 98px);
   font-weight: 800;
-  line-height: 0.91;
-  letter-spacing: -0.065em;
+  /* Host Grotesk tiene la caja alta más baja que la anterior (0,70 contra
+     0,73 em), así que a igual interlineado las líneas quedaban más separadas.
+     Los interlineados de los titulares bajan tres centésimas para conservar el
+     mismo aire entre renglones. */
+  line-height: 0.88;
+  /* Y es más angosta, así que el mismo tracking negativo la apretaba de más:
+     -0,065 en la anterior equivale a -0,05 acá. */
+  letter-spacing: -0.05em;
 }
 
 .hero-actions {
@@ -223,8 +290,8 @@ svg {
   justify-content: center;
   gap: 24px;
   margin-top: 56px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
   color: #928d87;
 }
@@ -242,10 +309,10 @@ svg {
   gap: 18px;
   padding: 0 20px;
   border: 1px solid currentColor;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: var(--label-size);
+  /* Un peso más que el resto de las etiquetas: es lo que se toca. */
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   transition: transform 180ms ease, background 180ms ease, color 180ms ease;
 }
@@ -304,10 +371,12 @@ svg {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.2em;
-  color: #716d68;
+  /* Sobre el negro del sitio, #716d68 daba 3,9:1 y no llegaba al mínimo
+     legible. Es el mismo gris apagado, un paso más claro. */
+  color: #7d7974;
 }
 
 .scroll-cue i {
@@ -336,20 +405,25 @@ svg {
 .section-heading h2 {
   margin: 0;
   font-size: clamp(52px, 8vw, 122px);
-  line-height: 0.82;
-  letter-spacing: -0.075em;
+  font-weight: 800;
+  line-height: 0.79;
+  /* Cuanto más grande el titular, más cerrado el tracking: a este tamaño el
+     ojo lee el bloque antes que las letras. */
+  letter-spacing: -0.055em;
   white-space: nowrap;
 }
 
 /* Cuando no hay ninguna fecha por delante. */
+/* Es una frase, no un titular: se le pone medida de lectura para que no cruce
+   los 1400px de punta a punta en una sola línea. */
 .agenda-empty {
-  max-width: 1400px;
+  max-width: 46ch;
   margin: 0 auto;
   padding: 40px 0 30px;
   border-top: 1px solid var(--line);
   color: #8d8883;
-  font-size: clamp(17px, 2vw, 24px);
-  line-height: 1.5;
+  font-size: clamp(18px, 2.1vw, 25px);
+  line-height: 1.55;
 }
 
 .agenda-empty a {
@@ -384,9 +458,11 @@ svg {
   padding: clamp(22px, 2.4vw, 30px) 54px clamp(22px, 2.4vw, 30px) 0;
   align-items: center;
   cursor: pointer;
-  font-size: clamp(17px, 1.9vw, 24px);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-size: clamp(18px, 2vw, 25px);
+  /* La respuesta va en 400: tres escalones de diferencia hacen que se vea cuál
+     es la pregunta sin necesidad de leerla. */
+  font-weight: 700;
+  letter-spacing: -0.02em;
   list-style: none;
   transition: color 220ms ease;
 }
@@ -400,9 +476,10 @@ svg {
   right: 0;
   content: "+";
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 26px;
-  font-weight: 400;
+  /* En el peso más liviano de la familia: una cruz de un trazo, que abre y
+     cierra sin pesar más que la pregunta. */
+  font-size: 30px;
+  font-weight: 300;
   line-height: 1;
   transition: transform 260ms cubic-bezier(0.22, 0.68, 0.28, 1), color 220ms ease;
 }
@@ -423,13 +500,18 @@ svg {
   }
 }
 
+/* La medida se acorta con la fuente nueva: el ancho del cero, que es lo que
+   mide "ch", es más chico en Host Grotesk, y con 62ch la línea se iba a más de
+   ochenta caracteres. Con 56ch queda en unos setenta, que es donde el ojo
+   vuelve al margen sin perderse de renglón. */
 .faq-item p {
-  max-width: 62ch;
+  max-width: 56ch;
   margin: 0;
   padding: 0 54px clamp(24px, 2.4vw, 32px) 0;
   color: #a6a09b;
-  font-size: clamp(15px, 1.5vw, 18px);
-  line-height: 1.55;
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.6;
+  text-wrap: pretty;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -463,9 +545,9 @@ svg {
   margin-bottom: clamp(26px, 2.4vw, 34px);
   color: #c8c3bd;
   font-size: clamp(14px, 1.25vw, 16px);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
 }
 
 .archive-grid {
@@ -566,14 +648,18 @@ svg {
   display: block;
   margin: 9px 0 0;
   transition: color 340ms ease;
-  color: #6d6965;
-  font-family: var(--font-mono);
+  /* 4,6:1 sobre el negro: el gris de antes se quedaba en 3,7:1. */
+  color: #7c7874;
+  /* Se queda en 11px: la ficha mide 112px en pantalla chica y "#67 · LA
+     GÓTICA" ya entra justo. */
   font-size: 11px;
-  letter-spacing: 0.14em;
+  font-weight: var(--label-weight);
+  letter-spacing: 0.1em;
 }
 
 .archive-item.is-selected .archive-label {
   color: var(--paper);
+  font-weight: 700;
 }
 
 .archive-item--more {
@@ -591,15 +677,14 @@ svg {
   border: 1px solid rgba(255, 255, 255, 0.32);
   background: rgba(255, 255, 255, 0.035);
   color: #d5d0c9;
-  font-family: var(--font-mono);
   transition: background 220ms ease, color 220ms ease, border-color 220ms ease;
 }
 
 .archive-more strong {
   font-size: clamp(11px, 0.9vw, 13px);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.45;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
 }
 
 .archive-more span {
@@ -728,7 +813,7 @@ svg {
   font-size: clamp(52px, 8vw, 112px);
   font-weight: 800;
   line-height: 0.8;
-  letter-spacing: -0.08em;
+  letter-spacing: -0.055em;
   mix-blend-mode: difference;
 }
 
@@ -771,6 +856,13 @@ svg {
   grid-template-columns: 1fr;
 }
 
+/* La chapa de la edición lleva el color de la fecha y es lo primero que se
+   lee del panel: sube a 700 mientras el resto de las etiquetas se queda en
+   500. */
+.event-panel .eyebrow {
+  font-weight: 700;
+}
+
 .event-panel .eyebrow,
 .event-meta,
 .event-place,
@@ -784,25 +876,26 @@ svg {
   margin: 18px 0 4px;
   color: var(--accent);
   font-size: clamp(48px, 6.5vw, 104px);
-  line-height: 0.88;
-  letter-spacing: -0.075em;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
 }
 
 .event-meta {
   margin: 14px 0 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.65;
+  opacity: 0.72;
 }
 
 /* La dirección es de cada edición, no del sitio: va acá adentro. */
 .event-place {
   margin: 0 0 38px;
-  font-size: 13px;
-  line-height: 1.5;
-  opacity: 0.5;
+  font-size: 14px;
+  line-height: 1.55;
+  opacity: 0.62;
 }
 
 .schedule {
@@ -818,17 +911,24 @@ svg {
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
+/* Los horarios ya no van en mono, pero siguen alineados en columna: los diez
+   dígitos de Host Grotesk miden lo mismo. El tracking baja porque una fuente
+   proporcional no necesita el aire que la mono traía puesto. */
 .schedule-row span {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  opacity: 0.6;
+  font-size: 13px;
+  font-weight: var(--label-weight);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
 }
 
+/* Los nombres son lo que se busca en esta lista: un peso por debajo del
+   titular de la fecha, bien por encima del horario. */
 .schedule-row strong {
   color: var(--accent);
   font-size: clamp(16px, 2vw, 27px);
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .event-actions {
@@ -843,8 +943,8 @@ svg {
 }
 
 .free-entry {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   opacity: 0.7;
@@ -1033,7 +1133,7 @@ svg {
   /* "+ AÑADIR AL CALENDARIO" es la etiqueta más larga y entra justa en media
      fila: se le recorta el aire lateral para que no se parta en dos. */
   padding: 12px 6px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.07em;
   text-align: center;
   line-height: 1.2;
 }
@@ -1107,15 +1207,22 @@ svg {
 .manifesto-copy h2 {
   margin: 0 0 30px;
   font-size: clamp(54px, 9.5vw, 150px);
-  line-height: 0.85;
-  letter-spacing: -0.08em;
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.06em;
 }
 
 .manifesto-copy > p:last-child {
   max-width: 620px;
   color: #4d4a47;
-  font-size: clamp(16px, 1.5vw, 21px);
+  font-size: clamp(17px, 1.6vw, 22px);
+  /* El peso más liviano de la familia, justo abajo del titular más pesado.
+     Sobre el papel claro y a este tamaño se lee cómodo, y es el contraste de
+     grosor más grande del sitio. En las secciones oscuras el texto se queda en
+     400: sobre negro, el Light se afina de más. */
+  font-weight: 300;
   line-height: 1.6;
+  text-wrap: pretty;
 }
 
 /* Un solo bloque, como el countdown del hero, pero cada número apoyado
@@ -1140,8 +1247,7 @@ svg {
   align-self: end;
   padding-top: clamp(26px, 3vw, 40px);
   border-top: 1px solid #c9c1b8;
-  font-family: var(--font-mono);
-  font-size: clamp(14px, 4.2vw, 52px);
+  font-size: clamp(15px, 4.4vw, 56px);
 }
 
 .manifesto-counter > div {
@@ -1151,27 +1257,38 @@ svg {
   gap: 0.29em;
 }
 
+/* Ocho años contados en negrita: sin la mono estos números pueden ir al peso
+   de los titulares y la banda pasa a leerse como parte del cartel y no como la
+   salida de una terminal. El aire de la mono ya no hace falta, así que el
+   tracking se va casi a cero.
+   Los números van en 800 y los puntos que los separan en 400: son puntuación,
+   no dato. */
 .manifesto-counter strong,
 .manifesto-counter i {
+  /* El tracking se agrega también después de la última letra y correría el
+     número respecto de su palabra: se descuenta para que el centro sea el de
+     la tinta. Van juntos en una variable para que no se separen nunca. */
+  --tracking: 0.005em;
   font-size: 1em;
-  font-weight: 500;
+  font-weight: 800;
   font-style: normal;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  letter-spacing: 0.08em;
-  /* El tracking deja aire suelto a la derecha y correría el número medio pixel
-     respecto de su palabra: se descuenta para que el centro sea el de la tinta. */
-  margin-right: -0.08em;
+  letter-spacing: var(--tracking);
+  margin-right: calc(-1 * var(--tracking));
 }
 
 .manifesto-counter i {
   color: #68625d;
+  font-weight: 400;
 }
 
 .manifesto-counter span {
-  margin-right: -0.16em;
-  font-size: max(8px, 0.23em);
-  letter-spacing: 0.16em;
+  --tracking: 0.16em;
+  margin-right: calc(-1 * var(--tracking));
+  font-size: max(9px, 0.22em);
+  font-weight: 500;
+  letter-spacing: var(--tracking);
   line-height: 1;
   color: #68625d;
   white-space: nowrap;
@@ -1186,8 +1303,7 @@ svg {
   }
 
   .manifesto-counter span {
-    margin-right: -0.1em;
-    letter-spacing: 0.1em;
+    --tracking: 0.1em;
   }
 }
 
@@ -1212,10 +1328,15 @@ svg {
   margin: 0;
   font-size: clamp(38px, 5.4vw, 84px);
   font-weight: 800;
+  /* Este se queda en 0.95: la cola del "¿" baja más en Host Grotesk que en la
+     anterior y con menos ya rozaba la línea de abajo. */
   /* 0.9 dejaba 0,19px entre la cola del "¿" y la línea siguiente: se tocaban.
      0.95 despeja sin perder el interlineado corto del resto de los titulares. */
   line-height: 0.95;
-  letter-spacing: -0.07em;
+  /* Un pelo más suelto que el resto de los titulares: es la frase de display
+     más larga del sitio y a igual tamaño una línea larga pide algo más de aire
+     entre letras que dos palabras sueltas. */
+  letter-spacing: -0.045em;
   /* Reparte las líneas parejas en vez de dejar una sola palabra colgando. */
   text-wrap: balance;
 }
@@ -1235,8 +1356,9 @@ svg {
   gap: 18px;
   padding: 20px 0;
   border-bottom: 1px solid currentColor;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  /* Un escalón arriba de las etiquetas de contexto: acá se hace clic. */
+  font-weight: 600;
   letter-spacing: 0.12em;
   /* El href lleva el mail tal cual; la mayúscula es solo presentación. */
   text-transform: uppercase;
@@ -1267,8 +1389,8 @@ svg {
 
 .sponsors .eyebrow {
   margin: 0;
-  color: #625e59;
-  font-weight: 400;
+  /* El más apagado de todos: 3,1:1 era ilegible aun siendo una firma. */
+  color: #7d7974;
 }
 
 .sponsor-list {
@@ -1314,8 +1436,8 @@ footer {
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   border-top: 1px solid var(--line);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.12em;
   color: #8f8983;
 }
@@ -1400,8 +1522,8 @@ footer a {
     min-width: 0;
     justify-content: flex-end;
     gap: clamp(8px, 2.5vw, 12px);
-    font-size: 10px;
-    letter-spacing: 0.09em;
+    font-size: 11px;
+    letter-spacing: 0.05em;
     white-space: nowrap;
   }
 
@@ -1420,7 +1542,8 @@ footer a {
   }
 
   .hero h1 {
-    font-size: 44px;
+    font-size: 46px;
+    letter-spacing: -0.04em;
   }
 
   .hero-actions {
@@ -1443,8 +1566,8 @@ footer a {
   }
 
   .sponsors .eyebrow {
-    font-size: 9px;
-    letter-spacing: 0.16em;
+    font-size: 11px;
+    letter-spacing: 0.14em;
   }
 
   .sponsor-list {
@@ -1468,7 +1591,8 @@ footer a {
   }
 
   .section-heading h2 {
-    font-size: clamp(38px, 11.8vw, 52px);
+    font-size: clamp(40px, 12.2vw, 54px);
+    letter-spacing: -0.04em;
   }
 
   .event {
@@ -1484,7 +1608,8 @@ footer a {
   }
 
   .event-panel h3 {
-    font-size: 52px;
+    font-size: 54px;
+    letter-spacing: -0.04em;
   }
 
   .schedule-row {
@@ -1504,7 +1629,8 @@ footer a {
   }
 
   .manifesto-copy h2 {
-    font-size: 56px;
+    font-size: 58px;
+    letter-spacing: -0.045em;
   }
 
   .social-cta {
@@ -1535,6 +1661,13 @@ footer a {
     gap: 12px;
   }
 
+  /* Es el único lugar donde la firma baja de 11px: con los dos logos al lado
+     y 320px de ancho no hay milímetros para más. */
+  .sponsors .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
   .sponsor-logo--level img {
     width: 88px;
   }
@@ -1556,8 +1689,8 @@ footer a {
 
   .site-header nav {
     gap: 6px;
-    font-size: 9px;
-    letter-spacing: 0.055em;
+    font-size: 10px;
+    letter-spacing: 0.02em;
   }
 }
 

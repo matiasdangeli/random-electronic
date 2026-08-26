@@ -27,15 +27,15 @@
    acá, así que va en la tipografía del texto y no en la de los datos. */
 .gallery-invite {
   color: #c8c3bd;
-  font-size: clamp(15px, 1.6vw, 19px);
+  font-size: clamp(16px, 1.7vw, 20px);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .gallery-credit {
-  color: #6d6965;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  color: #7c7874;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
 }
 
@@ -196,8 +196,8 @@
   background: none;
   color: var(--paper);
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: 600;
   letter-spacing: 0.14em;
   transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
 }
@@ -231,8 +231,8 @@
   justify-content: space-between;
   gap: 16px;
   color: #8d8883;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
 }
 
@@ -254,7 +254,7 @@
   }
 
   .gallery-credit {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .gallery-grid {
