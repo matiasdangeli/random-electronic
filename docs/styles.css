@@ -412,18 +412,29 @@ svg {
   white-space: nowrap;
 }
 
-/* A la anchura de un portátil la etiqueta dinámica de la agenda puede decir
-   dos meses. En paralelo al titular empuja "LO QUE VIENE" hacia el centro y
-   los dos bloques parecen desconectados; apilados comparten un mismo eje. */
+/* En la agenda el contexto acompaña al titular desde abajo, sobre su mismo
+   eje. En escritorio se conserva la columna central que tenía el título. */
+.events > .section-heading {
+  align-items: start;
+  row-gap: 16px;
+}
+
+.events > .section-heading h2,
+.events > .section-heading .eyebrow {
+  grid-column: 2;
+}
+
+/* En portátil y móvil los dos textos siguen apilados, ahora desde el margen
+   de la sección para aprovechar mejor el ancho disponible. */
 @media (max-width: 1100px) {
   .events > .section-heading {
     grid-template-columns: 1fr;
-    align-items: start;
     gap: 14px;
   }
 
-  .events > .section-heading h2 {
-    order: 0;
+  .events > .section-heading h2,
+  .events > .section-heading .eyebrow {
+    grid-column: 1;
   }
 }
 
