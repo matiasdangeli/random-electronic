@@ -56,23 +56,23 @@
 
 .shop-name {
   margin: 0;
-  font-size: clamp(16px, 1.5vw, 20px);
+  font-size: clamp(17px, 1.6vw, 21px);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .shop-detail {
   margin: 0;
   color: #a6a09b;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
 }
 
 .shop-sizes {
   margin: 0;
-  color: #6d6965;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  color: #7c7874;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
 }
 
@@ -88,10 +88,14 @@
   gap: 12px;
 }
 
+/* El precio es un número que se compara entre tarjetas: peso alto y tracking
+   casi nulo para que se lea de un vistazo. Los dígitos ya vienen del mismo
+   ancho en Host Grotesk, así que la columna queda pareja igual. */
 .shop-price {
-  font-family: var(--font-mono);
-  font-size: 16px;
-  letter-spacing: 0.04em;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Misma altura que el botón de comprar, así el precio queda a la misma línea
@@ -100,9 +104,9 @@
   display: inline-flex;
   min-height: 42px;
   align-items: center;
-  color: #6d6965;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  color: #7c7874;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
 }
 
@@ -137,8 +141,8 @@
 
 .pay-name {
   min-width: 8ch;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
   color: #a6a09b;
 }
@@ -146,9 +150,9 @@
 /* El alias es lo que hay que copiar, así que es lo que más se ve. */
 .pay-value {
   flex: 1 1 auto;
-  font-family: var(--font-mono);
-  font-size: clamp(14px, 1.4vw, 17px);
-  letter-spacing: 0.02em;
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
   overflow-wrap: anywhere;
 }
 
@@ -160,8 +164,8 @@
   background: none;
   color: #a6a09b;
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
   transition: color 200ms ease, border-color 200ms ease, background 200ms ease;
 }
@@ -189,18 +193,19 @@
 }
 
 .pay-note {
-  max-width: 62ch;
+  max-width: 56ch;
   margin: 18px 0 0;
   color: #8d8883;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
 }
 
 .pay-link {
   border-bottom: 1px solid currentColor;
   color: var(--paper);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
   letter-spacing: 0.14em;
   white-space: nowrap;
 }

@@ -16,7 +16,7 @@
   "use strict";
 
   var MANIFEST_URL = "tienda.json?v=20260818-1";
-  var STYLES_URL = "shop.css?v=20260818-1";
+  var STYLES_URL = "shop.css?v=20260826-1";
   var NEAR = "800px";
 
   var section = document.querySelector("[data-shop]");
