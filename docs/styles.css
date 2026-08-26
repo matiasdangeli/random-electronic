@@ -1,8 +1,7 @@
 /* --- Tipografía -----------------------------------------------------------
-   Host Grotesk, una sola familia para todo el sitio. Es variable de 300 a 800,
-   así que los roles no se separan por familia sino por peso, caja y tracking:
-   800 para los titulares, 700 para nombres y números grandes, 600 para las
-   etiquetas en mayúscula, 400 para el texto corrido.
+   Host Grotesk resuelve la interfaz y el texto corrido. Sora queda reservada
+   para los grandes títulos de sección: su Q es más limpia a escala display y
+   conserva la voz visual que ya tenía RANDOM antes del cambio de familia.
 
    Antes había dos familias, y media página —botones, horarios, etiquetas,
    cuenta regresiva— iba en una mono. La mono sirve para código y para datos
@@ -32,6 +31,7 @@
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --font-sans: "Host Grotesk", "Host Grotesk Fallback", "Helvetica Neue", Arial, sans-serif;
+  --font-display: Sora, "Helvetica Neue", Arial, sans-serif;
 
   /* El rol de etiqueta: mayúscula chica y espaciada, a 12px porque a 11px Host
      Grotesk queda más flaca que la mono que reemplaza.
@@ -404,13 +404,27 @@ svg {
 
 .section-heading h2 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: clamp(52px, 8vw, 122px);
   font-weight: 800;
-  line-height: 0.79;
-  /* Cuanto más grande el titular, más cerrado el tracking: a este tamaño el
-     ojo lee el bloque antes que las letras. */
-  letter-spacing: -0.055em;
+  line-height: 0.82;
+  letter-spacing: -0.075em;
   white-space: nowrap;
+}
+
+/* A la anchura de un portátil la etiqueta dinámica de la agenda puede decir
+   dos meses. En paralelo al titular empuja "LO QUE VIENE" hacia el centro y
+   los dos bloques parecen desconectados; apilados comparten un mismo eje. */
+@media (max-width: 1100px) {
+  .events > .section-heading {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+
+  .events > .section-heading h2 {
+    order: 0;
+  }
 }
 
 /* Cuando no hay ninguna fecha por delante. */
