@@ -1024,10 +1024,23 @@ svg {
   transition: background 180ms ease, color 180ms ease;
 }
 
+/* Un DJ solo no necesita etiqueta: queda el logo en un cuadrado chico, contra
+   el borde de la fila. */
+.dj-follow--solo {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
 .dj-follow svg {
   width: 14px;
   height: 14px;
   flex: none;
+}
+
+.dj-follow--solo svg {
+  width: 17px;
+  height: 17px;
 }
 
 /* Se llena con el color de la fecha, igual que el botón de cómo llegar. */
@@ -1756,6 +1769,13 @@ footer a {
     grid-row: 3;
     grid-column: 1;
     margin-top: 8px;
+  }
+
+  /* El logo es lo único que se toca en la fila: 44 px de lado, que es lo que
+     necesita un pulgar. */
+  .dj-follow--solo {
+    width: 44px;
+    min-height: 44px;
   }
 
   .event-actions {

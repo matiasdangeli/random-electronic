@@ -1,4 +1,4 @@
-/* El Instagram de cada DJ: suma un botón SEGUIR al lado de su nombre.
+/* El Instagram de cada DJ: suma su logo al final de la fila del line-up.
 
    La lista de abajo es lo único que se toca. El resto del sitio no cambia:
    los set times se siguen escribiendo igual en docs/index.html y las páginas
@@ -40,17 +40,18 @@
 
   function boton(nombre, usuario, etiqueta) {
     var enlace = document.createElement("a");
-    enlace.className = "dj-follow";
+    enlace.className = etiqueta ? "dj-follow" : "dj-follow dj-follow--solo";
     enlace.href = "https://www.instagram.com/" + usuario + "/";
     enlace.target = "_blank";
     enlace.rel = "noreferrer";
-    /* "SEGUIR" solo se entiende con el nombre al lado: quien navega de a
-       botones necesita leer a quién sigue. */
+    /* El logo solo no dice a quién sigue: el nombre va igual para quien navega
+       con lector de pantalla, y como globito al pasar el mouse. */
     enlace.setAttribute("aria-label", "Seguir a " + nombre + " en Instagram");
-    /* El nombre visible va como texto suelto para no meter un <span> en la
-       fila: agenda.js lee el primer <span> de cada fila como el horario. */
+    enlace.title = nombre;
     enlace.innerHTML = GLYPH;
-    enlace.appendChild(document.createTextNode(etiqueta));
+    /* Cuando hay etiqueta va como texto suelto, sin <span>: agenda.js lee el
+       primer <span> de cada fila como el horario. */
+    if (etiqueta) enlace.appendChild(document.createTextNode(etiqueta));
     return enlace;
   }
 
@@ -64,9 +65,10 @@
     var caja = document.createElement("div");
     caja.className = "dj-follows";
     djs.forEach(function (dj) {
-      /* Con un DJ solo alcanza "SEGUIR", que el nombre está pegado al botón.
-         En un B2B hay dos botones seguidos y cada uno lleva su nombre. */
-      caja.appendChild(boton(dj, INDICE[clave(dj)], partes.length > 1 ? dj : "SEGUIR"));
+      /* Con un DJ solo alcanza el logo: el nombre está justo al lado. En un
+         B2B hay dos logos iguales seguidos, así que ahí cada uno lleva su
+         nombre adentro para saber cuál es cuál. */
+      caja.appendChild(boton(dj, INDICE[clave(dj)], partes.length > 1 ? dj : ""));
     });
     /* Dos nombres largos y dos botones no entran en la misma línea: la marca
        la lee el CSS para bajarlos abajo del nombre en vez de apretarlo. */

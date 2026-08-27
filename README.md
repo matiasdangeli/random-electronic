@@ -43,10 +43,10 @@ var CUENTAS = {
 };
 ```
 
-Con eso alcanza. Cada nombre del line-up que esté en la lista suma un botón `SEGUIR` al costado, tanto en la home como en la página de la fecha. Se carga una vez por DJ y vale para todas las fechas en las que toque.
+Con eso alcanza. Cada nombre del line-up que esté en la lista suma el logo de Instagram al final de la fila, tanto en la home como en la página de la fecha. Se carga una vez por DJ y vale para todas las fechas en las que toque.
 
 - **Un DJ que no está en la lista** queda como texto suelto, sin botón. Nunca se inventa una cuenta.
-- **Los B2B** se parten solos: `IVU SARACHU B2B FABRITZIO` busca las dos cuentas y pone un botón por cada una, con el nombre adentro. Esos dos bajan abajo del nombre, que al costado le comen la columna.
+- **Los B2B** se parten solos: `IVU SARACHU B2B FABRITZIO` busca las dos cuentas y pone un botón por cada una. Ahí el logo va acompañado del nombre —dos logos iguales seguidos no se distinguen— y los dos bajan abajo del nombre, que al costado le comen la columna.
 - **Acentos y apóstrofes** no cambian nada: `MATÍAS D’ANGELI` y `MATIAS D'ANGELI` encuentran la misma cuenta.
 - **En el celular**, cuando la fecha tiene cuentas cargadas, el horario pasa abajo del nombre para dejarle lugar al botón al costado del DJ.
 

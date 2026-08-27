@@ -184,7 +184,12 @@ img { display: block; max-width: 100%; height: auto; }
   transition: background 180ms ease, color 180ms ease;
 }
 
+/* Un DJ solo no necesita etiqueta: queda el logo en un cuadrado chico. */
+.dj-follow--solo { width: 40px; padding: 0; justify-content: center; }
+
 .dj-follow svg { width: 14px; height: 14px; flex: none; }
+
+.dj-follow--solo svg { width: 17px; height: 17px; }
 
 .dj-follow:hover,
 .dj-follow:focus-visible { background: var(--paper); color: var(--ink); }
@@ -244,6 +249,8 @@ footer img { width: 52px; height: 52px; object-fit: contain; }
   .edition-schedule ol.has-follow li span { grid-row: 2; grid-column: 1; }
   .edition-schedule ol.has-follow li .dj-follows { grid-row: 1 / span 2; grid-column: 2; }
   .edition-schedule ol.has-follow li.has-b2b .dj-follows { grid-row: 3; grid-column: 1; margin-top: 8px; }
+  /* 44 px de lado: lo que necesita un pulgar. */
+  .dj-follow--solo { width: 44px; min-height: 44px; }
   .edition-actions { display: grid; grid-template-columns: 1fr; }
   .edition-button { width: 100%; }
 }
