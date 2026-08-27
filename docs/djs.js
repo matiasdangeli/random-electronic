@@ -22,7 +22,7 @@
     "FRANK MORAIS": "frankmoraismusic",
     "IVU SARACHU": "ivusarachu",
     "LUCKEN": "lucken_dj",
-    "MRNO": "marianomontnau",
+    "MRNO": "marianopontnau",
     "NICO RETAMAL": "ffuegoo_music",
     "SOFIA ROSSI": "pepitaroxx"
   };
