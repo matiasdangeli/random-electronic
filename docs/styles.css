@@ -97,7 +97,7 @@ body[data-edition-theme="67"] {
 }
 
 body[data-edition-theme="68"] {
-  --edition-accent: #ff754f;
+  --edition-accent: #8172ec;
   --edition-glow: rgba(255, 116, 69, 0.2);
   --edition-glow-strong: rgba(255, 79, 94, 0.38);
   --edition-glow-warm: rgba(255, 178, 57, 0.34);
@@ -778,7 +778,7 @@ svg {
 }
 
 .event--plasma {
-  --accent: #ffac16;
+  --accent: #8172ec;
   background:
     radial-gradient(circle at 92% 12%, rgba(255, 0, 105, 0.22), transparent 33%),
     #14065d;
@@ -870,7 +870,7 @@ svg {
 }
 
 .event-panel--plasma {
-  --accent: #ffac16;
+  --accent: #8172ec;
 }
 
 .event-panel--xray {
