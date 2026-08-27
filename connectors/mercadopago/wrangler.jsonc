@@ -1,0 +1,23 @@
+// Worker del conector de Mercado Pago para ChatGPT.
+//
+// Va aparte del Worker que sirve randomelectronic.com a propósito: son dos
+// cosas con vidas distintas. El sitio publica archivos estáticos y no guarda
+// ninguna clave; este Worker guarda el access token de Mercado Pago y habla
+// con su API. Mezclarlos significaría que cada cambio de la web toca el lugar
+// donde vive la plata.
+//
+// Los secretos NO se escriben acá. Van con `wrangler secret put` (ver README).
+{
+  "name": "random-mercadopago",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-15",
+  "observability": { "enabled": true },
+  "vars": {
+    // Las devoluciones mueven plata de verdad, así que vienen apagadas.
+    // Se prenden a mano poniendo "true" acá y volviendo a deployar.
+    "PERMITIR_DEVOLUCIONES": "false",
+    // Cuando se pide un rango de fechas como "2026-08-01", este es el huso con
+    // el que se interpreta. -03:00 es Argentina.
+    "ZONA_HORARIA": "-03:00"
+  }
+}

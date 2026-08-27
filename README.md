@@ -276,6 +276,18 @@ Los medios de transferencia van en `pago.medios`, y `pago.nota` con
 Como el pago se termina afuera, el talle o cualquier otra aclaración conviene
 pedirlos en la nota, para que el comprador los mande al escribir.
 
+## Conector de Mercado Pago
+
+Los links de pago de la tienda salen del panel del proveedor, pero no hace
+falta entrar a buscarlos a mano: en `connectors/mercadopago/` vive un servidor
+MCP que conecta la cuenta de Mercado Pago con ChatGPT. Desde ahí se consultan
+los pagos que entraron, se resume un período y se generan los links de cobro
+que después se pegan en `docs/tienda.json`.
+
+Es un Worker aparte del que publica el sitio, con su propio deploy y sus
+propios secretos: la web nunca toca una credencial. Las instrucciones para
+configurarlo están en `connectors/mercadopago/README.md`.
+
 ## Casos especiales
 
 - **Evento de día:** usá el horario real en `.event-meta` y, si hace falta otro corte, `data-until`.
