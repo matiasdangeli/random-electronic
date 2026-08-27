@@ -974,17 +974,31 @@ svg {
   letter-spacing: -0.025em;
 }
 
-/* El botón de Instagram va al final de la fila, contra el borde: la lista se
-   sigue leyendo por nombre y el botón queda como algo que se toca, no como
-   parte del line-up. La columna extra la abre docs/djs.js poniendo has-follow
-   en la lista, así una fecha sin cuentas cargadas queda exactamente igual que
-   antes. */
+/* Con cuentas cargadas la fila se rearma: el nombre arriba, el horario abajo
+   —sigue siendo el dato que acompaña— y el logo al fondo a la derecha, contra
+   el borde. Así la lista se lee por nombre y el logo queda como lo único que
+   se toca. La marca has-follow la pone docs/djs.js, así que una fecha sin
+   cuentas cargadas queda exactamente igual que antes, con el horario en su
+   columna de siempre. */
 .schedule.has-follow .schedule-row {
-  grid-template-columns: 145px 1fr auto;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 18px;
 }
 
-.schedule--lineup.has-follow .schedule-row {
-  grid-template-columns: 1fr auto;
+.schedule.has-follow .schedule-row strong {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.schedule.has-follow .schedule-row span {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+.schedule.has-follow .dj-follows {
+  grid-row: 1 / span 2;
+  grid-column: 2;
 }
 
 .dj-follows {
@@ -994,19 +1008,14 @@ svg {
   gap: 8px;
 }
 
-/* Un B2B son dos nombres largos y dos botones: al costado se comen la columna
-   del line-up y parten el nombre en tres líneas, así que bajan a su propio
-   renglón, alineados con el nombre. */
-.schedule-row.has-b2b .dj-follows {
-  grid-row: 2;
-  grid-column: 2;
-  justify-content: flex-start;
-  margin-top: 10px;
-}
-
-/* Sin horarios por DJ el nombre arranca en la primera columna. */
-.schedule--lineup.has-follow .schedule-row.has-b2b .dj-follows {
+/* El B2B es el único que lleva el nombre adentro del botón: dos logos iguales
+   seguidos no dicen cuál es cuál. Con el nombre puesto ya no entran al lado
+   del DJ, así que bajan a su propio renglón. */
+.schedule.has-follow .schedule-row.has-b2b .dj-follows {
+  grid-row: 3;
   grid-column: 1;
+  justify-content: flex-start;
+  margin-top: 8px;
 }
 
 .dj-follow {
@@ -1028,6 +1037,7 @@ svg {
    el borde de la fila. */
 .dj-follow--solo {
   width: 40px;
+  min-height: 40px;
   padding: 0;
   justify-content: center;
 }
@@ -1290,10 +1300,6 @@ svg {
   .carousel-panels .schedule-row {
     grid-template-columns: 120px 1fr;
     padding: 13px 0;
-  }
-
-  .carousel-panels .schedule.has-follow .schedule-row {
-    grid-template-columns: 120px 1fr auto;
   }
 
   .carousel-panels .schedule-row strong {
@@ -1738,37 +1744,6 @@ footer a {
   .schedule-row {
     grid-template-columns: 112px 1fr;
     gap: 10px;
-  }
-
-  /* En el celular no entran hora, nombre y botón en la misma línea. El
-     horario pasa abajo del nombre —sigue siendo el dato que acompaña— y así
-     el botón entra al lado del DJ en vez de comerse un renglón entero. */
-  .schedule.has-follow .schedule-row {
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 3px 14px;
-  }
-
-  .schedule.has-follow .schedule-row strong {
-    grid-row: 1;
-    grid-column: 1;
-  }
-
-  .schedule.has-follow .schedule-row span {
-    grid-row: 2;
-    grid-column: 1;
-  }
-
-  .schedule.has-follow .dj-follows {
-    grid-row: 1 / span 2;
-    grid-column: 2;
-  }
-
-  /* En el B2B los botones ya venían abajo del nombre: acá abajo del horario. */
-  .schedule.has-follow .schedule-row.has-b2b .dj-follows {
-    grid-row: 3;
-    grid-column: 1;
-    margin-top: 8px;
   }
 
   /* El logo es lo único que se toca en la fila: 44 px de lado, que es lo que

@@ -48,7 +48,7 @@ Con eso alcanza. Cada nombre del line-up que esté en la lista suma el logo de I
 - **Un DJ que no está en la lista** queda como texto suelto, sin botón. Nunca se inventa una cuenta.
 - **Los B2B** se parten solos: `IVU SARACHU B2B FABRITZIO` busca las dos cuentas y pone un botón por cada una. Ahí el logo va acompañado del nombre —dos logos iguales seguidos no se distinguen— y los dos bajan abajo del nombre, que al costado le comen la columna.
 - **Acentos y apóstrofes** no cambian nada: `MATÍAS D’ANGELI` y `MATIAS D'ANGELI` encuentran la misma cuenta.
-- **En el celular**, cuando la fecha tiene cuentas cargadas, el horario pasa abajo del nombre para dejarle lugar al botón al costado del DJ.
+- **La fila se rearma** cuando la fecha tiene cuentas cargadas: el nombre arriba, el horario abajo y el logo al fondo a la derecha, igual en el celular que en la computadora. Sin cuentas, el horario se queda en su columna de siempre.
 
 ## La fecha del flyer y la madrugada
 
