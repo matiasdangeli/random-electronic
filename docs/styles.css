@@ -97,7 +97,7 @@ body[data-edition-theme="67"] {
 }
 
 body[data-edition-theme="68"] {
-  --edition-accent: #ff754f;
+  --edition-accent: #8172ec;
   --edition-glow: rgba(255, 116, 69, 0.2);
   --edition-glow-strong: rgba(255, 79, 94, 0.38);
   --edition-glow-warm: rgba(255, 178, 57, 0.34);
@@ -111,7 +111,7 @@ body[data-edition-theme="69"] {
 }
 
 body[data-edition-theme="70"] {
-  --edition-accent: #e9a21f;
+  --edition-accent: #e35b46;
   --edition-glow: rgba(233, 162, 31, 0.22);
   --edition-glow-strong: rgba(211, 58, 34, 0.4);
   --edition-glow-warm: rgba(25, 116, 145, 0.32);
@@ -778,7 +778,7 @@ svg {
 }
 
 .event--plasma {
-  --accent: #ffac16;
+  --accent: #8172ec;
   background:
     radial-gradient(circle at 92% 12%, rgba(255, 0, 105, 0.22), transparent 33%),
     #14065d;
@@ -813,7 +813,7 @@ svg {
 }
 
 .event--basquiat {
-  --accent: #e9a21f;
+  --accent: #e35b46;
   background:
     radial-gradient(circle at 82% 10%, rgba(211, 58, 34, 0.28), transparent 38%),
     radial-gradient(circle at 12% 85%, rgba(25, 116, 145, 0.2), transparent 35%),
@@ -870,7 +870,7 @@ svg {
 }
 
 .event-panel--plasma {
-  --accent: #ffac16;
+  --accent: #8172ec;
 }
 
 .event-panel--xray {
@@ -890,7 +890,7 @@ svg {
 }
 
 .event-panel--basquiat {
-  --accent: #e9a21f;
+  --accent: #e35b46;
 }
 
 /* Cuando el flyer trae line-up pero no horarios por DJ, la columna de la hora
