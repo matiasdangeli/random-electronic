@@ -519,7 +519,7 @@
     var place = ev.panel && ev.panel.querySelector(".event-place");
     return {
       location:place ? place.textContent.trim() : "",
-      description:ev.sets.length ? "Set times: " + ev.sets.map(function (set) { return set.artist; }).join(" · ") : "RANDOM Electronic Experience",
+      description:ev.sets.length ? "LINE UP: " + ev.sets.map(function (set) { return set.artist; }).join(" · ") : "RANDOM Electronic Experience",
       summary:"RANDOM #" + ev.edition + (ev.name ? " · " + ev.name : "")
     };
   }
