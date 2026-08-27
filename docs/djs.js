@@ -6,8 +6,8 @@
    queda como texto suelto, sin botón — nunca se inventa una cuenta.
 
    Los B2B se parten solos: "IVU SARACHU B2B FABRITZIO" busca las dos cuentas
-   por separado y pone un botón por cada una, con el nombre adentro para que
-   se sepa a quién sigue cada uno. */
+   por separado y pone un logo por cada una, uno abajo del otro y en el mismo
+   orden en que están escritos los nombres. */
 (function () {
   "use strict";
 
@@ -47,9 +47,9 @@
     INDICE[clave(nombre)] = CUENTAS[nombre];
   });
 
-  function boton(nombre, usuario, etiqueta) {
+  function boton(nombre, usuario) {
     var enlace = document.createElement("a");
-    enlace.className = etiqueta ? "dj-follow" : "dj-follow dj-follow--solo";
+    enlace.className = "dj-follow";
     enlace.href = "https://www.instagram.com/" + usuario + "/";
     enlace.target = "_blank";
     enlace.rel = "noreferrer";
@@ -58,9 +58,6 @@
     enlace.setAttribute("aria-label", "Seguir a " + nombre + " en Instagram");
     enlace.title = nombre;
     enlace.innerHTML = GLYPH;
-    /* Cuando hay etiqueta va como texto suelto, sin <span>: agenda.js lee el
-       primer <span> de cada fila como el horario. */
-    if (etiqueta) enlace.appendChild(document.createTextNode(etiqueta));
     return enlace;
   }
 
@@ -74,14 +71,8 @@
     var caja = document.createElement("div");
     caja.className = "dj-follows";
     djs.forEach(function (dj) {
-      /* Con un DJ solo alcanza el logo: el nombre está justo al lado. En un
-         B2B hay dos logos iguales seguidos, así que ahí cada uno lleva su
-         nombre adentro para saber cuál es cuál. */
-      caja.appendChild(boton(dj, INDICE[clave(dj)], partes.length > 1 ? dj : ""));
+      caja.appendChild(boton(dj, INDICE[clave(dj)]));
     });
-    /* Dos nombres largos y dos botones no entran en la misma línea: la marca
-       la lee el CSS para bajarlos abajo del nombre en vez de apretarlo. */
-    if (partes.length > 1) fila.classList.add("has-b2b");
     fila.appendChild(caja);
     return true;
   }
