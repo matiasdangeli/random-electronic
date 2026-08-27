@@ -1001,63 +1001,45 @@ svg {
   grid-column: 2;
 }
 
+/* Un B2B trae un logo por DJ, uno abajo del otro y en el mismo orden en que
+   están escritos los nombres: el primero arriba. */
 .dj-follows {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-end;
+  /* El aire de la caja invisible no tiene que empujar la fila: los márgenes
+     negativos lo descuentan y el alto lo sigue marcando el texto. */
+  margin-block: -12px;
 }
 
-/* El B2B es el único que lleva el nombre adentro del botón: dos logos iguales
-   seguidos no dicen cuál es cuál. Con el nombre puesto ya no entran al lado
-   del DJ, así que bajan a su propio renglón. */
-.schedule.has-follow .schedule-row.has-b2b .dj-follows {
-  grid-row: 3;
-  grid-column: 1;
-  justify-content: flex-start;
-  margin-top: 8px;
-}
-
+/* Sin recuadro: es el logo y nada más. La caja de 44 px existe igual, invisible,
+   porque es lo que necesita un pulgar para acertarle; el margen negativo la
+   descuenta para que el logo quede a ras del borde de la fila y no la caja. */
 .dj-follow {
   display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  gap: 8px;
-  padding: 0 13px;
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: background 180ms ease, color 180ms ease;
-}
-
-/* Un DJ solo no necesita etiqueta: queda el logo en un cuadrado chico, contra
-   el borde de la fila. */
-.dj-follow--solo {
   width: 40px;
-  min-height: 40px;
-  padding: 0;
+  height: 40px;
+  align-items: center;
   justify-content: center;
+  margin-right: -8px;
+  color: var(--accent);
+  transition: opacity 180ms ease;
 }
 
 .dj-follow svg {
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   flex: none;
 }
 
-.dj-follow--solo svg {
-  width: 17px;
-  height: 17px;
+.dj-follow:hover {
+  opacity: 0.6;
 }
 
-/* Se llena con el color de la fecha, igual que el botón de cómo llegar. */
-.dj-follow:hover,
+/* Sin borde propio, el foco del teclado necesita el suyo o no se ve dónde está. */
 .dj-follow:focus-visible {
-  background: var(--accent);
-  color: var(--ink);
+  outline: 2px solid var(--accent);
+  outline-offset: -6px;
 }
 
 .event-actions {
@@ -1744,13 +1726,6 @@ footer a {
   .schedule-row {
     grid-template-columns: 112px 1fr;
     gap: 10px;
-  }
-
-  /* El logo es lo único que se toca en la fila: 44 px de lado, que es lo que
-     necesita un pulgar. */
-  .dj-follow--solo {
-    width: 44px;
-    min-height: 44px;
   }
 
   .event-actions {
