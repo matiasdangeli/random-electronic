@@ -974,6 +974,92 @@ svg {
   letter-spacing: -0.025em;
 }
 
+/* Con cuentas cargadas la fila se rearma: el nombre arriba, el horario abajo
+   —sigue siendo el dato que acompaña— y el logo al fondo a la derecha, contra
+   el borde. Así la lista se lee por nombre y el logo queda como lo único que
+   se toca. La marca has-follow la pone docs/djs.js, así que una fecha sin
+   cuentas cargadas queda exactamente igual que antes, con el horario en su
+   columna de siempre. */
+.schedule.has-follow .schedule-row {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 18px;
+}
+
+.schedule.has-follow .schedule-row strong {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.schedule.has-follow .schedule-row span {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+.schedule.has-follow .dj-follows {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+.dj-follows {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* El B2B es el único que lleva el nombre adentro del botón: dos logos iguales
+   seguidos no dicen cuál es cuál. Con el nombre puesto ya no entran al lado
+   del DJ, así que bajan a su propio renglón. */
+.schedule.has-follow .schedule-row.has-b2b .dj-follows {
+  grid-row: 3;
+  grid-column: 1;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+.dj-follow {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 13px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+/* Un DJ solo no necesita etiqueta: queda el logo en un cuadrado chico, contra
+   el borde de la fila. */
+.dj-follow--solo {
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+.dj-follow svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.dj-follow--solo svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Se llena con el color de la fecha, igual que el botón de cómo llegar. */
+.dj-follow:hover,
+.dj-follow:focus-visible {
+  background: var(--accent);
+  color: var(--ink);
+}
+
 .event-actions {
   display: flex;
   align-items: center;
@@ -1658,6 +1744,13 @@ footer a {
   .schedule-row {
     grid-template-columns: 112px 1fr;
     gap: 10px;
+  }
+
+  /* El logo es lo único que se toca en la fila: 44 px de lado, que es lo que
+     necesita un pulgar. */
+  .dj-follow--solo {
+    width: 44px;
+    min-height: 44px;
   }
 
   .event-actions {
