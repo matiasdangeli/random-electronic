@@ -15,7 +15,16 @@
      Los acentos y los apóstrofes no importan para la búsqueda, así que
      "MATÍAS D’ANGELI" y "MATIAS D'ANGELI" encuentran la misma cuenta. */
   var CUENTAS = {
-    // "MRNO": "usuario",
+    "ASTOR LEVINSTEIN": "astorlevinstein",
+    "AYRTON GALFRÉ": "ayrtongalfre",
+    "DYLOM": "dylan.pebacini",
+    "FABRITZIO": "fabritziodj",
+    "FRANK MORAIS": "frankmoraismusic",
+    "IVU SARACHU": "ivusarachu",
+    "LUCKEN": "lucken_dj",
+    "MRNO": "marianomontnau",
+    "NICO RETAMAL": "ffuegoo_music",
+    "SOFIA ROSSI": "pepitaroxx"
   };
 
   var GLYPH =
