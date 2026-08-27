@@ -32,6 +32,24 @@ Los archivos HD no se descargan al navegar: se preparan recién cuando la person
 
 El título de la fecha y el `PRÓXIMA FECHA · RANDOM #NN` los escribe `docs/agenda.js`, así que no hay que mantenerlos a mano.
 
+## El Instagram de cada DJ
+
+Las cuentas viven en `docs/djs.js`, en la lista `CUENTAS`: el nombre tal cual figura en el line-up y el usuario de Instagram, sin arroba.
+
+```js
+var CUENTAS = {
+  "AYRTON GALFRÉ": "ayrton.galfre",
+  "SOFIA ROSSI": "sofia.rossi"
+};
+```
+
+Con eso alcanza. Cada nombre del line-up que esté en la lista suma un botón `SEGUIR` al costado, tanto en la home como en la página de la fecha. Se carga una vez por DJ y vale para todas las fechas en las que toque.
+
+- **Un DJ que no está en la lista** queda como texto suelto, sin botón. Nunca se inventa una cuenta.
+- **Los B2B** se parten solos: `IVU SARACHU B2B FABRITZIO` busca las dos cuentas y pone un botón por cada una, con el nombre adentro. Esos dos bajan abajo del nombre, que al costado le comen la columna.
+- **Acentos y apóstrofes** no cambian nada: `MATÍAS D’ANGELI` y `MATIAS D'ANGELI` encuentran la misma cuenta.
+- **En el celular**, cuando la fecha tiene cuentas cargadas, el horario pasa abajo del nombre para dejarle lugar al botón al costado del DJ.
+
 ## La fecha del flyer y la madrugada
 
 En RANDOM, `data-date` representa **la noche que anuncia el flyer**, no necesariamente el día civil de cada hora.
@@ -307,6 +325,7 @@ mira ahí.
 - `index.html`: contenido de las ediciones.
 - `styles.css`: estilos generales.
 - `agenda.js`: agenda, countdown, LIVE, zonas horarias y calendario.
+- `djs.js`: el Instagram de cada DJ y los botones de seguir del line-up.
 - `live.css`: estilos del countdown, LIVE y botón de calendario.
 - `carousel.js`: carrusel 3D.
 - `edition.css`: estilos de las páginas temporales de fechas activas.
