@@ -592,6 +592,19 @@ svg {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  /* El destello azul al apoyar el dedo. Android pinta un recuadro celeste
+     (#33b5e5 al 40%) sobre cualquier cosa que se pueda tocar y lo desvanece
+     al soltar: en un botón chico pasa por respuesta al toque, pero acá cubre
+     el flyer entero junto con su etiqueta. La respuesta ya la da la ficha
+     —sube a color pleno y apaga a las de al lado—, así que el recuadro solo
+     tapa. Hereda, y con eso alcanza para toda la tira. */
+  -webkit-tap-highlight-color: transparent;
+  /* La tira también se arrastra, y arrastrar sobre texto lo selecciona: con
+     el mouse las etiquetas iban quedando pintadas atrás del cursor. Con el
+     dedo, dejarlo apoyado sobre la etiqueta puede empezar lo mismo, y
+     ::selection se pinta con el acento de la edición. */
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .archive-grid::-webkit-scrollbar {
@@ -1102,7 +1115,15 @@ svg {
   perspective: 1350px;
   cursor: grab;
   touch-action: pan-y;
+  /* Sin el prefijo, Safari anterior a la 17 ignora user-select y deja
+     seleccionar mientras se arrastra la fila. */
+  -webkit-user-select: none;
   user-select: none;
+  /* El mismo recuadro celeste del archivo, y acá sale más grande todavía: el
+     que escucha el toque es el escenario, no el flyer, así que el destello
+     tiene el ancho de la pantalla. Tocar el flyer del frente ya lo da vuelta,
+     que es toda la respuesta que hace falta. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Difuminado a los costados para que el corte no se note. */
