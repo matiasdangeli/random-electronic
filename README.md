@@ -343,6 +343,37 @@ Solo las fechas actuales o próximas tienen una URL `/ediciones/NN-nombre/` para
 
 Después de modificar una edición en `docs/index.html`, ejecutar `python3 scripts/generate_seo.py` antes de guardar los cambios.
 
+## Panel de administración
+
+`randomelectronic.com/admin` es un panel privado, separado del sitio público:
+fechas, DJs, cachets pagados, y la caja de RANDOM (ver `RANDOM-Operations-OS-v1`
+para el porqué). Solo entra quien tenga un passkey registrado — Face ID, Touch
+ID o Windows Hello. No hay usuario ni contraseña.
+
+El código vive en `src/` (`worker.js`, `db.js`, `webauthn.js`, `admin-ui.js`) y
+lo sirve el mismo Worker `random-electronic`, agregado como `main` en
+`wrangler.jsonc`. Cualquier ruta que no empiece con `/admin` sigue yendo a
+`docs/` sin cambios.
+
+Los datos viven en D1 (`random-electronic-admin`, binding `DB`), separados del
+repositorio porque el repositorio es público. Antes de poder usar el panel:
+
+```bash
+# una sola vez, crea el esquema
+wrangler d1 execute random-electronic-admin --remote --file=migrations/0001_init.sql
+
+# una sola vez, la clave para registrar el primer Face ID / Touch ID
+wrangler secret put BOOTSTRAP_SECRET
+
+# publica el Worker con el panel adentro
+npx wrangler deploy
+```
+
+La primera vez que se abre `/admin` sin ningún dispositivo registrado, pide
+esa clave de arranque y registra el primer passkey. De ahí en adelante, la
+clave ya no hace falta: desde el panel logueado se pueden agregar más
+dispositivos (por ejemplo, sumar la Mac después del iPhone).
+
 ## Desarrollo
 
 ```bash

@@ -8,12 +8,29 @@
 // "not_found_handling": "404-page" es lo que faltaba. Sin eso, una dirección
 // que no existe devuelve un 404 vacío y docs/404.html no se muestra nunca,
 // aunque esté publicada.
+//
+// "main" agrega el panel privado en /admin (fechas, DJs, pagos, caja),
+// protegido con passkey (Face ID / Touch ID). Cualquier otra ruta sigue
+// sirviéndose desde docs/ sin cambios, vía el binding ASSETS. El panel
+// necesita, además, el secret BOOTSTRAP_SECRET:
+//   wrangler secret put BOOTSTRAP_SECRET
+// y aplicar el esquema una sola vez:
+//   wrangler d1 execute random-electronic-admin --remote --file=migrations/0001_init.sql
 {
   "name": "random-electronic",
   "compatibility_date": "2026-08-15",
+  "main": "src/worker.js",
   "assets": {
     "directory": "./docs/",
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "random-electronic-admin",
+      "database_id": "076b166a-287a-4d57-b286-d5d9fc72f86a"
+    }
+  ]
 }
