@@ -299,7 +299,7 @@ def render_page(edition: Edition) -> str:
 {entry_html}      </article>
     </main>
     <footer><img src="/assets/random-symbol.png" alt="" width="1500" height="1500" /><span>RANDOM · DESDE 2018</span></footer>
-    <script src="/djs.js?v=20260827-3" defer></script>
+    <script src="/djs.js?v=20260902-1" defer></script>
   </body>
 </html>
 '''

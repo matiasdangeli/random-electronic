@@ -17,11 +17,15 @@
   var CUENTAS = {
     "ASTOR LEVINSTEIN": "astorlevinstein",
     "AYRTON GALFRÉ": "ayrtongalfre",
+    "CHAKI PEPA": "chakipepa",
     "DYLOM": "dylan.pebacini",
     "FABRITZIO": "fabritziodj",
     "FRANK MORAIS": "frankmoraismusic",
+    "GASTOFF": "gaston.gastoff",
     "IVU SARACHU": "ivusarachu",
+    "KNART": "knart.fd",
     "LUCKEN": "lucken_dj",
+    "LUCAS ILLARRA": "lucas.illarra",
     "MRNO": "marianopontnau",
     "NICO RETAMAL": "ffuegoo_music",
     "SOFIA ROSSI": "pepitaroxx"
