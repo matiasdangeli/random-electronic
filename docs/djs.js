@@ -27,7 +27,7 @@
     "LUCKEN": "lucken_dj",
     "LUCAS ILLARRA": "lucas.illarra",
     "MRNO": "marianopontnau",
-    "NICO RETAMAL": "ffuegoo_music",
+    "FFUEGOO": "ffuegoo_music",
     "SOFIA ROSSI": "pepitaroxx"
   };
 
